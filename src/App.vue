@@ -15,17 +15,8 @@
   --sidebar-width: 256px;
   --sidebar-mobile-width: 0px;
   --content-padding: 1rem;
-}
-
-@media (max-width: 1024px) {
-  :root {
-    --sidebar-width: 0px;
-    --content-padding: 0.75rem;
-  }
-}
-
-/* Aplicar los colores base a todo el documento según el tema */
-:root {
+  
+  /* Colores principales del sistema */
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f8fafc;
   --color-bg-tertiary: #f1f5f9;
@@ -36,11 +27,28 @@
   --color-blue-primary: #146EBE;
   --color-blue-secondary: #4c9ed9;
   --color-blue-light: #c8e4ff;
-  --color-navbar-bg: #F9F9F9;
+  
+  /* Colores de la interfaz de Windows 10 */
+  --color-win10-taskbar: #C3D3DC;
+  
+  /* Colores específicos para elementos de UI */
+  --color-navbar-bg: var(--color-win10-taskbar);
   --color-navbar-text: #1f2937;
   --color-sidebar-bg: #F9F9F9;
+  --color-table-bg: #F2F7FA;
+  --color-table-header: #E6EEF3;
+  --color-table-hover: #E6EEF3;
+  --color-table-alt-row: #EDF3F8;
 }
 
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 0px;
+    --content-padding: 0.75rem;
+  }
+}
+
+/* Modo oscuro */
 .dark {
   --color-bg-primary: #2A3942;
   --color-bg-secondary: #2A3942;
@@ -52,9 +60,16 @@
   --color-blue-primary: #4c9ed9;
   --color-blue-secondary: #146EBE;
   --color-blue-light: #c8e4ff;
-  --color-navbar-bg: #111b21;
+  
+  /* Colores para navegación en modo oscuro */
+  --color-win10-taskbar-dark: #111b21;
+  --color-navbar-bg: var(--color-win10-taskbar-dark);
   --color-navbar-text: #ffffff;
   --color-sidebar-bg: #111b21;
+  --color-table-bg: #202C33;
+  --color-table-header: #111b21;
+  --color-table-hover: #1A242C;
+  --color-table-alt-row: #202C33;
 }
 
 /* Aplicar colores base a los elementos */

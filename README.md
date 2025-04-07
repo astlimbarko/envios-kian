@@ -14,6 +14,7 @@ Envíos KIAN es una plataforma moderna para la gestión de remesas internacional
 - Métodos de pago y recepción variados (QR, transferencia bancaria)
 - Diseño responsivo con soporte para modo oscuro
 - Interfaz moderna con animaciones y transiciones fluidas
+- Indicadores de tipos de cambio en tiempo real con efectos visuales elegantes
 
 ## 🔧 Tecnologías Utilizadas
 
@@ -35,7 +36,7 @@ Envíos KIAN es una plataforma moderna para la gestión de remesas internacional
 
 1. Clonar el repositorio:
    ```bash
-   git clone [URL_DEL_REPOSITORIO]
+   git clone https://github.com/kian-envios/ENVIOS-KIAN.git
    cd ENVIOS-KIAN
    ```
 
@@ -65,7 +66,13 @@ ENVIOS-KIAN/
 │   │   ├── cliente/         # Módulo de cliente
 │   │   │   ├── P_cliente.vue       # Componente principal de cliente
 │   │   │   ├── MisRemesas.vue      # Gestión de remesas
-│   │   │   ├── MisRemesasModales.vue # Modales para remesas
+│   │   │   ├── ModalRemesas.vue    # Contenedor de modales para remesas
+│   │   │   ├── ModalPasosEnvios.vue # Componente base para modales con pasos
+│   │   │   ├── MisRemesasTerminos.vue # Modal de términos y condiciones
+│   │   │   ├── MisRemesasNueva.vue # Modal de nueva remesa
+│   │   │   ├── MisRemesasPago.vue  # Modal de método de pago
+│   │   │   ├── MisRemesasResumen.vue # Modal de resumen
+│   │   │   ├── MisRemesasDetalle.vue # Modal de detalles
 │   │   │   ├── Beneficiarios.vue   # Gestión de beneficiarios
 │   │   │   ├── navbar.vue          # Barra de navegación
 │   │   │   └── Sidebar.vue         # Barra lateral
@@ -122,26 +129,53 @@ const layoutStore = useLayoutStore()
 // Acciones: layoutStore.toggleSidebar(), layoutStore.closeSidebar()
 ```
 
-#### Modales
+#### Sistema de Modales
 
-El sistema utiliza modales para procesos como la creación de remesas, con un sistema de pasos:
+El sistema utiliza un enfoque modular para los modales:
 
-1. Aceptación de términos
-2. Ingreso de datos
-3. Confirmación y resumen
+1. **ModalRemesas.vue**: Componente contenedor que gestiona todos los modales relacionados con remesas
+2. **ModalPasosEnvios.vue**: Componente base para modales de múltiples pasos con indicadores de progreso
+3. **Modales específicos**: Componentes individuales para cada funcionalidad (términos, nueva remesa, pago, etc.)
 
-Ejemplo en MisRemesas.vue:
+Ejemplo de uso de modales:
 
 ```javascript
+// En MisRemesas.vue
+import ModalRemesas from './ModalRemesas.vue'
+
 // Estados para los modales
 const showTermsModal = ref(false)
 const showRemittanceModal = ref(false)
 const currentStep = ref(1)
 
-// Métodos de control
-const openNewRemittance = () => {
-  showTermsModal.value = true
-}
+// Y en el template
+<ModalRemesas 
+  :showTermsModal="showTermsModal"
+  :showRemittanceModal="showRemittanceModal" 
+  :currentStep="currentStep"
+  @acceptTerms="acceptTerms"
+  @goToPayment="goToPayment"
+/>
+```
+
+#### Tarjetas de Tipos de Cambio
+
+El componente MisRemesas.vue incluye tarjetas interactivas que muestran los tipos de cambio:
+
+- **Tipo estándar**: Muestra la tasa de cambio normal
+- **Tipo especial**: Muestra una tasa preferencial con efectos visuales mejorados
+
+Las tarjetas implementan:
+- Efectos de vidrio (glassmorphism) con transparencias
+- Animaciones sutiles en hover
+- Efecto de brillo que recorre las tarjetas
+- Diseño totalmente adaptable a modo claro y oscuro
+
+```javascript
+// Datos para los tipos de cambio
+const cambioEstandar = ref(1.08)
+const cambioEspecial = ref(1.09)
+const fechaActualizacion = ref(new Date().toLocaleDateString('es-ES'))
 ```
 
 ### Convenciones de Código
@@ -177,6 +211,16 @@ El manejo responsivo se gestiona mediante:
 4. Especifica montos y métodos de envío
 5. Confirma los detalles de la transacción
 6. Recibe una notificación de éxito
+
+## 🔄 Actualizaciones Recientes
+
+### Versión 2.0.1 (Mayo 2023)
+
+- **Refactorización del sistema de modales**: Separación de cada modal en componentes individuales con responsabilidad única
+- **Nuevo componente ModalRemesas.vue**: Centraliza y gestiona todos los modales relacionados con remesas
+- **Mejora visual con tarjetas de tipos de cambio**: Implementación de tarjetas interactivas con efectos de glassmorphism
+- **Optimización de espaciado**: Ajustes en los márgenes y padding para una experiencia más compacta y elegante
+- **Mejoras de rendimiento**: Reducción del tamaño de componentes y mejor distribución de responsabilidades
 
 ## 🤝 Contribución
 

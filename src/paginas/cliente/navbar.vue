@@ -28,7 +28,7 @@ const toggleSidebar = () => {
 </script>
 
 <template>
-  <nav class="bg-[var(--color-navbar-bg)] dark:bg-[#111b21] text-gray-800 dark:text-white shadow-md py-3 w-full fixed top-0 left-0 right-0 z-50 transition-colors">
+  <nav class="bg-[var(--color-navbar-bg)] dark:bg-[#111b21] text-gray-800 dark:text-white shadow-md py-3 w-full fixed top-0 left-0 right-0 z-50 transition-all duration-300">
     <div class="container mx-auto px-4 flex items-center justify-between">
       <!-- Logo y Nombre -->
       <div class="flex items-center">
@@ -64,12 +64,22 @@ const toggleSidebar = () => {
 
         <!-- Usuario y Menú Desplegable -->
         <div class="relative ml-3 sm:ml-6 group">
-          <i class="fas fa-user-circle text-xl sm:text-2xl text-gray-800 dark:text-white hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer icon-neon"></i>
+          <div class="flex items-center cursor-pointer">
+            <div class="hidden sm:block mr-2">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Erik Johansson</span>
+            </div>
+            <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-[#3073ad] to-[#4c9ed9] text-white">
+              <i class="fas fa-user text-sm"></i>
+            </div>
+          </div>
           
           <!-- Menú desplegable -->
           <div 
             class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
           >
+            <div class="block px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700 sm:hidden">
+              <div class="font-medium text-gray-800 dark:text-gray-200">Erik Johansson</div>
+            </div>
             <a 
               @click="goToAccount" 
               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer"

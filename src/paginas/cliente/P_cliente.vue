@@ -36,7 +36,7 @@ onUnmounted(() => {
     <!-- Contenido principal -->
     <main 
       :class="[
-        'pt-8 px-4 pb-8 transition-all duration-300 overflow-x-hidden app-content', 
+        'pt-2 px-4 pb-8 transition-all duration-300 overflow-x-hidden app-content', 
         { 'with-sidebar': !layoutStore.isMobile }
       ]">
       <div class="container mx-auto">

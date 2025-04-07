@@ -125,16 +125,28 @@ const sidebarClasses = computed(() => {
 <style scoped>
 /* Aplicar estilos de sidebar */
 .sidebar {
-  background-color: var(--color-sidebar-bg);
+  background-color: var(--color-win10-taskbar);
   color: var(--color-text-primary);
+  transition: background-color 0.3s ease;
+}
+
+/* Modo oscuro */
+.dark .sidebar {
+  background-color: var(--color-sidebar-bg);
+}
+
+/* Mejora para elementos hover en modo claro */
+.sidebar .router-link-active:not(.active-menu-item):hover,
+.sidebar a:hover {
+  background-color: rgba(255, 255, 255, 0.7) !important;
 }
 
 /* Estilo mejorado para elementos activos */
 .active-menu-item {
-  background-color: rgba(59, 130, 246, 0.08) !important;
+  background-color: rgba(255, 255, 255, 0.85) !important;
   color: #146EBE !important;
   font-weight: 500;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.08);
   position: relative;
 }
 
