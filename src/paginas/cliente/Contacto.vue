@@ -127,36 +127,7 @@
       </div>
     </div>
     
-    <!-- FAQ Rápidas -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-      <div class="p-5 border-b border-gray-200">
-        <h2 class="text-xl font-semibold text-gray-800">Preguntas Frecuentes</h2>
-      </div>
-      
-      <div class="p-5 divide-y divide-gray-200">
-        <div class="py-3">
-          <h3 class="font-medium text-gray-800 mb-2">¿Cuál es el tiempo de procesamiento habitual para una remesa?</h3>
-          <p class="text-gray-600">Para envíos a Bolivia, el tiempo de procesamiento habitual es de 10 a 20 minutos en horario laboral.</p>
-        </div>
-        
-        <div class="py-3">
-          <h3 class="font-medium text-gray-800 mb-2">¿Cómo puedo rastrear mi remesa?</h3>
-          <p class="text-gray-600">Puedes consultar el estado de tu remesa en tiempo real desde la sección "Mis Remesas" de tu panel de cliente.</p>
-        </div>
-        
-        <div class="py-3">
-          <h3 class="font-medium text-gray-800 mb-2">¿Qué documentos necesita el beneficiario para cobrar la remesa?</h3>
-          <p class="text-gray-600">El beneficiario necesitará presentar su documento de identidad y el código QR asignado a la transacción.</p>
-        </div>
-        
-        <div class="py-3 flex justify-center">
-          <a href="/cliente/soporte" class="text-[#146EBE] hover:text-blue-700 inline-flex items-center">
-            Ver todas las preguntas frecuentes
-            <i class="fas fa-chevron-right ml-2 text-xs"></i>
-          </a>
-        </div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

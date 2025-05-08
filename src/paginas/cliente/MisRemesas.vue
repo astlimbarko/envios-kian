@@ -2,11 +2,13 @@
 import { ref } from 'vue'
 import BotonGradiente from '../../components/BotonGradiente.vue'
 import ModalRemesas from './ModalRemesas.vue'
+import MisRemesasPago from './MisRemesasPago.vue'
 
 // Estados para los modales
 const showTermsModal = ref(false)
 const showRemittanceModal = ref(false)
 const showDetailModal = ref(false)
+const showPagoModal = ref(false)
 const currentStep = ref(1)
 const showSuccessNotification = ref(false)
 
@@ -135,6 +137,16 @@ const copyRemittance = (remittance) => {
   // En una aplicación real, copiaríamos los datos al formulario
   alert('Datos copiados para crear nueva remesa')
 }
+
+// Función para abrir modal de pago
+const openPagoModal = () => {
+  showPagoModal.value = true
+}
+
+// Función para cerrar modal de pago
+const closePagoModal = () => {
+  showPagoModal.value = false
+}
 </script>
 
 <template>
@@ -236,18 +248,23 @@ const copyRemittance = (remittance) => {
     </div>
     
     <!-- Encabezado de la página -->
-    <div class="flex flex-wrap justify-between items-center mb-3">
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2 sm:mb-0">Mis Remesas</h1>
-      <BotonGradiente 
-        @click="openNewRemittance"
-        texto="Nueva Remesa"
-        icono="plus"
-        :anchoCompleto="false"
-        tamanio="md"
-        tipo="primario"
-      />
-    </div>
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-3">
+  <!-- Título alineado a la izquierda -->
+  <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2 sm:mb-0">Mis Remesas</h1>
+  
+  <!-- Botón alineado a la derecha -->
+  <BotonGradiente 
+    @click="openNewRemittance"
+    texto="Nueva Remesa"
+    icono="plus"
+    :anchoCompleto="false"
+    tamanio="md"
+    tipo="primario"
+  />
+</div>
 
+
+<!-- AREA A MODIFICAR -->
     <!-- Tabla de remesas recientes -->
     <div class="bg-[var(--color-table-bg)] dark:bg-gray-900 rounded-lg shadow-md border border-white dark:border-gray-700 transition-all duration-300">
       <div class="p-4 border-b border-white dark:border-gray-700 bg-[var(--color-table-header)] dark:bg-gray-800 flex flex-wrap justify-between items-center rounded-t-lg">
@@ -296,7 +313,7 @@ const copyRemittance = (remittance) => {
                         María González
                       </div>
                       <div class="text-xs text-gray-500 dark:text-gray-400">
-                        Bogotá, Colombia
+                        Santa Cruz, Bolivia
                       </div>
                     </div>
                   </div>
@@ -308,17 +325,13 @@ const copyRemittance = (remittance) => {
                   5,865 BOB
                 </td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <div class="flex flex-col items-center space-y-2">
-                    <label class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
-                      <i class="fas fa-upload mr-1"></i>
-                      Subir
-                      <input type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
-                    </label>
-                    <span v-if="uploadedFileName" class="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                      <i class="fas fa-file-image mr-1 text-blue-500"></i>
-                      {{ uploadedFileName }}
-                    </span>
-                  </div>
+                  <button 
+                    @click="showPagoModal = true"
+                    class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
+                  >
+                    <i class="fas fa-credit-card mr-1.5"></i>
+                    Método de Pago
+                  </button>
                 </td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                   <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100">
@@ -333,45 +346,7 @@ const copyRemittance = (remittance) => {
               </tr>
 
               <!-- Ejemplo 2 -->
-              <tr class="transition-colors bg-[var(--color-table-alt-row)] dark:bg-gray-800/40 hover:bg-[var(--color-table-hover)] dark:hover:bg-gray-800">
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                  18/04/2023
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center justify-center">
-                    <div class="ml-0">
-                      <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
-                        Juan Martínez
-                      </div>
-                      <div class="text-xs text-gray-500 dark:text-gray-400">
-                        Lima, Perú
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium">
-                  12,000 SEK
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium">
-                  8,280 BOB
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <button class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                    <i class="fas fa-check mr-1"></i>
-                    Verificado
-                  </button>
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100">
-                    Completada
-                  </span>
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal()">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                </td>
-              </tr>
+              
             </tbody>
           </table>
         </div>
@@ -422,44 +397,12 @@ const copyRemittance = (remittance) => {
         </div>
 
         <!-- Tarjeta 2 -->
-        <div class="p-4">
-          <div class="flex justify-between items-start mb-3">
-            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">18/04/2023</div>
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100">
-              Completada
-            </span>
-          </div>
-          <div class="space-y-3">
-            <div>
-              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">Juan Martínez</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">Lima, Perú</div>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Enviado</div>
-                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">12,000 SEK</div>
-              </div>
-              <div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Recibido</div>
-                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">8,280 BOB</div>
-              </div>
-            </div>
-            <div class="flex justify-between items-center pt-2">
-              <button class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                <i class="fas fa-check mr-1"></i>
-                Verificado
-              </button>
-              <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal()">
-                <i class="fas fa-eye"></i>
-              </button>
-            </div>
-          </div>
-        </div>
+ 
       </div>
       
       <div class="p-4 border-t border-white dark:border-gray-700 bg-[var(--color-table-header)] dark:bg-gray-800 rounded-b-lg flex justify-end">
         <button class="text-[#293841] dark:text-blue-400 hover:text-[#146EBE] dark:hover:text-blue-300 transition-colors text-sm font-medium">
-          Ver Todas las Remesas <i class="fas fa-arrow-right ml-1"></i>
+          Historial de Remesas <i class="fas fa-arrow-right ml-1"></i>
         </button>
       </div>
     </div>
@@ -480,6 +423,12 @@ const copyRemittance = (remittance) => {
       @goToSummary="goToSummary"
       @goBack="goBack"
       @confirmSend="confirmSend"
+    />
+
+    <!-- Modal de método de pago -->
+    <MisRemesasPago
+      v-if="showPagoModal"
+      @close="showPagoModal = false"
     />
   </div>
 </template>
