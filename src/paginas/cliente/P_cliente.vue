@@ -39,7 +39,7 @@ onUnmounted(() => {
         'pt-2 px-4 pb-8 transition-all duration-300 overflow-x-hidden app-content', 
         { 'with-sidebar': !layoutStore.isMobile }
       ]">
-      <div class="container mx-auto">
+      <div class="w-full">
         <!-- Router view para los componentes hijos -->
         <router-view />
       </div>

@@ -3,17 +3,23 @@ import { ref } from 'vue'
 import BotonGradiente from '../../components/BotonGradiente.vue'
 import ModalRemesas from './ModalRemesas.vue'
 import MisRemesasPago from './MisRemesasPago.vue'
+import MisRemesasPagoDestino from './MisRemesasPagoDestino.vue'
 
 // Estados para los modales
 const showTermsModal = ref(false)
 const showRemittanceModal = ref(false)
 const showDetailModal = ref(false)
 const showPagoModal = ref(false)
+const showPagoDestinoModal = ref(false)
 const currentStep = ref(1)
 const showSuccessNotification = ref(false)
 
 // Estado para el archivo subido
 const uploadedFileName = ref('')
+
+// Estado para los pagos completados
+const pagoRemitenteCompletado = ref(false)
+const pagoDestinatarioCompletado = ref(false)
 
 // Datos para los tipos de cambio
 const cambioEstandar = ref(1.08)
@@ -147,12 +153,34 @@ const openPagoModal = () => {
 const closePagoModal = () => {
   showPagoModal.value = false
 }
+
+// Función para abrir modal de pago a destinatario
+const openPagoDestinoModal = () => {
+  showPagoDestinoModal.value = true
+}
+
+// Función para cerrar modal de pago a destinatario
+const closePagoDestinoModal = () => {
+  showPagoDestinoModal.value = false
+}
+
+// Función para manejar la finalización del pago del remitente
+const handlePagoRemitenteCompleted = () => {
+  pagoRemitenteCompletado.value = true
+  showPagoModal.value = false
+}
+
+// Función para manejar la finalización del pago al destinatario
+const handlePagoDestinatarioCompleted = () => {
+  pagoDestinatarioCompletado.value = true
+  showPagoDestinoModal.value = false
+}
 </script>
 
 <template>
-  <div class="app-content w-full mx-auto -mt-1 transition-colors duration-300">
+  <div class="app-content w-full mx-auto -mt-1 transition-colors duration-300 max-w-none">
     <!-- Fecha de actualización -->
-    <div class="flex justify-end mb-1">
+    <div class="flex justify-end mb-1 px-2 sm:px-4">
       <div class="text-xs bg-gradient-to-r from-transparent to-blue-50/50 dark:to-blue-900/20 px-3 py-0.5 rounded-lg shadow-sm border-r border-t border-blue-100/50 dark:border-blue-800/20 inline-flex items-center space-x-1 backdrop-blur-sm">
         <i class="fas fa-clock text-blue-400/70 dark:text-blue-400/60 mr-1.5"></i>
         <span class="text-gray-600 dark:text-gray-300 font-medium">Actualizado:</span>
@@ -183,7 +211,7 @@ const closePagoModal = () => {
 
     
     <!-- Tarjetas de tipos de cambio -->
-    <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mb-3">
+    <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mb-3 px-2 sm:px-4">
       <!-- Tarjeta de tipo de cambio estándar -->
       <div class="relative group overflow-hidden rounded-xl shadow-md border border-gray-200/70 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg tarjeta-cambio w-full max-w-full">
         <!-- Fondo con efecto de vidrio -->
@@ -248,33 +276,30 @@ const closePagoModal = () => {
     </div>
     
     <!-- Encabezado de la página -->
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-3">
-  <!-- Título alineado a la izquierda -->
-  <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2 sm:mb-0">Mis Remesas</h1>
-  
-  <!-- Botón alineado a la derecha -->
-  <BotonGradiente 
-    @click="openNewRemittance"
-    texto="Nueva Remesa"
-    icono="plus"
-    :anchoCompleto="false"
-    tamanio="md"
-    tipo="primario"
-  />
-</div>
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-3 px-2 sm:px-4">
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2 sm:mb-0">Mis Remesas</h1>
+      <BotonGradiente 
+        @click="openNewRemittance"
+        texto="Nueva Remesa"
+        icono="plus"
+        :anchoCompleto="false"
+        tamanio="md"
+        tipo="primario"
+      />
+    </div>
 
-
-<!-- AREA A MODIFICAR -->
+    <!-- AREA A MODIFICAR -->
     <!-- Tabla de remesas recientes -->
-    <div class="bg-[var(--color-table-bg)] dark:bg-gray-900 rounded-lg shadow-md border border-white dark:border-gray-700 transition-all duration-300">
+    <div class="bg-[var(--color-table-bg)] dark:bg-gray-900 rounded-lg shadow-md border border-white dark:border-gray-700 transition-all duration-300 mx-2 sm:mx-4">
+      <!--  
       <div class="p-4 border-b border-white dark:border-gray-700 bg-[var(--color-table-header)] dark:bg-gray-800 flex flex-wrap justify-between items-center rounded-t-lg">
         <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Remesas Recientes</h2>
       </div>
-      
-      <!-- Vista de escritorio -->
-      <div class="hidden sm:block overflow-x-auto">
-        <div class="min-w-[800px]">
-          <table class="w-full divide-y divide-white dark:divide-gray-700 text-center">
+      -->
+      <!-- Tabla responsive -->
+      <div class="overflow-x-auto">
+        <div class="min-w-full">
+          <table class="w-full divide-y divide-white dark:divide-gray-700">
             <thead class="bg-[var(--color-table-header)] dark:bg-gray-800">
               <tr>
                 <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
@@ -291,6 +316,9 @@ const closePagoModal = () => {
                 </th>
                 <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
                   Pago del Remitente
+                </th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
+                  Pago a Destinatario
                 </th>
                 <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
                   Estado
@@ -327,10 +355,29 @@ const closePagoModal = () => {
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                   <button 
                     @click="showPagoModal = true"
-                    class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
+                    :class="[
+                      'inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white transition-all duration-200 shadow-sm hover:shadow-md',
+                      pagoRemitenteCompletado
+                        ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                        : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                    ]"
                   >
                     <i class="fas fa-credit-card mr-1.5"></i>
-                    Método de Pago
+                    {{ pagoRemitenteCompletado ? 'Pago Completado' : 'Método de Pago' }}
+                  </button>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <button 
+                    @click="openPagoDestinoModal"
+                    :class="[
+                      'inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white transition-all duration-200 shadow-sm hover:shadow-md',
+                      pagoDestinatarioCompletado
+                        ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                        : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                    ]"
+                  >
+                    <i class="fas fa-money-bill-wave mr-1.5"></i>
+                    {{ pagoDestinatarioCompletado ? 'Pago Completado' : 'Pago a Destinatario' }}
                   </button>
                 </td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
@@ -344,68 +391,19 @@ const closePagoModal = () => {
                   </button>
                 </td>
               </tr>
-
-              <!-- Ejemplo 2 -->
-              
             </tbody>
           </table>
         </div>
       </div>
-
-      <!-- Vista móvil -->
-      <div class="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
-        <!-- Tarjeta 1 -->
-        <div class="p-4">
-          <div class="flex justify-between items-start mb-3">
-            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">21/04/2023</div>
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100">
-              En Progreso
-            </span>
-          </div>
-          <div class="space-y-3">
-            <div>
-              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">María González</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">Bogotá, Colombia</div>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Enviado</div>
-                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">8,500 SEK</div>
-              </div>
-              <div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Recibido</div>
-                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">5,865 BOB</div>
-              </div>
-            </div>
-            <div class="flex justify-between items-center pt-2">
-              <div class="flex flex-col items-center space-y-2">
-                <label class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
-                  <i class="fas fa-upload mr-1"></i>
-                  Subir
-                  <input type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
-                </label>
-                <span v-if="uploadedFileName" class="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                  <i class="fas fa-file-image mr-1 text-blue-500"></i>
-                  {{ uploadedFileName }}
-                </span>
-              </div>
-              <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal()">
-                <i class="fas fa-eye"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tarjeta 2 -->
- 
-      </div>
       
-      <div class="p-4 border-t border-white dark:border-gray-700 bg-[var(--color-table-header)] dark:bg-gray-800 rounded-b-lg flex justify-end">
-        <button class="text-[#293841] dark:text-blue-400 hover:text-[#146EBE] dark:hover:text-blue-300 transition-colors text-sm font-medium">
-          Historial de Remesas <i class="fas fa-arrow-right ml-1"></i>
-        </button>
-      </div>
+
     </div>
+    <div class="flex justify-end my-4">
+  <button class="text-[#293841] dark:text-blue-400 hover:text-[#146EBE] dark:hover:text-blue-300 transition-colors text-sm font-medium">
+    Historial de Remesas <i class="fas fa-arrow-right ml-1"></i>
+  </button>
+</div>
+
 
     <!-- Componente que contiene todos los modales -->
     <ModalRemesas 
@@ -429,10 +427,42 @@ const closePagoModal = () => {
     <MisRemesasPago
       v-if="showPagoModal"
       @close="showPagoModal = false"
+      @paymentCompleted="handlePagoRemitenteCompleted"
+    />
+
+    <!-- Modal de pago a destinatario -->
+    <MisRemesasPagoDestino
+      v-if="showPagoDestinoModal"
+      @close="closePagoDestinoModal"
+      @paymentCompleted="handlePagoDestinatarioCompleted"
     />
   </div>
 </template>
 
 <style scoped>
-/* ... existing styles ... */
+/* Asegurar que el contenido ocupe todo el ancho disponible */
+.app-content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ajustar el contenedor de la tabla para que sea responsive */
+.overflow-x-auto {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Asegurar que la tabla ocupe todo el ancho disponible */
+table {
+  width: 100%;
+  min-width: 100%;
+}
+
+/* Ajustar el contenedor de las tarjetas */
+.grid {
+  width: 100%;
+  max-width: 100%;
+}
 </style>

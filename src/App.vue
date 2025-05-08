@@ -190,16 +190,45 @@ nav {
 .app-content {
   padding: var(--content-padding);
   transition: margin-left 0.3s ease;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
 .with-sidebar {
   margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
 }
 
 @media (max-width: 1024px) {
   .with-sidebar {
     margin-left: 0;
+    width: 100%;
   }
+}
+
+/* Asegurar que el contenido ocupe todo el ancho disponible */
+#app {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Asegurar que el contenido principal ocupe todo el ancho */
+main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Asegurar que el router-view ocupe todo el ancho */
+.router-view {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* Overlay para sidebar en móvil */
