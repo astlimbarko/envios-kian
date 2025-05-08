@@ -74,11 +74,11 @@ watch(selectedPaymentMethod, (newValue) => {
 
 <template>
   <!-- Contenido del paso 2: Métodos de pago -->
-  <div v-if="showRemittanceModal && currentStep === 2" class="space-y-4">
+  <div v-if="showRemittanceModal && currentStep === 2" class="space-y-3">
     <!-- División en dos columnas -->
-    <div class="flex flex-col md:flex-row gap-4">
+    <div class="flex flex-col md:flex-row gap-3">
       <!-- Columna izquierda: Selección de método de pago -->
-      <div class="w-full md:w-1/3 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+      <div class="w-full md:w-1/3 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg">
         <h4 class="font-semibold text-[#146EBE] dark:text-blue-300 mb-2 text-sm">Seleccione el Método de Pago</h4>
         
         <!-- Selección de método de pago -->
@@ -129,21 +129,21 @@ watch(selectedPaymentMethod, (newValue) => {
       </div>
       
       <!-- Columna derecha: Detalles del método seleccionado -->
-      <div class="w-full md:w-2/3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+      <div class="w-full md:w-2/3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2">
         <!-- Detalles específicos según el método de pago -->
-        <div v-if="selectedPaymentMethod === 'swish'" class="space-y-3">
+        <div v-if="selectedPaymentMethod === 'swish'" class="space-y-2">
           <h5 class="font-medium text-gray-800 dark:text-gray-200 text-sm mb-2">Detalles de Pago con Swish</h5>
           
-          <div class="flex items-start justify-center space-x-4">
+          <div class="flex items-start justify-center space-x-3">
             <div class="bg-white dark:bg-gray-700 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-center">
-              <div class="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full w-12 h-12 mx-auto mb-1">
-                <i class="fas fa-qrcode text-xl"></i>
+              <div class="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full w-10 h-10 mx-auto mb-1">
+                <i class="fas fa-qrcode text-lg"></i>
               </div>
               <div class="font-medium text-gray-700 dark:text-gray-200 text-sm">Escanear QR</div>
               <div class="text-xs text-gray-500 dark:text-gray-400">Próximamente</div>
             </div>
             
-            <div class="bg-white dark:bg-gray-700 p-3 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex-1">
+            <div class="bg-white dark:bg-gray-700 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex-1">
               <div class="grid grid-cols-2 gap-1 text-sm">
                 <div class="text-gray-600 dark:text-gray-400">Número Swish:</div>
                 <div class="font-medium text-gray-800 dark:text-gray-200">{{ swishData.phoneNumber }}</div>
@@ -175,7 +175,7 @@ watch(selectedPaymentMethod, (newValue) => {
               </label>
             </div>
             <div v-else class="relative">
-              <img :src="paymentProof.imageUrl" class="w-full h-32 object-cover rounded-lg">
+              <img :src="paymentProof.imageUrl" class="w-full h-28 object-cover rounded-lg">
               <button @click="removeUploadedFile" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
                 <i class="fas fa-times text-xs"></i>
               </button>
@@ -187,31 +187,22 @@ watch(selectedPaymentMethod, (newValue) => {
         </div>
         
         <!-- Detalles para transferencia bancaria -->
-        <div v-if="selectedPaymentMethod === 'bank_transfer'" class="space-y-3">
+        <div v-if="selectedPaymentMethod === 'bank_transfer'" class="space-y-2">
           <h5 class="font-medium text-gray-800 dark:text-gray-200 text-sm mb-2">Detalles de Transferencia Bancaria</h5>
           
-          <div class="space-y-3">
-            <div v-for="(account, index) in bankAccounts" :key="index" 
-                class="border border-gray-200 dark:border-gray-700 rounded-lg p-2 bg-gray-50 dark:bg-gray-700">
-              <div class="font-medium text-gray-800 dark:text-gray-200 text-sm">Banco en {{ account.country }}</div>
-              <div class="mt-1 grid grid-cols-2 gap-x-2 text-xs">
-                <div class="text-gray-600 dark:text-gray-400">Nombre del Banco:</div>
-                <div class="text-gray-800 dark:text-gray-200">{{ account.bankName }}</div>
-                
-                <div class="text-gray-600 dark:text-gray-400">Número de Cuenta:</div>
-                <div class="text-gray-800 dark:text-gray-200 flex items-center">
-                  {{ account.accountNumber }}
-                  <button class="ml-1 text-blue-600 dark:text-blue-400" title="Copiar" @click="navigator.clipboard.writeText(account.accountNumber)">
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
-                
-                <div class="text-gray-600 dark:text-gray-400">Código SWIFT:</div>
-                <div class="text-gray-800 dark:text-gray-200">{{ account.swiftCode }}</div>
-                
-                <div class="text-gray-600 dark:text-gray-400">Titular:</div>
-                <div class="text-gray-800 dark:text-gray-200">{{ account.accountHolder }}</div>
-              </div>
+          <div class="bg-white dark:bg-gray-700 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+            <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+              <div class="text-gray-600 dark:text-gray-400">Banco:</div>
+              <div class="font-medium text-gray-800 dark:text-gray-200">{{ bankAccounts[0].bankName }}</div>
+              
+              <div class="text-gray-600 dark:text-gray-400">Cuenta:</div>
+              <div class="font-medium text-gray-800 dark:text-gray-200">{{ bankAccounts[0].accountNumber }}</div>
+              
+              <div class="text-gray-600 dark:text-gray-400">SWIFT/BIC:</div>
+              <div class="font-medium text-gray-800 dark:text-gray-200">{{ bankAccounts[0].swiftCode }}</div>
+              
+              <div class="text-gray-600 dark:text-gray-400">Titular:</div>
+              <div class="font-medium text-gray-800 dark:text-gray-200">{{ bankAccounts[0].accountHolder }}</div>
             </div>
           </div>
           
@@ -246,7 +237,7 @@ watch(selectedPaymentMethod, (newValue) => {
               </label>
             </div>
             <div v-else class="relative">
-              <img :src="paymentProof.imageUrl" class="w-full h-32 object-cover rounded-lg">
+              <img :src="paymentProof.imageUrl" class="w-full h-28 object-cover rounded-lg">
               <button @click="removeUploadedFile" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
                 <i class="fas fa-times text-xs"></i>
               </button>
@@ -265,7 +256,7 @@ watch(selectedPaymentMethod, (newValue) => {
 /* Estilo elegante para Windows 11 */
 input, select, textarea {
   border-radius: 6px;
-  min-height: 38px;
+  min-height: 36px;
 }
 
 /* Efecto suave en botones */
@@ -278,8 +269,8 @@ button:active:not(:disabled) {
 }
 
 /* Contenedor del método de pago con altura mínima */
-.flex.flex-col.md\:flex-row.gap-4 {
-  min-height: 380px;
+.flex.flex-col.md\:flex-row.gap-3 {
+  min-height: 320px;
 }
 
 /* Columnas con altura igual */
@@ -308,16 +299,16 @@ select:focus {
     width: 100%;
   }
   
-  .flex.items-center.justify-center.space-x-4 {
+  .flex.items-center.justify-center.space-x-3 {
     flex-direction: column;
   }
   
-  .flex.items-center.justify-center.space-x-4 > div {
+  .flex.items-center.justify-center.space-x-3 > div {
     width: 100%;
     margin-top: 1rem;
   }
   
-  .flex.items-center.justify-center.space-x-4 > div:first-child {
+  .flex.items-center.justify-center.space-x-3 > div:first-child {
     margin-top: 0;
   }
 }

@@ -141,14 +141,14 @@ const handleClose = () => {
     <div id="printable-summary">
       <!-- Fecha y datos del encabezado -->
       <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-        <div class="flex justify-between items-center mb-2">
+        <div class="flex justify-between items-center mb-3">
           <h4 class="font-semibold text-[#146EBE] dark:text-blue-300 text-sm">Datos de la Transacción</h4>
           <div class="text-xs text-gray-500 dark:text-gray-400">Fecha: {{ fechaActual }}</div>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Datos del destinatario -->
-          <div class="space-y-2">
+          <div class="space-y-3">
             <h5 class="font-medium text-gray-700 dark:text-gray-200 text-xs">Beneficiario</h5>
             <div class="bg-white dark:bg-gray-700 p-3 rounded-md shadow-sm">
               <!-- Si es un beneficiario guardado, mostrar sus datos -->
@@ -167,7 +167,7 @@ const handleClose = () => {
                 <div class="text-xs text-gray-600 dark:text-gray-400">Bolivia</div>
               </div>
               
-              <div class="mt-1 text-xs inline-flex items-center bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-1.5 py-0.5 rounded-full">
+              <div class="mt-2 text-xs inline-flex items-center bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-1.5 py-0.5 rounded-full">
                 <i :class="remittanceData.receiveMethod === 'qr' ? 'fas fa-qrcode mr-1' : 'fas fa-university mr-1'"></i>
                 {{ remittanceData.receiveMethod === 'qr' ? 'Pago por QR' : 'Cuenta Bancaria' }}
               </div>
@@ -175,10 +175,10 @@ const handleClose = () => {
           </div>
           
           <!-- Detalles del pago -->
-          <div class="space-y-2">
+          <div class="space-y-3">
             <h5 class="font-medium text-gray-700 dark:text-gray-200 text-xs">Detalles</h5>
             <div class="bg-white dark:bg-gray-700 p-3 rounded-md shadow-sm">
-              <div class="grid grid-cols-2 gap-x-2 text-xs">
+              <div class="grid grid-cols-2 gap-x-2 gap-y-2 text-xs">
                 <div class="text-gray-600 dark:text-gray-400">Envía:</div>
                 <div class="text-right font-medium">{{ remittanceData.amount.toFixed(2) }} {{ remittanceData.sendCurrency }}</div>
                 
@@ -188,8 +188,8 @@ const handleClose = () => {
                 <div class="text-gray-600 dark:text-gray-400">Tipo de cambio:</div>
                 <div class="text-right font-medium">1 {{ remittanceData.sendCurrency }} = {{ exchangeRate.toFixed(2) }} {{ remittanceData.receiveCurrency }}</div>
                 
-                <div class="text-gray-600 dark:text-gray-400 font-medium pt-1 border-t dark:border-gray-600">Total a pagar:</div>
-                <div class="text-right font-medium pt-1 border-t dark:border-gray-600">{{ totalAmount.toFixed(2) }} {{ remittanceData.sendCurrency }}</div>
+                <div class="text-gray-600 dark:text-gray-400 font-medium pt-2 border-t dark:border-gray-600">Total a pagar:</div>
+                <div class="text-right font-medium pt-2 border-t dark:border-gray-600">{{ totalAmount.toFixed(2) }} {{ remittanceData.sendCurrency }}</div>
                 
                 <div class="text-gray-600 dark:text-gray-400 font-medium">Beneficiario recibe:</div>
                 <div class="text-right font-medium text-green-700 dark:text-green-400">{{ receivedAmount }} {{ remittanceData.receiveCurrency }}</div>
@@ -197,28 +197,28 @@ const handleClose = () => {
             </div>
           </div>
         </div>
-      </div>
-      
-      <!-- Método de pago -->
-      <div>
-        <h4 class="font-semibold text-gray-700 dark:text-gray-200 border-b dark:border-gray-700 pb-1 mb-2 text-xs">Método de pago</h4>
-        <div class="bg-white dark:bg-gray-700 p-2 rounded-md shadow-sm flex items-center">
-          <span class="text-xs text-gray-700 dark:text-gray-300 mr-2">{{ remittanceData.paymentMethod === 'swish' ? 'Swish' : 'Transferencia bancaria' }}</span>
-          <div class="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-800/50 text-blue-800 dark:text-blue-200 rounded-full w-5 h-5">
-            <i :class="remittanceData.paymentMethod === 'swish' ? 'fas fa-mobile-alt text-xs' : 'fas fa-university text-xs'"></i>
+        
+        <!-- Método de pago -->
+        <div class="mt-4">
+          <h4 class="font-semibold text-gray-700 dark:text-gray-200 border-b dark:border-gray-700 pb-2 mb-3 text-xs">Método de pago</h4>
+          <div class="bg-white dark:bg-gray-700 p-3 rounded-md shadow-sm flex items-center">
+            <span class="text-xs text-gray-700 dark:text-gray-300 mr-2">{{ remittanceData.paymentMethod === 'swish' ? 'Swish' : 'Transferencia bancaria' }}</span>
+            <div class="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-800/50 text-blue-800 dark:text-blue-200 rounded-full w-5 h-5">
+              <i :class="remittanceData.paymentMethod === 'swish' ? 'fas fa-mobile-alt text-xs' : 'fas fa-university text-xs'"></i>
+            </div>
           </div>
         </div>
       </div>
       
       <!-- Información legal y política de cancelación -->
-      <div class="bg-gray-50 dark:bg-gray-800 p-2 rounded-md mt-3 text-xs text-gray-500 dark:text-gray-400">
+      <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md mt-3 text-xs text-gray-500 dark:text-gray-400">
         <p>Esta remesa está sujeta a nuestros términos y condiciones. Guarde este comprobante para cualquier consulta.</p>
         <p class="mt-1">Contacto: support@envioskian.com</p>
       </div>
     </div>
-
+    
     <!-- Botones de navegación (para claridad, pero son manejados por el componente padre) -->
-    <div class="flex justify-between mt-4 hidden">
+    <div class="flex justify-between mt-3 hidden">
       <button @click="handleGoBack" class="text-sm">
         <i class="fas fa-arrow-left mr-1"></i> Volver
       </button>
@@ -273,7 +273,7 @@ select:focus {
 
 /* Estilos para impresión */
 @media print {
-  .space-y-4 > * + * {
+  .space-y-3 > * + * {
     margin-top: 1rem;
   }
   

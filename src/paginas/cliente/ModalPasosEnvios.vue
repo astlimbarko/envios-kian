@@ -57,7 +57,7 @@ watch(() => props.currentStep, (newStep) => {
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75 transition-opacity" @click="closeModal"></div>
 
       <!-- Modal -->
-      <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full relative">
+      <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full relative max-h-[90vh]">
         <!-- Cabecera -->
         <div class="px-4 pt-4 pb-3 flex justify-between items-center border-b dark:border-gray-700">
           <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100" id="modal-title">
@@ -106,7 +106,7 @@ watch(() => props.currentStep, (newStep) => {
         </div>
         
         <!-- Cuerpo del Modal -->
-        <div class="px-4 py-3">
+        <div class="px-4 py-3 overflow-y-auto max-h-[calc(90vh-180px)]">
           <slot></slot>
         </div>
         

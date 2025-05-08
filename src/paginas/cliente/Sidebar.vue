@@ -59,7 +59,7 @@ const sidebarClasses = computed(() => {
       <ul class="space-y-3">
         <li class="relative">
           <router-link to="/cliente/mis-remesas" 
-            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
+            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
             :class="{ 'active-menu-item': $route.path === '/cliente/mis-remesas' || $route.path === '/cliente' }"
             @click="layoutStore.isMobile && layoutStore.closeSidebar()"
           >
@@ -69,7 +69,7 @@ const sidebarClasses = computed(() => {
         </li>
         <li class="relative">
           <router-link to="/cliente/beneficiarios" 
-            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
+            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
             :class="{ 'active-menu-item': $route.path === '/cliente/beneficiarios' }"
             @click="layoutStore.isMobile && layoutStore.closeSidebar()"
           >
@@ -79,7 +79,7 @@ const sidebarClasses = computed(() => {
         </li>
         <li class="relative">
           <router-link to="/cliente/soporte" 
-            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
+            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
             :class="{ 'active-menu-item': $route.path === '/cliente/soporte' }"
             @click="layoutStore.isMobile && layoutStore.closeSidebar()"
           >
@@ -96,7 +96,7 @@ const sidebarClasses = computed(() => {
       <ul class="space-y-3">
         <li class="relative">
           <router-link to="/cliente/contacto" 
-            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
+            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
             :class="{ 'active-menu-item': $route.path === '/cliente/contacto' }"
             @click="layoutStore.isMobile && layoutStore.closeSidebar()"
           >
@@ -175,6 +175,16 @@ const sidebarClasses = computed(() => {
 /* Asegurar que los textos tengan buen contraste en modo oscuro */
 .dark .text-gray-700 {
   color: #e5e7eb;
+}
+
+/* Mejora para elementos hover en modo oscuro */
+.dark .sidebar a:hover {
+  background-color: rgba(31, 41, 55, 0.8) !important;
+  color: #ffffff !important;
+}
+
+.dark .sidebar a:hover i {
+  color: #60a5fa !important;
 }
 
 /* Ajustes para móvil */

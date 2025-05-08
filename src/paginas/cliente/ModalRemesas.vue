@@ -6,6 +6,7 @@ import MisRemesasPago from './MisRemesasPago.vue'
 import MisRemesasResumen from './MisRemesasResumen.vue'
 import MisRemesasDetalle from './MisRemesasDetalle.vue'
 import ModalPasosEnvios from './ModalPasosEnvios.vue'
+import BotonGradiente from '../../components/BotonGradiente.vue'
 
 const props = defineProps({
   // Props para modal de términos
@@ -108,13 +109,12 @@ const modalTitle = computed(() => {
             Cancelar
           </button>
           
-          <button 
+          <BotonGradiente 
             v-if="currentStep === 1"
+            texto="Continuar" 
+            icono="arrow-right" 
             @click="$emit('goToPayment')" 
-            class="px-4 py-2 bg-[#146EBE] text-white rounded-md hover:bg-blue-700 shadow-md flex items-center"
-          >
-            Continuar <i class="fas fa-arrow-right ml-2"></i>
-          </button>
+          />
           
           <button 
             v-else-if="currentStep === 2"

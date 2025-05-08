@@ -10,6 +10,9 @@ const showDetailModal = ref(false)
 const currentStep = ref(1)
 const showSuccessNotification = ref(false)
 
+// Estado para el archivo subido
+const uploadedFileName = ref('')
+
 // Datos para los tipos de cambio
 const cambioEstandar = ref(1.08)
 const cambioEspecial = ref(1.09)
@@ -50,6 +53,14 @@ const remittanceData = ref({
   rate: 1.09, // Actualizado al nuevo tipo de cambio
   paymentMethod: 'swish' // Nuevo campo para el método de pago
 })
+
+// Función para manejar la subida de archivo
+const handleFileUpload = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    uploadedFileName.value = file.name
+  }
+}
 
 // Abrir modal de términos
 const openNewRemittance = () => {
@@ -157,6 +168,73 @@ const copyRemittance = (remittance) => {
       </div>
     </div>
     
+
+    
+    <!-- Tarjetas de tipos de cambio -->
+    <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mb-3">
+      <!-- Tarjeta de tipo de cambio estándar -->
+      <div class="relative group overflow-hidden rounded-xl shadow-md border border-gray-200/70 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg tarjeta-cambio w-full max-w-full">
+        <!-- Fondo con efecto de vidrio -->
+        <div class="absolute inset-0 bg-gradient-to-r from-gray-50/60 to-gray-100/60 dark:from-gray-800/30 dark:to-gray-700/30 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-80"></div>
+        
+        <!-- Decoración -->
+        <div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-gray-100/30 to-transparent dark:from-gray-700/20 dark:to-transparent"></div>
+        <div class="absolute -left-8 -top-8 w-24 h-24 rounded-full bg-gray-200/20 dark:bg-gray-600/20"></div>
+        
+        <!-- Contenido -->
+        <div class="p-2 sm:p-4 relative backdrop-blur-sm dark:bg-gray-800/30">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 mr-2 sm:mr-4">
+              <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-gray-100/80 to-gray-200/80 dark:from-gray-700/80 dark:to-gray-600/80 text-gray-600 dark:text-gray-300 shadow-sm">
+                <i class="fas fa-exchange-alt text-base sm:text-xl"></i>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Tipo de cambio estándar</h3>
+              <div class="flex items-baseline">
+                <span class="text-lg sm:text-2xl font-bold text-[#146EBE] dark:text-gray-200 mr-1">{{ cambioEstandar }}</span>
+                <span class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">SEK → BOB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tarjeta de tipo de cambio especial -->
+      <div class="relative group overflow-hidden rounded-xl shadow-md border border-gray-200/70 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg tarjeta-cambio border-shine w-full max-w-full">
+        <!-- Fondo con efecto de vidrio -->
+        <div class="absolute inset-0 bg-gradient-to-r from-gray-50/60 to-gray-100/60 dark:from-gray-800/40 dark:to-gray-700/40 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-80"></div>
+        
+        <!-- Decoración -->
+        <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-gradient-to-br from-gray-300/20 to-gray-400/10 dark:from-gray-500/30 dark:to-gray-600/30"></div>
+        <div class="absolute -right-2 -bottom-2 w-16 h-16 rounded-full bg-gradient-to-tr from-gray-300/20 to-gray-400/10 dark:from-gray-500/30 dark:to-gray-600/20"></div>
+        <div class="absolute bottom-0 right-0 w-full h-1/3 bg-gradient-to-t from-gray-100/30 to-transparent dark:from-gray-700/20 dark:to-transparent"></div>
+        
+        <!-- Contenido -->
+        <div class="p-2 sm:p-4 relative backdrop-blur-sm dark:bg-gray-800/30">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 mr-2 sm:mr-4">
+              <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-gray-100/80 to-gray-200/60 dark:from-gray-700/80 dark:to-gray-600/50 text-[#146EBE] dark:text-gray-200 pulse-icon shadow-sm">
+                <i class="fas fa-star text-base sm:text-xl"></i>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Tipo de cambio especial</h3>
+              <div class="flex items-baseline">
+                <span class="text-lg sm:text-2xl font-bold text-[#146EBE] dark:text-gray-200 mr-1">{{ cambioEspecial }}</span>
+                <span class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">SEK → BOB</span>
+              </div>
+              <div class="flex items-center mt-1">
+                <span class="inline-flex items-center text-xs px-1.5 py-0.5 rounded-full bg-gradient-to-r from-gray-100/90 to-gray-200/90 dark:from-gray-700/90 dark:to-gray-600/90 text-gray-800 dark:text-gray-200">
+                  <i class="fas fa-arrow-up text-xs mr-1"></i> +0.01
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <!-- Encabezado de la página -->
     <div class="flex flex-wrap justify-between items-center mb-3">
       <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2 sm:mb-0">Mis Remesas</h1>
@@ -169,171 +247,214 @@ const copyRemittance = (remittance) => {
         tipo="primario"
       />
     </div>
-    
-    <!-- Tarjetas de tipos de cambio -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-      <!-- Tarjeta de tipo de cambio estándar -->
-      <div class="relative group overflow-hidden rounded-xl shadow-md border border-blue-100/70 dark:border-blue-700/50 transition-all duration-300 hover:shadow-lg tarjeta-cambio">
-        <!-- Fondo con efecto de vidrio -->
-        <div class="absolute inset-0 bg-gradient-to-r from-violet-50/60 to-blue-50/60 dark:from-violet-900/30 dark:to-blue-900/30 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-80"></div>
-        
-        <!-- Decoración -->
-        <div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-blue-100/30 to-transparent dark:from-blue-700/20 dark:to-transparent"></div>
-        <div class="absolute -left-8 -top-8 w-24 h-24 rounded-full bg-purple-200/20 dark:bg-purple-700/20"></div>
-        
-        <!-- Contenido -->
-        <div class="p-4 relative backdrop-blur-sm dark:bg-gray-800/30">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 mr-4">
-              <div class="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-violet-100/80 to-blue-100/80 dark:from-violet-800/80 dark:to-blue-800/80 text-blue-600 dark:text-blue-300 shadow-sm">
-                <i class="fas fa-exchange-alt text-xl"></i>
-              </div>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Tipo de cambio estándar</h3>
-              <div class="flex items-baseline">
-                <span class="text-2xl font-bold text-[#146EBE] dark:text-blue-300 mr-1">{{ cambioEstandar }}</span>
-                <span class="text-gray-500 dark:text-gray-400 text-sm">SEK → BOB</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Tarjeta de tipo de cambio especial -->
-      <div class="relative group overflow-hidden rounded-xl shadow-md border border-indigo-200/70 dark:border-indigo-600/50 transition-all duration-300 hover:shadow-lg tarjeta-cambio border-shine">
-        <!-- Fondo con efecto de vidrio -->
-        <div class="absolute inset-0 bg-gradient-to-r from-cyan-50/60 to-fuchsia-50/30 dark:from-cyan-900/40 dark:to-fuchsia-900/40 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-80"></div>
-        
-        <!-- Decoración -->
-        <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400/20 to-indigo-400/10 dark:from-cyan-500/30 dark:to-indigo-500/30"></div>
-        <div class="absolute -right-2 -bottom-2 w-16 h-16 rounded-full bg-gradient-to-tr from-cyan-300/20 to-indigo-300/10 dark:from-cyan-600/30 dark:to-indigo-600/20"></div>
-        <div class="absolute bottom-0 right-0 w-full h-1/3 bg-gradient-to-t from-indigo-100/30 to-transparent dark:from-indigo-700/20 dark:to-transparent"></div>
-        
-        <!-- Contenido -->
-        <div class="p-4 relative backdrop-blur-sm dark:bg-gray-800/30">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 mr-4">
-              <div class="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-cyan-100/80 to-fuchsia-100/60 dark:from-cyan-800/80 dark:to-fuchsia-800/50 text-[#146EBE] dark:text-indigo-300 pulse-icon shadow-sm">
-                <i class="fas fa-star text-xl"></i>
-              </div>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Tipo de cambio especial</h3>
-              <div class="flex items-baseline">
-                <span class="text-2xl font-bold text-[#146EBE] dark:text-indigo-300 mr-1">{{ cambioEspecial }}</span>
-                <span class="text-gray-500 dark:text-gray-400 text-sm">SEK → BOB</span>
-              </div>
-              <div class="flex items-center mt-1">
-                <span class="inline-flex items-center text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-100/90 to-indigo-100/90 dark:from-blue-700/90 dark:to-indigo-700/90 text-blue-800 dark:text-blue-200">
-                  <i class="fas fa-arrow-up text-xs mr-1"></i> +0.01
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
+
     <!-- Tabla de remesas recientes -->
     <div class="bg-[var(--color-table-bg)] dark:bg-gray-900 rounded-lg shadow-md border border-white dark:border-gray-700 transition-all duration-300">
       <div class="p-4 border-b border-white dark:border-gray-700 bg-[var(--color-table-header)] dark:bg-gray-800 flex flex-wrap justify-between items-center rounded-t-lg">
         <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Remesas Recientes</h2>
       </div>
       
-      <div class="overflow-x-auto">
-        <table class="w-full divide-y divide-white dark:divide-gray-700">
-          <thead class="bg-[var(--color-table-header)] dark:bg-gray-800">
-            <tr>
-              <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                Fecha
-              </th>
-              <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                Destinatario
-              </th>
-              <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700 hidden sm:table-cell">
-                Monto
-              </th>
-              <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700 hidden sm:table-cell">
-                Estado
-              </th>
-              <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-[var(--color-table-bg)] dark:bg-gray-900 divide-y divide-white dark:divide-gray-700">
-            <!-- Ejemplo 1 -->
-            <tr class="transition-colors hover:bg-[var(--color-table-hover)] dark:hover:bg-gray-800">
-              <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                21/04/2023
-              </td>
-              <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="ml-0">
-                    <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
-                      María González
-                    </div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
-                      Bogotá, Colombia
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium hidden sm:table-cell">
-                $850.00
-              </td>
-              <td class="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100">
-                  Completada
-                </span>
-              </td>
-              <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 space-x-1 sm:space-x-2">
-                <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal()">
-                  <i class="fas fa-eye"></i>
-                </button>
-                <button class="text-[#146EBE] dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors" @click="copyRemittance()">
-                  <i class="fas fa-copy"></i>
-                </button>
-              </td>
-            </tr>
-            
-            <!-- Ejemplo 2 -->
-            <tr class="transition-colors bg-[var(--color-table-alt-row)] dark:bg-gray-800/40 hover:bg-[var(--color-table-hover)] dark:hover:bg-gray-800">
-              <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                18/04/2023
-              </td>
-              <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="ml-0">
-                    <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
-                      Juan Martínez
-                    </div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
-                      Lima, Perú
+      <!-- Vista de escritorio -->
+      <div class="hidden sm:block overflow-x-auto">
+        <div class="min-w-[800px]">
+          <table class="w-full divide-y divide-white dark:divide-gray-700 text-center">
+            <thead class="bg-[var(--color-table-header)] dark:bg-gray-800">
+              <tr>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
+                  Fecha
+                </th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
+                  Destinatario
+                </th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
+                  Enviado
+                </th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
+                  Recibido
+                </th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
+                  Pago del Remitente
+                </th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
+                  Estado
+                </th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
+                  Voucher
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-[var(--color-table-bg)] dark:bg-gray-900 divide-y divide-white dark:divide-gray-700">
+              <!-- Ejemplo 1 -->
+              <tr class="transition-colors hover:bg-[var(--color-table-hover)] dark:hover:bg-gray-800">
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  21/04/2023
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center justify-center">
+                    <div class="ml-0">
+                      <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
+                        María González
+                      </div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">
+                        Bogotá, Colombia
+                      </div>
                     </div>
                   </div>
-                </div>
-              </td>
-              <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium hidden sm:table-cell">
-                $1,200.00
-              </td>
-              <td class="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100">
-                  En progreso
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium">
+                  8,500 SEK
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium">
+                  5,865 BOB
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <div class="flex flex-col items-center space-y-2">
+                    <label class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
+                      <i class="fas fa-upload mr-1"></i>
+                      Subir
+                      <input type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
+                    </label>
+                    <span v-if="uploadedFileName" class="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                      <i class="fas fa-file-image mr-1 text-blue-500"></i>
+                      {{ uploadedFileName }}
+                    </span>
+                  </div>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100">
+                    En Progreso
+                  </span>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal()">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Ejemplo 2 -->
+              <tr class="transition-colors bg-[var(--color-table-alt-row)] dark:bg-gray-800/40 hover:bg-[var(--color-table-hover)] dark:hover:bg-gray-800">
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  18/04/2023
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center justify-center">
+                    <div class="ml-0">
+                      <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
+                        Juan Martínez
+                      </div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">
+                        Lima, Perú
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium">
+                  12,000 SEK
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium">
+                  8,280 BOB
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <button class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <i class="fas fa-check mr-1"></i>
+                    Verificado
+                  </button>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100">
+                    Completada
+                  </span>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal()">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Vista móvil -->
+      <div class="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
+        <!-- Tarjeta 1 -->
+        <div class="p-4">
+          <div class="flex justify-between items-start mb-3">
+            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">21/04/2023</div>
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100">
+              En Progreso
+            </span>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">María González</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">Bogotá, Colombia</div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">Enviado</div>
+                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">8,500 SEK</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">Recibido</div>
+                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">5,865 BOB</div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center pt-2">
+              <div class="flex flex-col items-center space-y-2">
+                <label class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
+                  <i class="fas fa-upload mr-1"></i>
+                  Subir
+                  <input type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
+                </label>
+                <span v-if="uploadedFileName" class="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                  <i class="fas fa-file-image mr-1 text-blue-500"></i>
+                  {{ uploadedFileName }}
                 </span>
-              </td>
-              <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 space-x-1 sm:space-x-2">
-                <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal()">
-                  <i class="fas fa-eye"></i>
-                </button>
-                <button class="text-[#146EBE] dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors" @click="copyRemittance()">
-                  <i class="fas fa-copy"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+              <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal()">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta 2 -->
+        <div class="p-4">
+          <div class="flex justify-between items-start mb-3">
+            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">18/04/2023</div>
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100">
+              Completada
+            </span>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">Juan Martínez</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">Lima, Perú</div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">Enviado</div>
+                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">12,000 SEK</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">Recibido</div>
+                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">8,280 BOB</div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center pt-2">
+              <button class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                <i class="fas fa-check mr-1"></i>
+                Verificado
+              </button>
+              <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal()">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       
       <div class="p-4 border-t border-white dark:border-gray-700 bg-[var(--color-table-header)] dark:bg-gray-800 rounded-b-lg flex justify-end">
@@ -342,7 +463,7 @@ const copyRemittance = (remittance) => {
         </button>
       </div>
     </div>
-    
+
     <!-- Componente que contiene todos los modales -->
     <ModalRemesas 
       :showTermsModal="showTermsModal"
@@ -364,83 +485,5 @@ const copyRemittance = (remittance) => {
 </template>
 
 <style scoped>
-@keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out forwards;
-}
-
-/* Estilos para las tarjetas de tipo de cambio */
-.tarjeta-cambio {
-  transition: all 0.3s ease;
-}
-
-.tarjeta-cambio:hover {
-  transform: translateY(-2px);
-}
-
-/* Animación de brillo para la tarjeta especial */
-@keyframes shine {
-  0% {
-    opacity: 0;
-    transform: translateX(-100%);
-  }
-  20% {
-    opacity: 0.1;
-  }
-  50% {
-    opacity: 0.2;
-  }
-  80% {
-    opacity: 0.1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-}
-
-.border-shine {
-  position: relative;
-  overflow: hidden;
-}
-
-.border-shine::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-  transform: translateX(-100%);
-  animation: shine 5s infinite ease-out;
-  pointer-events: none;
-}
-
-/* Animación de pulso para el ícono */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.pulse-icon {
-  animation: pulse 2s infinite ease-in-out;
-}
+/* ... existing styles ... */
 </style>
