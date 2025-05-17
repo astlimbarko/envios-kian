@@ -1,28 +1,14 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import BotonGradiente from '../../components/BotonGradiente.vue'
-import ModalRemesas from './ModalRemesas.vue'
-import MisRemesasPago from './MisRemesasPago.vue'
-import MisRemesasPagoDestino from './MisRemesasPagoDestino.vue'
-import MisRemesasNueva from './MisRemesasNueva.vue'
+import FormularioEnvio from './remesas/FormularioEnvio.vue'
+import MetodoPagoSuecia from './remesas/MetodoPagoSuecia.vue'
+import DatosDestinatario from './remesas/DatosDestinatario.vue'
+import ComprobantePago from './remesas/ComprobantePago.vue'
+import ResumenRemesa from './remesas/ResumenRemesa.vue'
+import MetodoRecepcion from './remesas/MetodoRecepcion.vue'
 
-// Estados para los modales
-const showTermsModal = ref(false)
-const showRemittanceModal = ref(false)
-const showDetailModal = ref(false)
-const showPagoModal = ref(false)
-const showPagoDestinoModal = ref(false)
-const currentStep = ref(1)
-const showSuccessNotification = ref(false)
-
-// Estado para el archivo subido
-const uploadedFileName = ref('')
-
-// Estado para los pagos completados
-const pagoRemitenteCompletado = ref(false)
-const pagoDestinatarioCompletado = ref(false)
-
-// Estado para las remesas
+// Estados para las remesas
 const remesas = ref([
   {
     id: '12345',
@@ -50,150 +36,122 @@ const fechaActualizacion = ref(new Date().toLocaleDateString('es-ES', {
   year: 'numeric' 
 }))
 
-// Datos para la visualización de detalles
-const selectedRemittance = ref({
-  id: '12345',
-  date: '21/04/2023',
-  recipient: 'María González',
-  location: 'Bogotá, Colombia',
-  amount: 850.00,
-  currency: 'USD', 
-  receivedAmount: 5865.00,
-  receivedCurrency: 'BOB',
-  status: 'Completada',
-  statusClass: 'green',
-  paymentMethod: 'Swish',
-  receiveMethod: 'QR',
-  trackingCode: 'REF-1234-5678-90'
+// Estados para el formulario
+const currentStep = ref(1)
+const datosRemesa = ref({
+  montoEnviar: '',
+  montoRecibir: '',
+  tipoCambio: 0,
+  pais: null,
+  metodoRecepcion: null,
+  metodoPago: null,
+  destinatario: null,
+  comprobante: null
 })
 
-// Datos de la remesa
-const remittanceData = ref({
-  recipientType: 'saved',
-  recipientId: '',
-  saveRecipient: false,
-  sendCurrency: 'SEK',
-  receiveCurrency: 'BOB',
-  amount: 1000,
-  receiveMethod: 'qr',
-  estimatedReceive: 690,
-  fee: 50,
-  rate: 1.09, // Actualizado al nuevo tipo de cambio
-  paymentMethod: 'swish' // Nuevo campo para el método de pago
+// Lista de países (por ahora solo Bolivia)
+const paises = ref([
+  {
+    nombre: 'Bolivia',
+    codigo: 'BO',
+    moneda: 'BOB',
+    bandera: '/flag_bo.svg'
+  }
+])
+
+// Cálculo del tipo de cambio a usar
+const tipoCambio = computed(() => {
+  if (cambioEstandar.value === cambioEspecial.value) return cambioEstandar.value
+  if (Number(datosRemesa.value.montoRecibir) >= 5000) return cambioEspecial.value
+  return cambioEstandar.value
 })
 
-// Función para manejar la subida de archivo
-const handleFileUpload = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    uploadedFileName.value = file.name
+// Actualización automática de montos
+const actualizarMontos = (valor, campo) => {
+  if (campo === 'enviar' && valor) {
+    datosRemesa.value.montoRecibir = (parseFloat(valor) * tipoCambio.value).toFixed(2)
+  } else if (campo === 'recibir' && valor) {
+    datosRemesa.value.montoEnviar = (parseFloat(valor) / tipoCambio.value).toFixed(2)
   }
 }
 
-// Abrir modal de términos
-const openNewRemittance = () => {
-  showRemittanceModal.value = true
+// Función para avanzar al siguiente paso
+const nextStep = () => {
+  if (currentStep.value < 5) {
+    currentStep.value++
+  }
 }
 
-// Abrir modal de detalles
-const openDetailModal = (remittance) => {
-  // En una aplicación real, aquí cargaríamos los datos de la remesa seleccionada
-  selectedRemittance.value = remittance || selectedRemittance.value
-  showDetailModal.value = true
-}
-
-// Aceptar términos y abrir modal de remesa
-const acceptTerms = () => {
-  showTermsModal.value = false
-  showRemittanceModal.value = true
-  currentStep.value = 1
-}
-
-// Cerrar modal de términos
-const closeTerms = () => {
-  showTermsModal.value = false
-}
-
-// Cerrar modal de detalles
-const closeDetailModal = () => {
-  showDetailModal.value = false
-}
-
-// Ir al paso de método de pago
-const goToPayment = () => {
-  currentStep.value = 2
-}
-
-// Ir al resumen de la transacción
-const goToSummary = () => {
-  currentStep.value = 3
-}
-
-// Volver al paso anterior
-const goBack = () => {
+// Función para retroceder al paso anterior
+const prevStep = () => {
   if (currentStep.value > 1) {
     currentStep.value--
   }
 }
 
-// Cerrar modal de remesa
-const closeRemittanceModal = () => {
-  showRemittanceModal.value = false
-  currentStep.value = 1
+// Función para manejar los datos del formulario
+const handleFormularioDatos = (datos) => {
+  datosRemesa.value = {
+    ...datosRemesa.value,
+    ...datos
+  }
+  currentStep.value = 2
 }
 
-// Confirmar envío
-const confirmSend = () => {
-  showRemittanceModal.value = false
-  currentStep.value = 1
-  
-  // Aquí iría el código para procesar la remesa
-  
-  // Mostrar mensaje de éxito
-  showSuccessNotification.value = true
-  
-  // Ocultar notificación después de 5 segundos
+// Función para manejar la selección del método de recepción
+const handleMetodoRecepcion = (metodo) => {
+  datosRemesa.value.metodoRecepcion = metodo
+  currentStep.value = 3
+}
+
+// Función para centrar el paso en la pantalla
+const centrarPaso = (stepNumber) => {
   setTimeout(() => {
-    showSuccessNotification.value = false
-  }, 5000)
+    const paso = document.getElementById(`paso-${stepNumber}`)
+    if (paso) {
+      const headerOffset = 20 // Ajusta este valor según el espacio que quieras dejar arriba
+      const elementPosition = paso.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+
+      // Agregar efecto de resaltado
+      paso.classList.add('paso-activo')
+      setTimeout(() => {
+        paso.classList.remove('paso-activo')
+      }, 2000)
+    }
+  }, 100)
 }
 
-// Copiar datos de remesa
-const copyRemittance = (remittance) => {
-  // En una aplicación real, copiaríamos los datos al formulario
-  alert('Datos copiados para crear nueva remesa')
+// Función para manejar la selección del método de pago
+const handleMetodoPago = (metodo) => {
+  datosRemesa.value.metodoPago = metodo
+  currentStep.value = 4
+  centrarPaso(4)
 }
 
-// Función para abrir modal de pago
-const openPagoModal = () => {
-  showPagoModal.value = true
+// Función para manejar el comprobante de pago
+const handleComprobante = (comprobante) => {
+  datosRemesa.value.comprobante = comprobante
+  currentStep.value = 5
+  centrarPaso(5)
 }
 
-// Función para cerrar modal de pago
-const closePagoModal = () => {
-  showPagoModal.value = false
+// Función para manejar los datos del destinatario
+const handleDatosDestinatario = (datos) => {
+  datosRemesa.value.destinatario = datos
+  currentStep.value = 6
+  centrarPaso(6)
 }
 
-// Función para abrir modal de pago a destinatario
-const openPagoDestinoModal = () => {
-  showPagoDestinoModal.value = true
-}
-
-// Función para cerrar modal de pago a destinatario
-const closePagoDestinoModal = () => {
-  showPagoDestinoModal.value = false
-}
-
-// Función para manejar la finalización del pago del remitente
-const handlePagoRemitenteCompleted = () => {
-  pagoRemitenteCompletado.value = true
-  showPagoModal.value = false
-}
-
-// Función para manejar la finalización del pago al destinatario
-const handlePagoDestinatarioCompleted = () => {
-  pagoDestinatarioCompletado.value = true
-  showPagoDestinoModal.value = false
+// Función para manejar el envío final
+const handleSubmit = () => {
+  // Aquí irá la lógica de envío
+  console.log('Enviando remesa...')
 }
 
 // Función para agregar nueva remesa
@@ -207,256 +165,276 @@ const handleNewRemittance = (newRemittance) => {
 </script>
 
 <template>
-  <div class="app-content w-full mx-auto -mt-1 transition-colors duration-300 max-w-none">
+  <div class="container mx-auto px-4 py-4">
     <!-- Fecha de actualización -->
-    <div class="flex justify-end mb-1 px-2 sm:px-4">
-      <div class="text-xs bg-gradient-to-r from-transparent to-blue-50/50 dark:to-blue-900/20 px-3 py-0.5 rounded-lg shadow-sm border-r border-t border-blue-100/50 dark:border-blue-800/20 inline-flex items-center space-x-1 backdrop-blur-sm">
-        <i class="fas fa-clock text-blue-400/70 dark:text-blue-400/60 mr-1.5"></i>
-        <span class="text-gray-600 dark:text-gray-300 font-medium">Actualizado:</span>
-        <span class="text-gray-500 dark:text-gray-400">{{ fechaActualizacion }} - {{ new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) }}</span>
+    <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+      Última actualización: {{ fechaActualizacion }}
+    </div>
+
+    <!-- Tarjetas de precios -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <!-- Tarjeta de precio estándar -->
+      <div class="bg-indigo-600 dark:bg-indigo-700 rounded-xl shadow-lg p-4 border-2 border-indigo-500 dark:border-indigo-600 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-lg font-semibold text-white">Precio Estándar</h3>
+          <span class="px-3 py-1 bg-indigo-500 text-white rounded-full text-sm font-medium">
+            Normal
+          </span>
+        </div>
+        <div class="text-3xl font-bold text-white mb-1">
+          1 SEK = {{ cambioEstandar.toFixed(4) }} BOB
+        </div>
+        <p class="text-sm text-indigo-100">
+          Para envíos menores a 5,000 BOB
+        </p>
+      </div>
+
+      <!-- Tarjeta de precio especial -->
+      <div class="bg-emerald-600 dark:bg-emerald-700 rounded-xl shadow-lg p-4 border-2 border-emerald-500 dark:border-emerald-600 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-lg font-semibold text-white">Precio Especial</h3>
+          <span class="px-3 py-1 bg-emerald-500 text-white rounded-full text-sm font-medium">
+            Especial
+          </span>
+        </div>
+        <div class="text-3xl font-bold text-white mb-1">
+          1 SEK = {{ cambioEspecial.toFixed(4) }} BOB
+        </div>
+        <p class="text-sm text-emerald-100">
+          Para envíos de 5,000 BOB o más
+        </p>
       </div>
     </div>
-    
+
+    <!-- Contenedor de pasos -->
+    <div class="space-y-4 min-h-screen">
+      <!-- Paso 1: Formulario de envío -->
+      <div 
+        id="paso-1"
+        class="transition-all duration-500"
+      >
+        <FormularioEnvio 
+          :cambioEstandar="cambioEstandar"
+          :cambioEspecial="cambioEspecial"
+          @datos="handleFormularioDatos"
+        />
+      </div>
+
+      <!-- Paso 2: Método de recepción -->
+      <div 
+        v-show="currentStep >= 2 && datosRemesa.montoEnviar" 
+        id="paso-2"
+        class="animate-fade-in transition-all duration-500"
+      >
+        <MetodoRecepcion 
+          @seleccionado="handleMetodoRecepcion"
+        />
+      </div>
+
+      <!-- Paso 3: Método de pago -->
+      <div 
+        v-if="currentStep >= 3 && datosRemesa.metodoRecepcion" 
+        id="paso-3"
+        class="animate-fade-in transition-all duration-500"
+      >
+        <MetodoPagoSuecia 
+          :metodos="metodosPagoSuecia"
+          @seleccionado="handleMetodoPago"
+        />
+      </div>
+
+      <!-- Paso 4: Comprobante de pago -->
+      <div 
+        v-if="currentStep >= 4 && datosRemesa.metodoPago" 
+        id="paso-4"
+        class="animate-fade-in transition-all duration-500"
+      >
+        <ComprobantePago 
+          :metodo="datosRemesa.metodoPago"
+          @comprobante="handleComprobante"
+        />
+      </div>
+
+      <!-- Paso 5: Datos del destinatario -->
+      <div 
+        v-if="currentStep >= 5 && datosRemesa.comprobante" 
+        id="paso-5"
+        class="animate-fade-in transition-all duration-500"
+      >
+        <DatosDestinatario 
+          :metodo="datosRemesa.metodoRecepcion"
+          :beneficiarios="beneficiarios"
+          :departamentos="departamentos"
+          @datos="handleDatosDestinatario"
+        />
+      </div>
+
+      <!-- Paso 6: Resumen -->
+      <div 
+        v-if="currentStep >= 6 && datosRemesa.destinatario" 
+        id="paso-6"
+        class="animate-fade-in transition-all duration-500"
+      >
+        <ResumenRemesa 
+          :datos="datosRemesa"
+          @enviar="handleSubmit"
+        />
+      </div>
+    </div>
+
     <!-- Notificación de éxito -->
     <div 
       v-if="showSuccessNotification" 
-      class="fixed top-20 right-4 bg-green-100 dark:bg-green-900 border-l-4 border-green-500 text-green-700 dark:text-green-200 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-sm"
+      class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50"
     >
       <div class="flex items-center">
-        <i class="fas fa-check-circle text-green-500 dark:text-green-300 text-xl mr-3"></i>
-        <div>
-          <p class="font-medium">¡Remesa enviada con éxito!</p>
-          <p class="text-sm mt-1">Tu beneficiario recibirá el dinero pronto.</p>
-        </div>
-        <button 
-          @click="showSuccessNotification = false" 
-          class="ml-auto text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
-        >
-          <i class="fas fa-times"></i>
-        </button>
+        <i class="fas fa-check-circle mr-2"></i>
+        <span>¡Remesa enviada con éxito!</span>
       </div>
     </div>
-    
 
-    
-    <!-- Tarjetas de tipos de cambio -->
-    <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mb-3 px-2 sm:px-4">
-      <!-- Tarjeta de tipo de cambio estándar -->
-      <div class="relative group overflow-hidden rounded-xl shadow-md border border-gray-200/70 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg tarjeta-cambio w-full max-w-full">
-        <!-- Fondo con efecto de vidrio -->
-        <div class="absolute inset-0 bg-gradient-to-r from-gray-50/60 to-gray-100/60 dark:from-gray-800/30 dark:to-gray-700/30 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-80"></div>
-        
-        <!-- Decoración -->
-        <div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-gray-100/30 to-transparent dark:from-gray-700/20 dark:to-transparent"></div>
-        <div class="absolute -left-8 -top-8 w-24 h-24 rounded-full bg-gray-200/20 dark:bg-gray-600/20"></div>
-        
-        <!-- Contenido -->
-        <div class="p-2 sm:p-4 relative backdrop-blur-sm dark:bg-gray-800/30">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 mr-2 sm:mr-4">
-              <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-gray-100/80 to-gray-200/80 dark:from-gray-700/80 dark:to-gray-600/80 text-gray-600 dark:text-gray-300 shadow-sm">
-                <i class="fas fa-exchange-alt text-base sm:text-xl"></i>
+    <!-- Modal de remesa -->
+    <div 
+      v-if="showRemittanceModal" 
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <!-- Encabezado del modal -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+              Nueva remesa
+            </h2>
+            <button 
+              @click="closeRemittanceModal" 
+              class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          
+          <!-- Barra de progreso -->
+          <div class="mt-6">
+            <div class="flex justify-between mb-2">
+              <div 
+                v-for="step in 5" 
+                :key="step"
+                class="flex-1 text-center"
+              >
+                <div 
+                  
+                  :class="[
+                    currentStep >= step 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                  ]"
+                >
+                  {{ step }}
+                </div>
+                <div 
+                  class="text-xs mt-1"
+                  :class="[
+                    currentStep >= step 
+                      ? 'text-blue-600 dark:text-blue-400' 
+                      : 'text-gray-500 dark:text-gray-400'
+                  ]"
+                >
+                  {{ 
+                    step === 1 ? 'Envío' :
+                    step === 2 ? 'Pago' :
+                    step === 3 ? 'Destinatario' :
+                    step === 4 ? 'Comprobante' :
+                    'Resumen'
+                  }}
+                </div>
               </div>
             </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Tipo de cambio estándar</h3>
-              <div class="flex items-baseline">
-                <span class="text-lg sm:text-2xl font-bold text-[#146EBE] dark:text-gray-200 mr-1">{{ cambioEstandar }}</span>
-                <span class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">SEK → BOB</span>
-              </div>
+            <div class="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+              <div 
+                class="absolute h-2 bg-blue-600 rounded-full transition-all duration-300"
+                :style="{ width: `${(currentStep - 1) * 25}%` }"
+              ></div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <!-- Tarjeta de tipo de cambio especial -->
-      <div class="relative group overflow-hidden rounded-xl shadow-md border border-gray-200/70 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg tarjeta-cambio border-shine w-full max-w-full">
-        <!-- Fondo con efecto de vidrio -->
-        <div class="absolute inset-0 bg-gradient-to-r from-gray-50/60 to-gray-100/60 dark:from-gray-800/40 dark:to-gray-700/40 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-80"></div>
-        
-        <!-- Decoración -->
-        <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-gradient-to-br from-gray-300/20 to-gray-400/10 dark:from-gray-500/30 dark:to-gray-600/30"></div>
-        <div class="absolute -right-2 -bottom-2 w-16 h-16 rounded-full bg-gradient-to-tr from-gray-300/20 to-gray-400/10 dark:from-gray-500/30 dark:to-gray-600/20"></div>
-        <div class="absolute bottom-0 right-0 w-full h-1/3 bg-gradient-to-t from-gray-100/30 to-transparent dark:from-gray-700/20 dark:to-transparent"></div>
-        
-        <!-- Contenido -->
-        <div class="p-2 sm:p-4 relative backdrop-blur-sm dark:bg-gray-800/30">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 mr-2 sm:mr-4">
-              <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-gray-100/80 to-gray-200/60 dark:from-gray-700/80 dark:to-gray-600/50 text-[#146EBE] dark:text-gray-200 pulse-icon shadow-sm">
-                <i class="fas fa-star text-base sm:text-xl"></i>
-              </div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Tipo de cambio especial</h3>
-              <div class="flex items-baseline">
-                <span class="text-lg sm:text-2xl font-bold text-[#146EBE] dark:text-gray-200 mr-1">{{ cambioEspecial }}</span>
-                <span class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">SEK → BOB</span>
-              </div>
-              <div class="flex items-center mt-1">
-                <span class="inline-flex items-center text-xs px-1.5 py-0.5 rounded-full bg-gradient-to-r from-gray-100/90 to-gray-200/90 dark:from-gray-700/90 dark:to-gray-600/90 text-gray-800 dark:text-gray-200">
-                  <i class="fas fa-arrow-up text-xs mr-1"></i> +0.01
-                </span>
-              </div>
-            </div>
+
+        <!-- Contenido del modal -->
+        <div class="p-6">
+          <!-- Paso 1: Formulario de envío -->
+          <div v-if="currentStep === 1">
+            <FormularioEnvio 
+              :cambioEstandar="cambioEstandar"
+              :cambioEspecial="cambioEspecial"
+              @datos="handleFormularioDatos"
+            />
+          </div>
+
+          <!-- Paso 2: Método de pago -->
+          <div v-if="currentStep === 2">
+            <MetodoPagoSuecia 
+              :metodos="metodosPagoSuecia"
+              @seleccionado="metodo => {
+                datosRemesa.metodoPago = metodo;
+                nextStep();
+              }"
+            />
+          </div>
+
+          <!-- Paso 3: Datos del destinatario -->
+          <div v-if="currentStep === 3">
+            <DatosDestinatario 
+              :metodo="datosRemesa.metodoRecepcion"
+              :beneficiarios="beneficiarios"
+              :departamentos="departamentos"
+              @datos="datos => {
+                datosRemesa.destinatario = datos;
+                nextStep();
+              }"
+            />
+          </div>
+
+          <!-- Paso 4: Comprobante de pago -->
+          <div v-if="currentStep === 4">
+            <ComprobantePago 
+              @comprobante="comprobante => {
+                datosRemesa.comprobante = comprobante;
+                nextStep();
+              }"
+            />
+          </div>
+
+          <!-- Paso 5: Resumen -->
+          <div v-if="currentStep === 5">
+            <ResumenRemesa 
+              :datos="datosRemesa"
+              @enviar="handleSubmit"
+            />
           </div>
         </div>
-      </div>
-    </div>
-    
-    <!-- Encabezado de la página -->
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-3 px-2 sm:px-4">
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2 sm:mb-0">Mis Remesas</h1>
-      <BotonGradiente 
-        @click="openNewRemittance"
-        texto="Nueva Remesa"
-        icono="plus"
-        :anchoCompleto="false"
-        tamanio="md"
-        tipo="primario"
-      />
-    </div>
 
-    <!-- AREA A MODIFICAR -->
-    <!-- Tabla de remesas recientes -->
-    <div class="bg-[var(--color-table-bg)] dark:bg-gray-900 rounded-lg shadow-md border border-white dark:border-gray-700 transition-all duration-300 mx-2 sm:mx-4">
-      
-      <!-- Tabla responsive -->
-      <div class="overflow-x-auto">
-        <div class="min-w-full">
-          <table class="w-full divide-y divide-white dark:divide-gray-700">
-            <thead class="bg-[var(--color-table-header)] dark:bg-gray-800">
-              <tr>
-                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                  Fecha
-                </th>
-                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                  Destinatario
-                </th>
-                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                  Enviado
-                </th>
-                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                  Recibido
-                </th>
-                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                  Pago del Remitente
-                </th>
-                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                  Pago a Destinatario
-                </th>
-                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                  Estado
-                </th>
-                <th scope="col" class="px-4 sm:px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b border-white dark:border-gray-700">
-                  Voucher
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-[var(--color-table-bg)] dark:bg-gray-900 divide-y divide-white dark:divide-gray-700">
-              <tr v-for="remesa in remesas" :key="remesa.id" class="transition-colors hover:bg-[var(--color-table-hover)] dark:hover:bg-gray-800">
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                  {{ remesa.date }}
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center justify-center">
-                    <div class="ml-0">
-                      <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {{ remesa.recipient }}
-                      </div>
-                      <div class="text-xs text-gray-500 dark:text-gray-400">
-                        {{ remesa.location }}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium">
-                  {{ remesa.amount }} {{ remesa.currency }}
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium">
-                  {{ remesa.receivedAmount }} {{ remesa.receivedCurrency }}
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <button 
-                    @click="showPagoModal = true"
-                    :class="[
-                      'inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white transition-all duration-200 shadow-sm hover:shadow-md',
-                      pagoRemitenteCompletado
-                        ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
-                        : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
-                    ]"
-                  >
-                    <i class="fas fa-credit-card mr-1.5"></i>
-                    {{ pagoRemitenteCompletado ? 'Pago Completado' : 'Método de Pago' }}
-                  </button>
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <button 
-                    @click="openPagoDestinoModal"
-                    :class="[
-                      'inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white transition-all duration-200 shadow-sm hover:shadow-md',
-                      pagoDestinatarioCompletado
-                        ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
-                        : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
-                    ]"
-                  >
-                    <i class="fas fa-money-bill-wave mr-1.5"></i>
-                    {{ pagoDestinatarioCompletado ? 'Pago Completado' : 'Pago a Destinatario' }}
-                  </button>
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <span :class="[
-                    'px-2 inline-flex text-xs leading-5 font-semibold rounded-full',
-                    remesa.statusClass === 'yellow' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100' :
-                    remesa.statusClass === 'green' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100' :
-                    'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100'
-                  ]">
-                    {{ remesa.status }}
-                  </span>
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal(remesa)">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Botones de navegación -->
+        <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between">
+          <button 
+            v-if="currentStep > 1"
+            @click="prevStep"
+            class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+          >
+            <i class="fas fa-arrow-left mr-2"></i>
+            Anterior
+          </button>
+          <div v-else></div>
+          
+          <button 
+            v-if="currentStep < 5"
+            @click="nextStep"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Siguiente
+            <i class="fas fa-arrow-right ml-2"></i>
+          </button>
         </div>
       </div>
-      
-
     </div>
-    <div class="flex justify-end my-4">
-      <button class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-md">
-        Historial de Remesas <i class="fas fa-arrow-right ml-1.5"></i>
-      </button>
-    </div>
-
-
-    <!-- Componente que contiene todos los modales -->
-    <!-- Eliminar ModalRemesas ya que usaremos MisRemesasNueva -->
-
-    <!-- Modal de método de pago -->
-    <MisRemesasPago
-      v-if="showPagoModal"
-      @close="showPagoModal = false"
-      @paymentCompleted="handlePagoRemitenteCompleted"
-    />
-
-    <!-- Modal de pago a destinatario -->
-    <MisRemesasPagoDestino
-      v-if="showPagoDestinoModal"
-      @close="closePagoDestinoModal"
-      @paymentCompleted="handlePagoDestinatarioCompleted"
-    />
-
-    <!-- Modal de nueva remesa -->
-    <MisRemesasNueva
-      v-if="showRemittanceModal"
-      @close="closeRemittanceModal"
-      @newRemittance="handleNewRemittance"
-    />
   </div>
 </template>
 
@@ -485,5 +463,155 @@ table {
 .grid {
   width: 100%;
   max-width: 100%;
+}
+
+/* Animaciones para el modal */
+.fixed.inset-0 > div {
+  animation: modalFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Transiciones suaves */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Efecto de hover en botones */
+button {
+  transition: all 0.15s ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Efectos de hover mejorados para las tarjetas */
+.hover\:shadow-xl:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Transición suave para el hover */
+.transition-all {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Efecto de elevación al hover */
+.transform {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Estilo para el campo activo */
+input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Animación suave para el cambio de campo activo */
+input {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Efecto de brillo en los bordes */
+.border-4 {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+}
+
+/* Animación para los nuevos pasos */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+  scroll-margin-top: 2rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ajustar el contenedor principal */
+.container {
+  min-height: 100vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scroll-padding-top: 1rem;
+  padding-top: 0.5rem;
+}
+
+/* Espaciado entre pasos */
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+/* Estilos para el paso activo */
+.paso-activo {
+  animation: highlight 2s ease-out;
+}
+
+@keyframes highlight {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* Transiciones suaves para todos los pasos */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 500ms;
+}
+
+/* Animación de entrada para nuevos pasos */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ajustar la visibilidad de los pasos */
+[v-show] {
+  display: block !important;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* Efectos mejorados para las tarjetas de precios */
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.hover\:-translate-y-1:hover {
+  transform: translateY(-0.25rem);
 }
 </style>
