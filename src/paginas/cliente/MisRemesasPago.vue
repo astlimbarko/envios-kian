@@ -1,7 +1,9 @@
 <script setup>
 import { ref, watch } from 'vue'
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'paymentCompleted'])
+
+const currentStep = ref(1)
 
 // Estado para el método de pago seleccionado
 const selectedPaymentMethod = ref('swish')
@@ -56,6 +58,17 @@ const removeUploadedFile = () => {
   paymentProof.value.file = null
   paymentProof.value.imageUrl = null
 }
+
+const nextStep = () => {
+  if (selectedPaymentMethod.value) {
+    currentStep.value = 2
+  }
+}
+
+const confirmPayment = () => {
+  emit('paymentCompleted')
+  emit('close')
+}
 </script>
 
 <template>
@@ -69,20 +82,31 @@ const removeUploadedFile = () => {
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
       <!-- Contenido del modal -->
-      <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-        <!-- Encabezado -->
-        <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100" id="modal-title">
-              Método de Pago
+      <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
+        <!-- Barra de progreso -->
+        <div class="w-full bg-gray-200 dark:bg-gray-700 h-2">
+          <div 
+            class="bg-blue-600 h-2 transition-all duration-300 ease-in-out"
+            :style="{ width: `${currentStep === 1 ? 50 : 100}%` }"
+          ></div>
+        </div>
+
+        <!-- Header -->
+        <div class="bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+              Pago del Remitente
             </h3>
-            <button @click="emit('close')" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+            <button @click="emit('close')" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
               <i class="fas fa-times"></i>
             </button>
           </div>
+        </div>
 
-          <!-- Contenido principal -->
-          <div class="space-y-3">
+        <!-- Contenido -->
+        <div class="bg-white dark:bg-gray-800 px-6 py-4">
+          <!-- Paso 1: Selección de método de pago -->
+          <div v-if="currentStep === 1" class="space-y-6">
             <!-- División en dos columnas -->
             <div class="flex flex-col md:flex-row gap-3">
               <!-- Columna izquierda: Selección de método de pago -->
@@ -158,7 +182,7 @@ const removeUploadedFile = () => {
                   </div>
                   
                   <!-- Carga de comprobante para Swish -->
-                  <div class="mt-2">
+                  <div class="mt-2">s
                     <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Comprobante de Pago <span class="text-red-500">*</span>
                     </label>
@@ -233,16 +257,38 @@ const removeUploadedFile = () => {
               </div>
             </div>
           </div>
+
+          <!-- Paso 2: Detalles del pago -->
+          <div v-else class="space-y-6">
+            <!-- ... existing content ... -->
+          </div>
         </div>
 
-        <!-- Pie del modal -->
-        <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-          <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-            Confirmar Pago
-          </button>
-          <button type="button" @click="emit('close')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-            Cancelar
-          </button>
+        <!-- Footer -->
+        <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between space-x-3">
+            <button
+              v-if="currentStep === 2"
+              @click="currentStep = 1"
+              class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200"
+            >
+              Atrás
+            </button>
+            <div class="flex space-x-3 ml-auto">
+              <button
+                @click="emit('close')"
+                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                @click="currentStep === 1 ? nextStep() : confirmPayment()"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                {{ currentStep === 1 ? 'Continuar' : 'Confirmar Pago' }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

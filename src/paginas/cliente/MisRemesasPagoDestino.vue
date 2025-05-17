@@ -161,12 +161,20 @@ const previousStep = () => {
 <template>
   <!-- Modal -->
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full mx-4">
-      <!-- Encabezado -->
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+    <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
+      <!-- Barra de progreso -->
+      <div class="w-full bg-gray-200 dark:bg-gray-700 h-2">
+        <div 
+          class="bg-blue-600 h-2 transition-all duration-300 ease-in-out"
+          :style="{ width: `${currentStep === 1 ? 50 : 100}%` }"
+        ></div>
+      </div>
+
+      <!-- Header -->
+      <div class="bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex justify-between items-center">
           <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ currentStep === 1 ? 'Seleccionar Método de Pago' : 'Detalles del Pago' }}
+            Pago a Destinatario
           </h3>
           <button @click="emit('close')" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
             <i class="fas fa-times"></i>

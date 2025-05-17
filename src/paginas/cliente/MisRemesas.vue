@@ -4,6 +4,7 @@ import BotonGradiente from '../../components/BotonGradiente.vue'
 import ModalRemesas from './ModalRemesas.vue'
 import MisRemesasPago from './MisRemesasPago.vue'
 import MisRemesasPagoDestino from './MisRemesasPagoDestino.vue'
+import MisRemesasNueva from './MisRemesasNueva.vue'
 
 // Estados para los modales
 const showTermsModal = ref(false)
@@ -20,6 +21,25 @@ const uploadedFileName = ref('')
 // Estado para los pagos completados
 const pagoRemitenteCompletado = ref(false)
 const pagoDestinatarioCompletado = ref(false)
+
+// Estado para las remesas
+const remesas = ref([
+  {
+    id: '12345',
+    date: '21/04/2023',
+    recipient: 'María González',
+    location: 'Santa Cruz, Bolivia',
+    amount: 850.00,
+    currency: 'SEK',
+    receivedAmount: 5865.00,
+    receivedCurrency: 'BOB',
+    status: 'En Progreso',
+    statusClass: 'yellow',
+    paymentMethod: 'Pendiente',
+    receiveMethod: 'Pendiente',
+    trackingCode: 'REF-1234-5678-90'
+  }
+])
 
 // Datos para los tipos de cambio
 const cambioEstandar = ref(1.08)
@@ -72,7 +92,7 @@ const handleFileUpload = (event) => {
 
 // Abrir modal de términos
 const openNewRemittance = () => {
-  showTermsModal.value = true
+  showRemittanceModal.value = true
 }
 
 // Abrir modal de detalles
@@ -174,6 +194,15 @@ const handlePagoRemitenteCompleted = () => {
 const handlePagoDestinatarioCompleted = () => {
   pagoDestinatarioCompletado.value = true
   showPagoDestinoModal.value = false
+}
+
+// Función para agregar nueva remesa
+const handleNewRemittance = (newRemittance) => {
+  remesas.value.unshift(newRemittance)
+  showSuccessNotification.value = true
+  setTimeout(() => {
+    showSuccessNotification.value = false
+  }, 5000)
 }
 </script>
 
@@ -291,11 +320,7 @@ const handlePagoDestinatarioCompleted = () => {
     <!-- AREA A MODIFICAR -->
     <!-- Tabla de remesas recientes -->
     <div class="bg-[var(--color-table-bg)] dark:bg-gray-900 rounded-lg shadow-md border border-white dark:border-gray-700 transition-all duration-300 mx-2 sm:mx-4">
-      <!--  
-      <div class="p-4 border-b border-white dark:border-gray-700 bg-[var(--color-table-header)] dark:bg-gray-800 flex flex-wrap justify-between items-center rounded-t-lg">
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Remesas Recientes</h2>
-      </div>
-      -->
+      
       <!-- Tabla responsive -->
       <div class="overflow-x-auto">
         <div class="min-w-full">
@@ -329,28 +354,27 @@ const handlePagoDestinatarioCompleted = () => {
               </tr>
             </thead>
             <tbody class="bg-[var(--color-table-bg)] dark:bg-gray-900 divide-y divide-white dark:divide-gray-700">
-              <!-- Ejemplo 1 -->
-              <tr class="transition-colors hover:bg-[var(--color-table-hover)] dark:hover:bg-gray-800">
+              <tr v-for="remesa in remesas" :key="remesa.id" class="transition-colors hover:bg-[var(--color-table-hover)] dark:hover:bg-gray-800">
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                  21/04/2023
+                  {{ remesa.date }}
                 </td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center justify-center">
                     <div class="ml-0">
                       <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
-                        María González
+                        {{ remesa.recipient }}
                       </div>
                       <div class="text-xs text-gray-500 dark:text-gray-400">
-                        Santa Cruz, Bolivia
+                        {{ remesa.location }}
                       </div>
                     </div>
                   </div>
                 </td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium">
-                  8,500 SEK
+                  {{ remesa.amount }} {{ remesa.currency }}
                 </td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-gray-100 font-medium">
-                  5,865 BOB
+                  {{ remesa.receivedAmount }} {{ remesa.receivedCurrency }}
                 </td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                   <button 
@@ -381,12 +405,17 @@ const handlePagoDestinatarioCompleted = () => {
                   </button>
                 </td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100">
-                    En Progreso
+                  <span :class="[
+                    'px-2 inline-flex text-xs leading-5 font-semibold rounded-full',
+                    remesa.statusClass === 'yellow' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100' :
+                    remesa.statusClass === 'green' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100' :
+                    'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100'
+                  ]">
+                    {{ remesa.status }}
                   </span>
                 </td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal()">
+                  <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors" @click="openDetailModal(remesa)">
                     <i class="fas fa-eye"></i>
                   </button>
                 </td>
@@ -399,29 +428,14 @@ const handlePagoDestinatarioCompleted = () => {
 
     </div>
     <div class="flex justify-end my-4">
-  <button class="text-[#293841] dark:text-blue-400 hover:text-[#146EBE] dark:hover:text-blue-300 transition-colors text-sm font-medium">
-    Historial de Remesas <i class="fas fa-arrow-right ml-1"></i>
-  </button>
-</div>
+      <button class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-md">
+        Historial de Remesas <i class="fas fa-arrow-right ml-1.5"></i>
+      </button>
+    </div>
 
 
     <!-- Componente que contiene todos los modales -->
-    <ModalRemesas 
-      :showTermsModal="showTermsModal"
-      :showRemittanceModal="showRemittanceModal" 
-      :showDetailModal="showDetailModal"
-      :currentStep="currentStep"
-      :remittanceData="remittanceData"
-      :selectedRemittance="selectedRemittance"
-      @acceptTerms="acceptTerms"
-      @closeTerms="closeTerms"
-      @closeRemittanceModal="closeRemittanceModal"
-      @closeDetailModal="closeDetailModal"
-      @goToPayment="goToPayment"
-      @goToSummary="goToSummary"
-      @goBack="goBack"
-      @confirmSend="confirmSend"
-    />
+    <!-- Eliminar ModalRemesas ya que usaremos MisRemesasNueva -->
 
     <!-- Modal de método de pago -->
     <MisRemesasPago
@@ -435,6 +449,13 @@ const handlePagoDestinatarioCompleted = () => {
       v-if="showPagoDestinoModal"
       @close="closePagoDestinoModal"
       @paymentCompleted="handlePagoDestinatarioCompleted"
+    />
+
+    <!-- Modal de nueva remesa -->
+    <MisRemesasNueva
+      v-if="showRemittanceModal"
+      @close="closeRemittanceModal"
+      @newRemittance="handleNewRemittance"
     />
   </div>
 </template>
