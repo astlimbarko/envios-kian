@@ -217,6 +217,17 @@ const eliminarArchivo = () => {
         </button>
       </div>
     </div>
+
+    <div v-if="archivoValido" class="w-full mt-6">
+      <BotonContinuar
+        :texto="'Subir comprobante'"
+        :textoCompletado="'Comprobante subido correctamente'"
+        :colorInicial="'blue'"
+        :colorCompletado="'emerald'"
+        :deshabilitado="!archivoValido"
+        @click="continuar"
+      />
+    </div>
   </div>
 </template>
 

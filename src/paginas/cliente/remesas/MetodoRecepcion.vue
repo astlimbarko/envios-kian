@@ -22,6 +22,7 @@ const tipoCuenta = ref('existente')
 const cuentaSeleccionada = ref(null)
 const qrPreview = ref(null)
 const nuevoQR = ref(null)
+const nombreBeneficiario = ref('')
 const mostrarFormularioNuevaCuenta = ref(true)
 const nuevaCuenta = ref({
   banco: '',
@@ -118,11 +119,12 @@ const continuar = () => {
   
   botonUsado.value = true
   
-  // Primero emitimos el evento
+  // Emitir el evento con el método seleccionado y el nombre del beneficiario si es QR
   emit('seleccionado', {
     metodo: metodoSeleccionado.value,
     qr: nuevoQR.value,
-    cuenta: tipoCuenta.value === 'existente' ? cuentaSeleccionada.value : nuevaCuenta.value
+    cuenta: tipoCuenta.value === 'existente' ? cuentaSeleccionada.value : nuevaCuenta.value,
+    nombreBeneficiario: metodoSeleccionado.value === 'qr' ? nombreBeneficiario.value : null
   })
   
   console.log('Iniciando scroll a Método de pago...') // Debug
@@ -255,6 +257,21 @@ watch(tipoCuenta, (nuevoTipo) => {
 
     <!-- Sección QR -->
     <div v-if="metodoSeleccionado === 'qr'" id="seccion-qr" class="mb-6">
+      <!-- Campo para el nombre del beneficiario -->
+      <div class="mb-6">
+        <label for="nombreBeneficiario" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Nombre completo del beneficiario
+        </label>
+        <input
+          type="text"
+          id="nombreBeneficiario"
+          v-model="nombreBeneficiario"
+          class="w-full px-4 py-2.5 text-lg border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+          placeholder="Ingrese el nombre completo del beneficiario"
+          required
+        />
+      </div>
+
       <div v-if="ultimoQR" class="mb-4">
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Último código QR registrado</h3>
         <div class="flex justify-center">
@@ -420,11 +437,11 @@ watch(tipoCuenta, (nuevoTipo) => {
     <!-- Botón Continuar unificado -->
     <div v-if="metodoSeleccionado" class="w-full mt-6">
       <BotonContinuar
-        :texto="'Continuar'"
-        :textoCompletado="'Completa los siguientes pasos ...'"
+        :texto="metodoSeleccionado === 'qr' ? 'Confirmar método QR' : 'Confirmar cuenta bancaria'"
+        :textoCompletado="metodoSeleccionado === 'qr' ? 'Método QR confirmado' : 'Cuenta bancaria confirmada'"
         :colorInicial="'blue'"
         :colorCompletado="'emerald'"
-        :deshabilitado="!metodoSeleccionado"
+        :deshabilitado="metodoSeleccionado === 'qr' && !nombreBeneficiario"
         @click="continuar"
       />
     </div>

@@ -12,6 +12,7 @@ const emit = defineEmits(['close', 'paymentCompleted'])
 
 // Estado para el paso actual
 const currentStep = ref(1)
+const totalSteps = 3 // Actualizado a 3 pasos
 
 // Estado para el método de pago seleccionado
 const selectedPaymentMethod = ref('qr')
@@ -137,8 +138,8 @@ const addNewBankAccount = () => {
 
 // Función para continuar al siguiente paso
 const nextStep = () => {
-  if (currentStep.value === 1) {
-    currentStep.value = 2
+  if (currentStep.value < totalSteps) {
+    currentStep.value++
   } else {
     // Aquí iría la lógica para procesar la selección
     emit('paymentCompleted', {
@@ -152,8 +153,8 @@ const nextStep = () => {
 
 // Función para volver al paso anterior
 const previousStep = () => {
-  if (currentStep.value === 2) {
-    currentStep.value = 1
+  if (currentStep.value > 1) {
+    currentStep.value--
   }
 }
 </script>
@@ -240,7 +241,7 @@ const previousStep = () => {
         </div>
 
         <!-- Paso 2: Detalles según método seleccionado -->
-        <div v-else class="space-y-6">
+        <div v-if="currentStep === 2" class="space-y-6">
           <!-- Opción QR -->
           <div v-if="selectedPaymentMethod === 'qr'" class="grid grid-cols-2 gap-6">
             <!-- QR existente -->
@@ -427,6 +428,14 @@ const previousStep = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Paso 3: Comprobante de pago -->
+        <div v-if="currentStep === 3" class="space-y-6">
+          <ComprobantePago 
+            :metodo="selectedPaymentMethod"
+            @comprobante="handleComprobante"
+          />
         </div>
       </div>
 
