@@ -45,48 +45,50 @@ const archivoValido = computed(() => {
 
 const subir = (event) => {
   const file = event.target.files[0]
-  if (!file) return
-
-  if (!archivoValido.value) {
-    error.value = 'El archivo debe ser PNG, JPG o PDF y no debe exceder 10MB'
-    return
-  }
-
-  archivo.value = file
-  error.value = null
-
-  if (file.type.startsWith('image/')) {
-    const reader = new FileReader()
-    reader.onload = e => {
-      preview.value = e.target.result
+  if (file) {
+    if (file.size > 10 * 1024 * 1024) {
+      alert('El archivo es demasiado grande. El tamaño máximo permitido es 10MB.')
+      return
     }
-    reader.readAsDataURL(file)
-  } else {
-    preview.value = null
-  }
 
-  emit('comprobante', file)
-
-  // Asegurar que el siguiente paso se muestre en la parte superior
-  setTimeout(() => {
-    const siguientePaso = document.getElementById('paso-5')
-    if (siguientePaso) {
-      const headerOffset = 20
-      const elementPosition = siguientePaso.getBoundingClientRect().top
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      })
-
-      // Agregar efecto de resaltado
-      siguientePaso.classList.add('paso-activo')
-      setTimeout(() => {
-        siguientePaso.classList.remove('paso-activo')
-      }, 2000)
+    const validTypes = ['image/png', 'image/jpeg', 'application/pdf']
+    if (!validTypes.includes(file.type)) {
+      alert('Tipo de archivo no válido. Por favor, sube una imagen PNG, JPG o un archivo PDF.')
+      return
     }
-  }, 100)
+
+    archivo.value = file
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        preview.value = e.target.result
+      }
+      reader.readAsDataURL(file)
+    } else {
+      preview.value = null
+    }
+
+    // Asegurar que el siguiente paso se muestre en la parte superior
+    setTimeout(() => {
+      const siguientePaso = document.getElementById('paso-5')
+      if (siguientePaso) {
+        const headerOffset = 80
+        const elementPosition = siguientePaso.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+
+        // Agregar efecto de resaltado
+        siguientePaso.classList.add('paso-activo')
+        setTimeout(() => {
+          siguientePaso.classList.remove('paso-activo')
+        }, 2000)
+      }
+    }, 100)
+  }
 }
 
 const eliminarArchivo = () => {
@@ -98,7 +100,7 @@ const eliminarArchivo = () => {
 </script>
 
 <template>
-  <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700/50 rounded-xl shadow-xl p-6 mb-4 border-4 border-blue-200 dark:border-blue-800">
+  <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-4 mb-4 border-4 border-gray-400 dark:border-gray-500">
     <div class="text-center mb-6">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Comprobante de pago</h2>
       <p class="text-gray-600 dark:text-gray-300">Sube el comprobante de tu pago</p>

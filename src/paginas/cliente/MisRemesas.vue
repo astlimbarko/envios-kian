@@ -109,7 +109,7 @@ const centrarPaso = (stepNumber) => {
   setTimeout(() => {
     const paso = document.getElementById(`paso-${stepNumber}`)
     if (paso) {
-      const headerOffset = 20 // Ajusta este valor según el espacio que quieras dejar arriba
+      const headerOffset = 80 // Ajustamos este valor para dejar espacio para el header
       const elementPosition = paso.getBoundingClientRect().top
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset
 
@@ -128,10 +128,11 @@ const centrarPaso = (stepNumber) => {
 }
 
 // Función para manejar la selección del método de pago
-const handleMetodoPago = (metodo) => {
-  datosRemesa.value.metodoPago = metodo
-  currentStep.value = 4
-  centrarPaso(4)
+const handleMetodoPago = (payload) => {
+  datosRemesa.value.metodoPago = payload.metodo
+  datosRemesa.value.comprobante = payload.comprobante
+  currentStep.value = 5
+  centrarPaso(5)
 }
 
 // Función para manejar el comprobante de pago
@@ -244,6 +245,8 @@ const handleNewRemittance = (newRemittance) => {
       </div>
 
       <!-- Paso 4: Comprobante de pago -->
+      <!-- ELIMINADO: Este paso ya no es necesario porque el comprobante está integrado en MetodoPagoSuecia.vue -->
+      <!--
       <div 
         v-if="currentStep >= 4 && datosRemesa.metodoPago" 
         id="paso-4"
@@ -254,6 +257,7 @@ const handleNewRemittance = (newRemittance) => {
           @comprobante="handleComprobante"
         />
       </div>
+      -->
 
       <!-- Paso 5: Datos del destinatario -->
       <div 
@@ -322,7 +326,7 @@ const handleNewRemittance = (newRemittance) => {
                 class="flex-1 text-center"
               >
                 <div 
-                  
+                  class="w-8 h-8 mx-auto rounded-full flex items-center justify-center"
                   :class="[
                     currentStep >= step 
                       ? 'bg-blue-600 text-white' 
@@ -550,13 +554,14 @@ input {
   min-height: 100vh;
   overflow-y: auto;
   scroll-behavior: smooth;
-  scroll-padding-top: 1rem;
+  scroll-padding-top: 5rem; /* Ajustamos el padding superior para el scroll */
   padding-top: 0.5rem;
 }
 
-/* Espaciado entre pasos */
-.space-y-4 > * + * {
+/* Asegurar que los pasos tengan un margen superior consistente */
+.space-y-4 > * {
   margin-top: 1rem;
+  scroll-margin-top: 5rem; /* Ajustamos el margen de scroll para cada paso */
 }
 
 /* Estilos para el paso activo */

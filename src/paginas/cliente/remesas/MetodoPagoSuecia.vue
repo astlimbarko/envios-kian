@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import BotonContinuar from '../../../components/BotonContinuar.vue'
 
 const props = defineProps({
   metodos: {
@@ -13,6 +14,30 @@ const props = defineProps({
 
 const emit = defineEmits(['seleccionado'])
 const seleccionado = ref('')
+const archivo = ref(null)
+const preview = ref(null)
+const error = ref(null)
+const botonUsado = ref(false)
+
+const cuentasBancarias = {
+  suecia: {
+    banco: 'Swedbank',
+    cuenta: 'SE1234567890123456789012',
+    swift: 'SWEDSESS',
+    titular: 'KIAN AB'
+  },
+  estonia: {
+    banco: 'SEB Bank Estonia',
+    cuenta: 'EE123456789012345678',
+    swift: 'SEBEE2X',
+    titular: 'KIAN OÜ'
+  }
+}
+
+const datosSwish = {
+  numero: '0722729763',
+  referencia: 'Gåva'
+}
 
 const seleccionarMetodo = (metodo) => {
   seleccionado.value = metodo
@@ -22,7 +47,7 @@ const seleccionarMetodo = (metodo) => {
   setTimeout(() => {
     const siguientePaso = document.getElementById('paso-4')
     if (siguientePaso) {
-      const headerOffset = 20
+      const headerOffset = 80
       const elementPosition = siguientePaso.getBoundingClientRect().top
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset
 
@@ -39,12 +64,76 @@ const seleccionarMetodo = (metodo) => {
     }
   }, 100)
 }
+
+const continuar = () => {
+  if (botonUsado.value) {
+    return
+  }
+  
+  botonUsado.value = true
+  
+  // Emitir el evento con el método seleccionado y el archivo (comprobante)
+  emit('seleccionado', {
+    metodo: seleccionado.value,
+    comprobante: archivo.value
+  })
+
+  // Scroll al siguiente paso
+  setTimeout(() => {
+    const siguientePaso = document.getElementById('paso-4')
+    if (siguientePaso) {
+      const headerOffset = 80
+      const elementPosition = siguientePaso.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+
+      siguientePaso.classList.add('paso-activo')
+      setTimeout(() => {
+        siguientePaso.classList.remove('paso-activo')
+      }, 2000)
+    }
+  }, 100)
+}
+
+const subir = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    if (file.size > 10 * 1024 * 1024) {
+      error.value = 'El archivo es demasiado grande. El tamaño máximo permitido es 10MB.'
+      return
+    }
+
+    const validTypes = ['image/jpeg', 'image/png', 'application/pdf']
+    if (!validTypes.includes(file.type)) {
+      error.value = 'Tipo de archivo no válido. Por favor, sube una imagen PNG, JPG o PDF.'
+      return
+    }
+
+    archivo.value = file
+    error.value = null
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        preview.value = e.target.result
+      }
+      reader.readAsDataURL(file)
+    } else {
+      preview.value = null
+    }
+  }
+}
 </script>
 
 <template>
-  <div class="w-full">
+  <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-4 mb-4 border-4 border-gray-400 dark:border-gray-500">
     <div class="text-center mb-8">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Método de pago</h2>
+      <!-- Titulo y descripcion de Metodo de pago --> 
+      <h2 id="metodo-pago-titulo" class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Método de pago</h2>
       <p class="text-gray-600 dark:text-gray-300">Selecciona cómo deseas realizar el pago</p>
     </div>
 
@@ -57,7 +146,7 @@ const seleccionarMetodo = (metodo) => {
           'flex flex-col items-center justify-center border-2 rounded-xl p-6 transition-all',
           seleccionado === m.valor 
             ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg shadow-blue-100 dark:shadow-blue-900/20' 
-            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800',
+            : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800',
           'hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:shadow-md'
         ]"
       >
@@ -74,25 +163,183 @@ const seleccionarMetodo = (metodo) => {
       </button>
     </div>
 
-    <!-- Información adicional -->
-    <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <i class="fas fa-info-circle text-blue-500 dark:text-blue-400"></i>
+    <!-- Información del método seleccionado -->
+    <div v-if="seleccionado === 'swish'" class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Datos del Swish</h3>
+      <div class="space-y-2">
+        <p class="text-gray-700 dark:text-gray-300">
+          <span class="font-medium">Número:</span> {{ datosSwish.numero }}
+        </p>
+        <p class="text-gray-700 dark:text-gray-300">
+          <span class="font-medium">Referencia:</span> {{ datosSwish.referencia }}
+        </p>
+      </div>
+
+      <!-- Área de comprobante integrada -->
+      <div class="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
+        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Comprobante de pago</h4>
+        <div class="mb-4">
+          <label 
+            class="block w-full p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
+            :class="{'border-red-500 dark:border-red-400': error}"
+          >
+            <input 
+              type="file" 
+              class="hidden" 
+              accept=".jpg,.jpeg,.png,.pdf"
+              @change="subir"
+            >
+            <div class="space-y-2">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <div class="text-gray-600 dark:text-gray-400">
+                <span class="font-medium">Haz clic para subir</span> o arrastra y suelta
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                PNG, JPG o PDF (máx. 10MB)
+              </p>
+            </div>
+          </label>
+          <p v-if="error" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
         </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
-            Información importante
-          </h3>
-          <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
-            <p>
-              {{ seleccionado === 'swish' 
-                ? 'Asegúrate de tener la aplicación Swish instalada y configurada en tu teléfono.' 
-                : 'Ten a mano los datos de tu cuenta bancaria para realizar la transferencia.' }}
-            </p>
+
+        <!-- Vista previa -->
+        <div v-if="preview" class="flex justify-center mb-4">
+          <div class="relative">
+            <img :src="preview" class="w-40 h-40 object-contain rounded-xl border border-gray-300 dark:border-gray-600">
+            <button 
+              @click="eliminarArchivo" 
+              class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors"
+            >
+              <i class="fas fa-times"></i>
+            </button>
           </div>
         </div>
       </div>
     </div>
+
+    <div v-if="seleccionado === 'banco'" class="space-y-4">
+      <!-- Cuenta en Suecia -->
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Cuenta en Suecia</h3>
+        <div class="space-y-2">
+          <p class="text-gray-700 dark:text-gray-300">
+            <span class="font-medium">Banco:</span> {{ cuentasBancarias.suecia.banco }}
+          </p>
+          <p class="text-gray-700 dark:text-gray-300">
+            <span class="font-medium">Cuenta:</span> {{ cuentasBancarias.suecia.cuenta }}
+          </p>
+          <p class="text-gray-700 dark:text-gray-300">
+            <span class="font-medium">SWIFT:</span> {{ cuentasBancarias.suecia.swift }}
+          </p>
+          <p class="text-gray-700 dark:text-gray-300">
+            <span class="font-medium">Titular:</span> {{ cuentasBancarias.suecia.titular }}
+          </p>
+        </div>
+
+        <!-- Área de comprobante integrada -->
+        <div class="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Comprobante de pago</h4>
+          <div class="mb-4">
+            <label 
+              class="block w-full p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
+              :class="{'border-red-500 dark:border-red-400': error}"
+            >
+              <input 
+                type="file" 
+                class="hidden" 
+                accept=".jpg,.jpeg,.png,.pdf"
+                @change="subir"
+              >
+              <div class="space-y-2">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <div class="text-gray-600 dark:text-gray-400">
+                  <span class="font-medium">Haz clic para subir</span> o arrastra y suelta
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  PNG, JPG o PDF (máx. 10MB)
+                </p>
+              </div>
+            </label>
+            <p v-if="error" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+          </div>
+
+          <!-- Vista previa -->
+          <div v-if="preview" class="flex justify-center mb-4">
+            <div class="relative">
+              <img :src="preview" class="w-40 h-40 object-contain rounded-xl border border-gray-300 dark:border-gray-600">
+              <button 
+                @click="eliminarArchivo" 
+                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cuenta en Estonia -->
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Cuenta en Estonia</h3>
+        <div class="space-y-2">
+          <p class="text-gray-700 dark:text-gray-300">
+            <span class="font-medium">Banco:</span> {{ cuentasBancarias.estonia.banco }}
+          </p>
+          <p class="text-gray-700 dark:text-gray-300">
+            <span class="font-medium">Cuenta:</span> {{ cuentasBancarias.estonia.cuenta }}
+          </p>
+          <p class="text-gray-700 dark:text-gray-300">
+            <span class="font-medium">SWIFT:</span> {{ cuentasBancarias.estonia.swift }}
+          </p>
+          <p class="text-gray-700 dark:text-gray-300">
+            <span class="font-medium">Titular:</span> {{ cuentasBancarias.estonia.titular }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Continuar -->
+    <div v-if="seleccionado && archivo" class="w-full mt-6">
+      <BotonContinuar
+        :texto="'Continuar'"
+        :textoCompletado="'Completa los siguientes pasos ...'"
+        :colorInicial="'blue'"
+        :colorCompletado="'emerald'"
+        :deshabilitado="!archivo"
+        @click="continuar"
+      />
+    </div>
   </div>
-</template> 
+</template>
+
+<style scoped>
+.paso-activo {
+  animation: highlight 2s ease-in-out;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: rgba(59, 130, 246, 0.1);
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.2);
+    transform: scale(1.02);
+    box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.2);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+</style> 

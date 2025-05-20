@@ -66,15 +66,44 @@ const seleccionarBeneficiario = (id) => {
   }
 }
 
-const emitir = () => {
+const handleSubmit = () => {
   if (formularioValido.value) {
-    emit('datos', { ...datos.value })
+    emit('datos', {
+      nombre: datos.value.nombre,
+      documento: datos.value.documento,
+      qr: datos.value.qr,
+      banco: datos.value.banco,
+      tipoCuenta: datos.value.tipoCuenta,
+      sucursal: datos.value.sucursal,
+      numeroCuenta: datos.value.numeroCuenta
+    })
+
+    // Asegurar que el siguiente paso se muestre en la parte superior
+    setTimeout(() => {
+      const siguientePaso = document.getElementById('paso-6')
+      if (siguientePaso) {
+        const headerOffset = 80
+        const elementPosition = siguientePaso.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+
+        // Agregar efecto de resaltado
+        siguientePaso.classList.add('paso-activo')
+        setTimeout(() => {
+          siguientePaso.classList.remove('paso-activo')
+        }, 2000)
+      }
+    }, 100)
   }
 }
 </script>
 
 <template>
-  <div class="w-full">
+  <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-4 mb-4 border-4 border-gray-400 dark:border-gray-500">
     <div class="text-center mb-8">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Datos del destinatario</h2>
       <p class="text-gray-600 dark:text-gray-300">Ingresa la información del beneficiario</p>
@@ -201,17 +230,16 @@ const emitir = () => {
       </div>
     </div>
 
-    <button 
-      @click="emitir" 
-      :disabled="!formularioValido"
-      :class="[
-        'w-full py-3 px-4 rounded-xl font-semibold transition-all',
-        formularioValido 
-          ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2' 
-          : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-      ]"
-    >
-      Continuar
-    </button>
+    <!-- Botón Continuar -->
+    <div v-if="formularioValido" class="w-full mt-6">
+      <BotonContinuar
+        :texto="'Continuar'"
+        :textoCompletado="'Completa los siguientes pasos ...'"
+        :colorInicial="'blue'"
+        :colorCompletado="'emerald'"
+        :deshabilitado="!formularioValido"
+        @click="handleSubmit"
+      />
+    </div>
   </div>
 </template> 

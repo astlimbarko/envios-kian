@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import BotonContinuar from '../../../components/BotonContinuar.vue'
 
 const props = defineProps({
   datos: Object,
@@ -97,18 +98,16 @@ const enviar = () => {
       </div>
     </div>
 
-    <!-- Botón de envío -->
-    <button 
-      :disabled="!acepto" 
-      @click="enviar" 
-      :class="[
-        'w-full py-3 px-4 rounded-xl font-semibold text-lg transition-all',
-        acepto 
-          ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg' 
-          : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-      ]"
-    >
-      Confirmar y enviar
-    </button>
+    <!-- Botón Finalizar -->
+    <div v-if="acepto" class="w-full mt-6">
+      <BotonContinuar
+        :texto="'Finalizar'"
+        :textoCompletado="'¡Enviado!'"
+        :colorInicial="'blue'"
+        :colorCompletado="'emerald'"
+        :deshabilitado="!acepto"
+        @click="enviar"
+      />
+    </div>
   </div>
 </template> 

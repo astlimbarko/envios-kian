@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps({
   cambioEstandar: {
@@ -19,6 +19,8 @@ const montoEnviar = ref('')
 const montoRecibir = ref('')
 const campoActivo = ref('enviar') // 'enviar' o 'recibir'
 const botonUsado = ref(false)
+const valoresIniciales = ref({ enviar: '', recibir: '' })
+const hayCambios = ref(false)
 const paisSeleccionado = ref({
   nombre: 'Bolivia',
   codigo: 'BO',
@@ -52,11 +54,29 @@ const actualizarMontos = (valor, campo) => {
   }
 }
 
+// Función para detectar cambios
+const detectarCambios = () => {
+  hayCambios.value = montoEnviar.value !== valoresIniciales.value.enviar || 
+                     montoRecibir.value !== valoresIniciales.value.recibir
+}
+
 // Función para continuar
 const continuar = () => {
-  if (botonUsado.value) return
+  if (botonUsado.value) {
+    // Si hay cambios, actualizar los valores iniciales
+    valoresIniciales.value = {
+      enviar: montoEnviar.value,
+      recibir: montoRecibir.value
+    }
+    hayCambios.value = false
+    return
+  }
   
   botonUsado.value = true
+  valoresIniciales.value = {
+    enviar: montoEnviar.value,
+    recibir: montoRecibir.value
+  }
   emit('datos', {
     montoEnviar: montoEnviar.value,
     montoRecibir: montoRecibir.value,
@@ -68,7 +88,7 @@ const continuar = () => {
   setTimeout(() => {
     const siguientePaso = document.getElementById('paso-2')
     if (siguientePaso) {
-      const headerOffset = 20
+      const headerOffset = 80
       const elementPosition = siguientePaso.getBoundingClientRect().top
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset
 
@@ -85,10 +105,23 @@ const continuar = () => {
     }
   }, 100)
 }
+
+// Observar cambios en los montos
+watch([montoEnviar, montoRecibir], () => {
+  if (botonUsado.value) {
+    detectarCambios()
+  }
+})
+
+const handleKeyPress = (event) => {
+  if (event.key === 'Enter' && !botonUsado.value && montoEnviar.value) {
+    continuar()
+  }
+}
 </script>
 
 <template>
-  <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-4 mb-4 border-4 border-gray-200 dark:border-gray-700">
+  <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-4 mb-4 border-4 border-gray-400 dark:border-gray-500" @keypress="handleKeyPress">
     <div class="text-center mb-3">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Nueva remesa</h2>
       <p class="text-gray-600 dark:text-gray-300">Ingresa los detalles de tu envío</p>
@@ -102,7 +135,16 @@ const continuar = () => {
       <div class="relative">
         <select 
           v-model="paisSeleccionado"
-          class="w-full pl-14 pr-4 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 text-gray-900 dark:text-white hover:border-blue-500 transition-colors bg-white dark:bg-gray-800"
+          class="w-full pl-20 pr-4 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 text-gray-900 dark:text-white hover:border-blue-500 transition-colors bg-white dark:bg-gray-800"
+          :style="{
+            backgroundImage: `url(${paisSeleccionado.bandera})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: '0% center',
+            backgroundSize: '6% auto',
+            '@media (max-width: 768px)': {
+              backgroundSize: '12% auto'
+            }
+          }"
         >
           <option 
             v-for="pais in paises" 
@@ -112,12 +154,6 @@ const continuar = () => {
             {{ pais.nombre }}
           </option>
         </select>
-        <img 
-          :src="paisSeleccionado.bandera" 
-          class="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-46 object-contain"
-
-          :alt="paisSeleccionado.nombre"
-        >
       </div>
     </div>
 
@@ -196,10 +232,19 @@ const continuar = () => {
     <!-- Botón de continuar -->
     <button 
       @click="continuar"
-      :disabled="(!montoEnviar && !montoRecibir) || botonUsado"
-      class="w-full py-2 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold text-lg shadow-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+      :disabled="(!montoEnviar && !montoRecibir) || (!botonUsado && hayCambios)"
+      class="w-full py-2 px-4 rounded-xl text-white font-semibold text-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+      :class="[
+        !botonUsado ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500' :
+        hayCambios ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500' :
+        'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 focus:ring-emerald-500'
+      ]"
     >
-      {{ botonUsado ? 'Procesando...' : 'Continuar' }}
+      {{ 
+        !botonUsado ? 'Continuar' : 
+        hayCambios ? 'Cambiar cantidad' : 
+        'Completa los siguientes pasos ...' 
+      }}
     </button>
   </div>
 </template>
@@ -234,5 +279,18 @@ input {
 /* Efecto de brillo en los bordes */
 .border-4 {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos para la bandera en diferentes dispositivos */
+@media (max-width: 768px) {
+  select {
+    background-size: 15% auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  select {
+    background-size: 18% auto !important;
+  }
 }
 </style> 
