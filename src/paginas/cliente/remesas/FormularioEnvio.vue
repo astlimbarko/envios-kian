@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import BotonContinuar from '../../../components/BotonContinuar.vue'
 
 const props = defineProps({
   cambioEstandar: {
@@ -62,21 +63,6 @@ const detectarCambios = () => {
 
 // Función para continuar
 const continuar = () => {
-  if (botonUsado.value) {
-    // Si hay cambios, actualizar los valores iniciales
-    valoresIniciales.value = {
-      enviar: montoEnviar.value,
-      recibir: montoRecibir.value
-    }
-    hayCambios.value = false
-    return
-  }
-  
-  botonUsado.value = true
-  valoresIniciales.value = {
-    enviar: montoEnviar.value,
-    recibir: montoRecibir.value
-  }
   emit('datos', {
     montoEnviar: montoEnviar.value,
     montoRecibir: montoRecibir.value,
@@ -229,23 +215,12 @@ const handleKeyPress = (event) => {
       </div>
     </div>
 
-    <!-- Botón de continuar -->
-    <button 
+    <!-- Reemplazar el botón existente con el nuevo componente -->
+    <BotonContinuar
+      :texto="'Ir al siguiente paso'"
+      :colorInicial="'blue'"
       @click="continuar"
-      :disabled="(!montoEnviar && !montoRecibir) || (!botonUsado && hayCambios)"
-      class="w-full py-2 px-4 rounded-xl text-white font-semibold text-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-      :class="[
-        !botonUsado ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500' :
-        hayCambios ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500' :
-        'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 focus:ring-emerald-500'
-      ]"
-    >
-      {{ 
-        !botonUsado ? 'Continuar' : 
-        hayCambios ? 'Cambiar cantidad' : 
-        'Completa los siguientes pasos ...' 
-      }}
-    </button>
+    />
   </div>
 </template>
 

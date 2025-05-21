@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import BotonContinuar from '../../../components/BotonContinuar.vue'
 
 const props = defineProps({
   metodo: {

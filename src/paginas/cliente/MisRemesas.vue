@@ -27,6 +27,16 @@ const remesas = ref([
   }
 ])
 
+// Estados para notificaciones y modales
+const showSuccessNotification = ref(false)
+const showRemittanceModal = ref(false)
+
+// Métodos de pago para Suecia
+const metodosPagoSuecia = ref([
+  { nombre: 'Swish', valor: 'swish', icono: 'fas fa-mobile-alt' },
+  { nombre: 'Transferencia Bancaria', valor: 'banco', icono: 'fas fa-university' }
+])
+
 // Datos para los tipos de cambio
 const cambioEstandar = ref(1.08)
 const cambioEspecial = ref(1.09)
@@ -46,7 +56,10 @@ const datosRemesa = ref({
   metodoRecepcion: null,
   metodoPago: null,
   destinatario: null,
-  comprobante: null
+  comprobante: null,
+  qrCode: null,
+  nombreBeneficiario: null,
+  cuenta: null
 })
 
 // Lista de países (por ahora solo Bolivia)
@@ -57,6 +70,30 @@ const paises = ref([
     moneda: 'BOB',
     bandera: '/flag_bo.svg'
   }
+])
+
+// Lista de beneficiarios
+const beneficiarios = ref([
+  {
+    id: 1,
+    nombre: 'María González',
+    documento: '12345678',
+    telefono: '591-76543210',
+    departamento: 'Santa Cruz'
+  }
+])
+
+// Lista de departamentos
+const departamentos = ref([
+  'Santa Cruz',
+  'La Paz',
+  'Cochabamba',
+  'Oruro',
+  'Potosí',
+  'Tarija',
+  'Chuquisaca',
+  'Beni',
+  'Pando'
 ])
 
 // Cálculo del tipo de cambio a usar
@@ -99,8 +136,14 @@ const handleFormularioDatos = (datos) => {
 }
 
 // Función para manejar la selección del método de recepción
-const handleMetodoRecepcion = (metodo) => {
-  datosRemesa.value.metodoRecepcion = metodo
+const handleMetodoRecepcion = (datos) => {
+  datosRemesa.value.metodoRecepcion = datos.metodo
+  if (datos.metodo === 'qr') {
+    datosRemesa.value.qrCode = datos.qr
+    datosRemesa.value.nombreBeneficiario = datos.nombreBeneficiario
+  } else if (datos.metodo === 'banco') {
+    datosRemesa.value.cuenta = datos.cuenta
+  }
   currentStep.value = 3
 }
 
@@ -131,8 +174,8 @@ const centrarPaso = (stepNumber) => {
 const handleMetodoPago = (payload) => {
   datosRemesa.value.metodoPago = payload.metodo
   datosRemesa.value.comprobante = payload.comprobante
-  currentStep.value = 5
-  centrarPaso(5)
+  currentStep.value = 6
+  centrarPaso(6)
 }
 
 // Función para manejar el comprobante de pago
@@ -153,6 +196,12 @@ const handleDatosDestinatario = (datos) => {
 const handleSubmit = () => {
   // Aquí irá la lógica de envío
   console.log('Enviando remesa...')
+}
+
+// Función para cerrar el modal de remesa
+const closeRemittanceModal = () => {
+  showRemittanceModal.value = false
+  currentStep.value = 1
 }
 
 // Función para agregar nueva remesa
@@ -260,22 +309,11 @@ const handleNewRemittance = (newRemittance) => {
       -->
 
       <!-- Paso 5: Datos del destinatario -->
-      <div 
-        v-if="currentStep >= 5 && datosRemesa.comprobante" 
-        id="paso-5"
-        class="animate-fade-in transition-all duration-500"
-      >
-        <DatosDestinatario 
-          :metodo="datosRemesa.metodoRecepcion"
-          :beneficiarios="beneficiarios"
-          :departamentos="departamentos"
-          @datos="handleDatosDestinatario"
-        />
-      </div>
+      <!-- Eliminado: Este paso ya no es necesario -->
 
       <!-- Paso 6: Resumen -->
       <div 
-        v-if="currentStep >= 6 && datosRemesa.destinatario" 
+        v-if="currentStep >= 6 && datosRemesa.metodoPago" 
         id="paso-6"
         class="animate-fade-in transition-all duration-500"
       >

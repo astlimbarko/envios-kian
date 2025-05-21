@@ -113,68 +113,57 @@ const editarNuevaCuenta = () => {
 }
 
 const continuar = () => {
-  if (botonUsado.value) {
-    return
+  if (metodoSeleccionado.value === 'qr') {
+    emit('seleccionado', {
+      metodo: 'qr',
+      qr: nuevoQR.value,
+      nombreBeneficiario: nombreBeneficiario.value
+    })
+  } else if (metodoSeleccionado.value === 'cuenta') {
+    if (tipoCuenta.value === 'existente' && cuentaSeleccionada.value) {
+      emit('seleccionado', {
+        metodo: 'banco',
+        cuenta: {
+          titular: cuentaSeleccionada.value.titular,
+          banco: cuentaSeleccionada.value.banco,
+          numeroCuenta: cuentaSeleccionada.value.numeroCuenta,
+          tipoCuenta: cuentaSeleccionada.value.tipoCuenta,
+          sucursal: cuentaSeleccionada.value.sucursal
+        }
+      })
+    } else if (tipoCuenta.value === 'nueva' && nuevaCuenta.value) {
+      emit('seleccionado', {
+        metodo: 'banco',
+        cuenta: {
+          titular: nuevaCuenta.value.titular,
+          banco: nuevaCuenta.value.banco,
+          numeroCuenta: nuevaCuenta.value.numeroCuenta,
+          tipoCuenta: nuevaCuenta.value.tipoCuenta,
+          sucursal: nuevaCuenta.value.sucursal
+        }
+      })
+    }
   }
-  
-  botonUsado.value = true
-  
-  // Emitir el evento con el método seleccionado y el nombre del beneficiario si es QR
-  emit('seleccionado', {
-    metodo: metodoSeleccionado.value,
-    qr: nuevoQR.value,
-    cuenta: tipoCuenta.value === 'existente' ? cuentaSeleccionada.value : nuevaCuenta.value,
-    nombreBeneficiario: metodoSeleccionado.value === 'qr' ? nombreBeneficiario.value : null
-  })
-  
-  console.log('Iniciando scroll a Método de pago...') // Debug
 
-  // Aumentamos el tiempo de espera para asegurar que el DOM se haya actualizado
+  // Scroll al siguiente paso
   setTimeout(() => {
-    // Intentamos encontrar el elemento por ID
-    const siguientePaso = document.getElementById('metodo-pago-titulo')
-    console.log('Buscando elemento:', siguientePaso) // Debug
-
+    const siguientePaso = document.querySelector('.metodo-pago-titulo')
     if (siguientePaso) {
-      // Calculamos la posición exacta
       const headerOffset = 80
       const elementPosition = siguientePaso.getBoundingClientRect().top
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset
 
-      console.log('Posición del elemento:', elementPosition) // Debug
-      console.log('Offset calculado:', offsetPosition) // Debug
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
 
-      // Intentamos diferentes métodos de scroll
-      try {
-        // Método 1: scrollIntoView
-        siguientePaso.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start'
-        })
-
-        // Método 2: window.scrollTo como respaldo
-        setTimeout(() => {
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          })
-        }, 100)
-
-        // Efecto visual
-        siguientePaso.classList.add('paso-activo')
-        setTimeout(() => {
-          siguientePaso.classList.remove('paso-activo')
-        }, 2000)
-      } catch (error) {
-        console.error('Error al hacer scroll:', error)
-      }
-    } else {
-      console.log('No se encontró el elemento de Método de pago')
-      // Intentamos buscar el elemento de otra manera
-      const elementos = document.querySelectorAll('h2')
-      console.log('Todos los h2 encontrados:', elementos)
+      siguientePaso.classList.add('paso-activo')
+      setTimeout(() => {
+        siguientePaso.classList.remove('paso-activo')
+      }, 2000)
     }
-  }, 800) // Aumentamos el delay para dar más tiempo
+  }, 100)
 }
 
 // Observar cambios en cuentaSeleccionada
@@ -435,13 +424,10 @@ watch(tipoCuenta, (nuevoTipo) => {
     </div>
 
     <!-- Botón Continuar unificado -->
-    <div v-if="metodoSeleccionado" class="w-full mt-6">
+    <div class="w-full mt-6">
       <BotonContinuar
-        :texto="metodoSeleccionado === 'qr' ? 'Confirmar método QR' : 'Confirmar cuenta bancaria'"
-        :textoCompletado="metodoSeleccionado === 'qr' ? 'Método QR confirmado' : 'Cuenta bancaria confirmada'"
+        :texto="'Ir al siguiente paso'"
         :colorInicial="'blue'"
-        :colorCompletado="'emerald'"
-        :deshabilitado="metodoSeleccionado === 'qr' && !nombreBeneficiario"
         @click="continuar"
       />
     </div>

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
+import BotonContinuar from '../../../components/BotonContinuar.vue'
 
 const props = defineProps({
   metodo: String,
@@ -233,11 +234,8 @@ const handleSubmit = () => {
     <!-- Botón Continuar -->
     <div v-if="formularioValido" class="w-full mt-6">
       <BotonContinuar
-        :texto="'Continuar'"
-        :textoCompletado="'Completa los siguientes pasos ...'"
+        :texto="'Ir al siguiente paso'"
         :colorInicial="'blue'"
-        :colorCompletado="'emerald'"
-        :deshabilitado="!formularioValido"
         @click="handleSubmit"
       />
     </div>
