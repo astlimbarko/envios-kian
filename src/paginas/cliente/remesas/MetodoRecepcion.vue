@@ -115,14 +115,19 @@ const editarNuevaCuenta = () => {
 const continuar = () => {
   if (metodoSeleccionado.value === 'qr') {
     emit('seleccionado', {
-      metodo: 'qr',
+      tipo: 'qr',
+      esQR: true,
       qr: nuevoQR.value,
-      nombreBeneficiario: nombreBeneficiario.value
+      nombreBeneficiario: nombreBeneficiario.value,
+      cuenta: null // Aseguramos que no haya datos de cuenta cuando es QR
     })
   } else if (metodoSeleccionado.value === 'cuenta') {
     if (tipoCuenta.value === 'existente' && cuentaSeleccionada.value) {
       emit('seleccionado', {
-        metodo: 'banco',
+        tipo: 'banco',
+        esQR: false,
+        qr: null, // Aseguramos que no haya datos de QR cuando es cuenta
+        nombreBeneficiario: null,
         cuenta: {
           titular: cuentaSeleccionada.value.titular,
           banco: cuentaSeleccionada.value.banco,
@@ -133,7 +138,10 @@ const continuar = () => {
       })
     } else if (tipoCuenta.value === 'nueva' && nuevaCuenta.value) {
       emit('seleccionado', {
-        metodo: 'banco',
+        tipo: 'banco',
+        esQR: false,
+        qr: null, // Aseguramos que no haya datos de QR cuando es cuenta
+        nombreBeneficiario: null,
         cuenta: {
           titular: nuevaCuenta.value.titular,
           banco: nuevaCuenta.value.banco,
@@ -382,7 +390,7 @@ watch(tipoCuenta, (nuevoTipo) => {
               @click="guardarNuevaCuenta"
               class="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors text-lg font-semibold"
             >
-              Guardar cuenta
+              Confirmar cuenta
             </button>
           </div>
         </div>

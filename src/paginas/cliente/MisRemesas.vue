@@ -3,8 +3,6 @@ import { ref, computed } from 'vue'
 import BotonGradiente from '../../components/BotonGradiente.vue'
 import FormularioEnvio from './remesas/FormularioEnvio.vue'
 import MetodoPagoSuecia from './remesas/MetodoPagoSuecia.vue'
-import DatosDestinatario from './remesas/DatosDestinatario.vue'
-import ComprobantePago from './remesas/ComprobantePago.vue'
 import ResumenRemesa from './remesas/ResumenRemesa.vue'
 import MetodoRecepcion from './remesas/MetodoRecepcion.vue'
 
@@ -114,7 +112,7 @@ const actualizarMontos = (valor, campo) => {
 
 // Función para avanzar al siguiente paso
 const nextStep = () => {
-  if (currentStep.value < 5) {
+  if (currentStep.value < 4) {
     currentStep.value++
   }
 }
@@ -137,12 +135,12 @@ const handleFormularioDatos = (datos) => {
 
 // Función para manejar la selección del método de recepción
 const handleMetodoRecepcion = (datos) => {
-  datosRemesa.value.metodoRecepcion = datos.metodo
-  if (datos.metodo === 'qr') {
-    datosRemesa.value.qrCode = datos.qr
-    datosRemesa.value.nombreBeneficiario = datos.nombreBeneficiario
-  } else if (datos.metodo === 'banco') {
-    datosRemesa.value.cuenta = datos.cuenta
+  datosRemesa.value.metodoRecepcion = {
+    tipo: datos.tipo,
+    esQR: datos.esQR,
+    qr: datos.qr,
+    nombreBeneficiario: datos.nombreBeneficiario,
+    cuenta: datos.cuenta
   }
   currentStep.value = 3
 }
@@ -172,24 +170,18 @@ const centrarPaso = (stepNumber) => {
 
 // Función para manejar la selección del método de pago
 const handleMetodoPago = (payload) => {
-  datosRemesa.value.metodoPago = payload.metodo
-  datosRemesa.value.comprobante = payload.comprobante
-  currentStep.value = 6
-  centrarPaso(6)
-}
-
-// Función para manejar el comprobante de pago
-const handleComprobante = (comprobante) => {
-  datosRemesa.value.comprobante = comprobante
-  currentStep.value = 5
-  centrarPaso(5)
-}
-
-// Función para manejar los datos del destinatario
-const handleDatosDestinatario = (datos) => {
-  datosRemesa.value.destinatario = datos
-  currentStep.value = 6
-  centrarPaso(6)
+  datosRemesa.value.metodoPago = {
+    tipo: payload.metodo,
+    numero: payload.numero,
+    referencia: payload.referencia,
+    banco: payload.banco,
+    cuenta: payload.cuenta,
+    swift: payload.swift,
+    titular: payload.titular,
+    comprobante: payload.comprobantePago
+  }
+  currentStep.value = 4 // Cambiamos a 4 para ir directamente al resumen
+  centrarPaso(4)
 }
 
 // Función para manejar el envío final
@@ -293,28 +285,10 @@ const handleNewRemittance = (newRemittance) => {
         />
       </div>
 
-      <!-- Paso 4: Comprobante de pago -->
-      <!-- ELIMINADO: Este paso ya no es necesario porque el comprobante está integrado en MetodoPagoSuecia.vue -->
-      <!--
+      <!-- Paso 4: Resumen -->
       <div 
         v-if="currentStep >= 4 && datosRemesa.metodoPago" 
         id="paso-4"
-        class="animate-fade-in transition-all duration-500"
-      >
-        <ComprobantePago 
-          :metodo="datosRemesa.metodoPago"
-          @comprobante="handleComprobante"
-        />
-      </div>
-      -->
-
-      <!-- Paso 5: Datos del destinatario -->
-      <!-- Eliminado: Este paso ya no es necesario -->
-
-      <!-- Paso 6: Resumen -->
-      <div 
-        v-if="currentStep >= 6 && datosRemesa.metodoPago" 
-        id="paso-6"
         class="animate-fade-in transition-all duration-500"
       >
         <ResumenRemesa 
@@ -359,7 +333,7 @@ const handleNewRemittance = (newRemittance) => {
           <div class="mt-6">
             <div class="flex justify-between mb-2">
               <div 
-                v-for="step in 5" 
+                v-for="step in 4" 
                 :key="step"
                 class="flex-1 text-center"
               >
@@ -383,9 +357,8 @@ const handleNewRemittance = (newRemittance) => {
                 >
                   {{ 
                     step === 1 ? 'Envío' :
-                    step === 2 ? 'Pago' :
-                    step === 3 ? 'Destinatario' :
-                    step === 4 ? 'Comprobante' :
+                    step === 2 ? 'Recepción' :
+                    step === 3 ? 'Pago' :
                     'Resumen'
                   }}
                 </div>
@@ -394,7 +367,7 @@ const handleNewRemittance = (newRemittance) => {
             <div class="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
               <div 
                 class="absolute h-2 bg-blue-600 rounded-full transition-all duration-300"
-                :style="{ width: `${(currentStep - 1) * 25}%` }"
+                :style="{ width: `${(currentStep - 1) * 33.33}%` }"
               ></div>
             </div>
           </div>
@@ -422,31 +395,8 @@ const handleNewRemittance = (newRemittance) => {
             />
           </div>
 
-          <!-- Paso 3: Datos del destinatario -->
+          <!-- Paso 3: Resumen -->
           <div v-if="currentStep === 3">
-            <DatosDestinatario 
-              :metodo="datosRemesa.metodoRecepcion"
-              :beneficiarios="beneficiarios"
-              :departamentos="departamentos"
-              @datos="datos => {
-                datosRemesa.destinatario = datos;
-                nextStep();
-              }"
-            />
-          </div>
-
-          <!-- Paso 4: Comprobante de pago -->
-          <div v-if="currentStep === 4">
-            <ComprobantePago 
-              @comprobante="comprobante => {
-                datosRemesa.comprobante = comprobante;
-                nextStep();
-              }"
-            />
-          </div>
-
-          <!-- Paso 5: Resumen -->
-          <div v-if="currentStep === 5">
             <ResumenRemesa 
               :datos="datosRemesa"
               @enviar="handleSubmit"
@@ -467,7 +417,7 @@ const handleNewRemittance = (newRemittance) => {
           <div v-else></div>
           
           <button 
-            v-if="currentStep < 5"
+            v-if="currentStep < 4"
             @click="nextStep"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
