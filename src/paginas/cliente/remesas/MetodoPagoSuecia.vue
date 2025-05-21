@@ -6,7 +6,7 @@ const props = defineProps({
   metodos: {
     type: Array,
     default: () => [
-      { nombre: 'Swish', valor: 'swish', icono: 'fas fa-mobile-alt' },
+      { nombre: 'Swish', valor: 'swisho', icono: 'fas fa-mobile-alt' },
       { nombre: 'Transferencia Bancaria', valor: 'banco', icono: 'fas fa-university' }
     ]
   }
