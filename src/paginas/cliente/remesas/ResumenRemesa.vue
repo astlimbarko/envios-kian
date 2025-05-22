@@ -12,8 +12,11 @@
  */
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
+
+const logoKian = '/kian-logo.svg'
+const reciboGenerado = ref(true)
 
 const props = defineProps({
   datos: {
@@ -59,8 +62,17 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['confirmar', 'regenerar'])
 const aceptoTerminos = ref(false)
-const emit = defineEmits(['confirmar'])
+
+// Observar cambios en los datos
+watch(() => props.datos, (newVal, oldVal) => {
+  // Solo ocultar el recibo si hay cambios reales en los datos
+  if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+    reciboGenerado.value = false
+    emit('regenerar')
+  }
+}, { deep: true })
 
 // Generar número de comprobante único
 const numeroComprobante = computed(() => {
@@ -98,7 +110,7 @@ const tieneDatosRecepcion = computed(() => {
   if (!recepcion) return false
 
   if (recepcion.tipo === 'qr') {
-    return Boolean(recepcion.nombreBeneficiario)
+    return Boolean(recepcion.nombreBeneficiario || recepcion.qr)
   }
 
   if (recepcion.tipo === 'banco') {
@@ -146,202 +158,147 @@ const confirmarRemesa = () => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-      Resumen de la Remesa
-    </h2>
+  <div class="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
+    <div v-if="!reciboGenerado" class="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-6 text-center">
+      <div class="text-gray-600 dark:text-gray-400 mb-4">
+        <i class="fas fa-exclamation-circle text-4xl mb-4"></i>
+        <p class="text-lg font-medium">El recibo debe ser generado</p>
+        <p class="text-sm mt-2">Por favor, regrese al paso anterior y presione "Continuar" para generar el recibo.</p>
+      </div>
+    </div>
 
-    <!-- Detalles de la transacción -->
-    <div class="space-y-6">
-      <!-- Montos y tipo de cambio -->
-      <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Detalles de la Transacción
-        </h3>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Monto a Enviar</p>
-            <p class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ datos.montoEnviar }} SEK
-            </p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Monto a Recibir</p>
-            <p class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ datos.montoRecibir }} {{ datos.pais?.moneda }}
-            </p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Tipo de Cambio</p>
-            <p class="text-lg font-semibold text-gray-900 dark:text-white">
-              1 SEK = {{ datos.tipoCambio }} {{ datos.pais?.moneda }}
-            </p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">País de destino</p>
-            <p class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ datos.pais?.nombre }}
-            </p>
-          </div>
+    <div v-else class="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-6 text-[15px] text-gray-800 dark:text-gray-200 space-y-6">
+      <!-- Logo y Encabezado -->
+      <div class="text-center border-b border-gray-200 dark:border-gray-700 pb-4">
+        <img :src="logoKian" alt="KIAN Logo" class="h-12 mx-auto mb-4">
+        <h1 class="text-xl font-semibold text-gray-800 dark:text-white">Recibo de Remesa</h1>
+      </div>
+
+      <!-- Información general -->
+      <div class="grid grid-cols-2 gap-y-2">
+        <div class="text-gray-600 dark:text-gray-400 font-medium">Fecha:</div>
+        <div>{{ fechaActual }}</div>
+
+        <div class="text-gray-600 dark:text-gray-400 font-medium">N° Comprobante:</div>
+        <div>{{ numeroComprobante }}</div>
+      </div>
+
+      <hr class="border-gray-200 dark:border-gray-700" />
+
+      <!-- Transacción -->
+      <div>
+        <h2 class="text-sm font-semibold text-gray-800 dark:text-white mb-2">Transacción</h2>
+        <div class="grid grid-cols-2 gap-y-2">
+          <div class="text-gray-600 dark:text-gray-400">Cantidad enviada:</div>
+          <div>{{ datos.montoEnviar }} SEK</div>
+
+          <div class="text-gray-600 dark:text-gray-400">Cantidad a recibir:</div>
+          <div>{{ datos.montoRecibir }} {{ datos.pais?.moneda }}</div>
+
+          <div class="text-gray-600 dark:text-gray-400">Tipo de cambio:</div>
+          <div>1 SEK = {{ datos.tipoCambio }} {{ datos.pais?.moneda }}</div>
+
+          <div class="text-gray-600 dark:text-gray-400">País destino:</div>
+          <div>{{ datos.pais?.nombre }}</div>
         </div>
       </div>
 
+      <hr class="border-gray-200 dark:border-gray-700" />
+
       <!-- Método de recepción -->
-      <div v-if="tieneDatosRecepcion" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Método de Recepción
-        </h3>
-        <p class="text-base font-medium text-gray-900 dark:text-white mb-2">
-          {{ metodoRecepcionFormateado }}
-        </p>
-        
-        <!-- Detalles para QR -->
-        <template v-if="datos.metodoRecepcion.tipo === 'qr'">
-          <div class="mt-2 space-y-3">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Nombre del beneficiario</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoRecepcion.nombreBeneficiario }}
-              </p>
-            </div>
+      <div v-if="tieneDatosRecepcion">
+        <h2 class="text-sm font-semibold text-gray-800 dark:text-white mb-2">Método de Recepción</h2>
+        <div class="grid grid-cols-2 gap-y-2">
+          <div class="text-gray-600 dark:text-gray-400">Tipo:</div>
+          <div>{{ metodoRecepcionFormateado }}</div>
+
+          <!-- Detalles para QR -->
+          <template v-if="datos.metodoRecepcion.tipo === 'qr'">
+            <div class="text-gray-600 dark:text-gray-400">Beneficiario:</div>
+            <div>{{ datos.metodoRecepcion.nombreBeneficiario }}</div>
+            
+            <div class="text-gray-600 dark:text-gray-400">Código QR:</div>
             <div class="flex justify-center">
-              <div class="w-40 h-40 bg-gray-100 dark:bg-gray-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-qrcode text-4xl text-gray-400 dark:text-gray-500"></i>
+              <div class="w-40 h-40 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                <img 
+                  v-if="datos.metodoRecepcion.qr" 
+                  :src="datos.metodoRecepcion.qr" 
+                  alt="Código QR" 
+                  class="max-w-full max-h-full"
+                >
+                <i v-else class="fas fa-qrcode text-4xl text-gray-400 dark:text-gray-500"></i>
               </div>
             </div>
-          </div>
-        </template>
+          </template>
 
-        <!-- Detalles para cuenta bancaria -->
-        <template v-if="datos.metodoRecepcion.tipo === 'banco'">
-          <div class="mt-2 space-y-3">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Titular</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoRecepcion.cuenta.titular }}
-              </p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Banco</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoRecepcion.cuenta.banco }}
-              </p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Número de cuenta</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoRecepcion.cuenta.numeroCuenta }}
-              </p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Tipo de cuenta</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoRecepcion.cuenta.tipoCuenta === 'ahorro' ? 'Caja de ahorro' : 'Cuenta corriente' }}
-              </p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Sucursal</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoRecepcion.cuenta.sucursal }}
-              </p>
-            </div>
-          </div>
-        </template>
+          <!-- Detalles para cuenta bancaria -->
+          <template v-if="datos.metodoRecepcion.tipo === 'banco'">
+            <div class="text-gray-600 dark:text-gray-400">Titular:</div>
+            <div>{{ datos.metodoRecepcion.cuenta.titular }}</div>
+
+            <div class="text-gray-600 dark:text-gray-400">Banco:</div>
+            <div>{{ datos.metodoRecepcion.cuenta.banco }}</div>
+
+            <div class="text-gray-600 dark:text-gray-400">N° de Cuenta:</div>
+            <div>{{ datos.metodoRecepcion.cuenta.numeroCuenta }}</div>
+
+            <div class="text-gray-600 dark:text-gray-400">Tipo de Cuenta:</div>
+            <div>{{ datos.metodoRecepcion.cuenta.tipoCuenta === 'ahorro' ? 'Caja de ahorro' : 'Cuenta corriente' }}</div>
+
+            <div class="text-gray-600 dark:text-gray-400">Sucursal:</div>
+            <div>{{ datos.metodoRecepcion.cuenta.sucursal }}</div>
+          </template>
+        </div>
       </div>
 
-      <!-- Método de pago -->
-      <div v-if="tieneDatosPago" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Método de Pago
-        </h3>
-        <p class="text-base font-medium text-gray-900 dark:text-white mb-2">
-          {{ metodoPagoFormateado }}
-        </p>
+      <hr class="border-gray-200 dark:border-gray-700" />
 
-        <!-- Detalles para Swish -->
-        <template v-if="datos.metodoPago.tipo === 'swish'">
-          <div class="mt-2 space-y-3">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Número de Swish</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoPago.numero }}
-              </p>
-            </div>
-            <div v-if="datos.metodoPago.referencia">
-              <p class="text-sm text-gray-500 dark:text-gray-400">Referencia</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoPago.referencia }}
-              </p>
-            </div>
-          </div>
-        </template>
-
-        <!-- Detalles para transferencia bancaria -->
-        <template v-if="datos.metodoPago.tipo === 'banco'">
-          <div class="mt-2 space-y-3">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Banco</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoPago.banco }}
-              </p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Número de cuenta</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoPago.cuenta }}
-              </p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Titular</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoPago.titular }}
-              </p>
-            </div>
-            <div v-if="datos.metodoPago.swift">
-              <p class="text-sm text-gray-500 dark:text-gray-400">Código SWIFT</p>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                {{ datos.metodoPago.swift }}
-              </p>
-            </div>
-          </div>
-        </template>
+      <!-- Método de pago simplificado -->
+      <div v-if="tieneDatosPago">
+        <h2 class="text-sm font-semibold text-gray-800 dark:text-white mb-2">Método de Pago</h2>
+        <div class="grid grid-cols-2 gap-y-2">
+          <div class="text-gray-600 dark:text-gray-400">Tipo:</div>
+          <div>{{ metodoPagoFormateado }}</div>
+        </div>
       </div>
 
       <!-- Comprobante de pago -->
-      <div v-if="datos.metodoPago?.comprobante" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Comprobante de Pago
-        </h3>
-        <div class="mt-2">
-          <div class="w-full h-40 bg-gray-100 dark:bg-gray-600 rounded-xl flex items-center justify-center">
-            <i class="fas fa-file-image text-4xl text-gray-400 dark:text-gray-500"></i>
-          </div>
+      <div v-if="datos.metodoPago?.comprobante" class="border-t border-gray-200 dark:border-gray-700 pt-4">
+        <h2 class="text-sm font-semibold text-gray-800 dark:text-white mb-2">Comprobante de Pago</h2>
+        <div class="w-full h-40 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+          <i class="fas fa-file-image text-4xl text-gray-400 dark:text-gray-500"></i>
         </div>
       </div>
-    </div>
 
-    <!-- Términos y condiciones -->
-    <div class="mt-6 flex items-center space-x-2">
-      <input 
-        type="checkbox" 
-        id="terminos" 
-        v-model="aceptoTerminos"
-        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-      >
-      <label for="terminos" class="text-sm text-gray-600 dark:text-gray-400">
-        Acepto los términos y condiciones
-      </label>
-    </div>
+      <!-- Pie -->
+      <div class="pt-4 border-t border-gray-200 dark:border-gray-700 text-center text-xs text-gray-500 dark:text-gray-400 space-y-2">
+        <p>La remesa será procesada una vez confirmada la recepción de fondos.</p>
+        <p>Este documento no tiene validez para crédito fiscal.</p>
+      </div>
 
-    <!-- Botón de envío -->
-    <div class="mt-8 flex justify-end">
-      <button 
-        @click="confirmarRemesa"
-        :disabled="!aceptoTerminos"
-        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Enviar Remesa
-      </button>
+      <!-- Términos y condiciones -->
+      <div class="flex items-center space-x-2">
+        <input 
+          type="checkbox" 
+          id="terminos" 
+          v-model="aceptoTerminos"
+          class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+        >
+        <label for="terminos" class="text-sm text-gray-600 dark:text-gray-400">
+          Acepto los términos y condiciones
+        </label>
+      </div>
+
+      <!-- Botón de envío -->
+      <div class="flex justify-end">
+        <button 
+          @click="confirmarRemesa"
+          :disabled="!aceptoTerminos"
+          class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Enviar Remesa
+        </button>
+      </div>
     </div>
   </div>
 </template> 
