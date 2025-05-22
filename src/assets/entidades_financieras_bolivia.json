@@ -1,0 +1,38 @@
+[
+  { "nombre": "Banco Nacional de Bolivia S.A." },
+  { "nombre": "Banco Mercantil Santa Cruz S.A." },
+  { "nombre": "Banco de Crédito de Bolivia S.A." },
+  { "nombre": "Banco Bisa S.A." },
+  { "nombre": "Banco Unión S.A." },
+  { "nombre": "Banco Fortaleza S.A." },
+  { "nombre": "Banco Ganadero S.A." },
+  { "nombre": "Banco Económico S.A." },
+  { "nombre": "Banco FIE S.A." },
+  { "nombre": "Banco Prodem S.A." },
+  { "nombre": "Banco Ecofuturo S.A." },
+
+  { "nombre": "Cooperativa de Ahorro y Crédito Jesús Nazareno Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta San Pedro de Aiquile Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta San José de Punata Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta San Martín de Porres Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta San Antonio Ltda." },
+
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta Nueva Visión Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta Central Abierta Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta Abierta Avanzar Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta Abierta Renacer Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta 26 de Febrero Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta La Merced Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta Primero de Mayo Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta Integral Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta San Luis Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta Horizonte Ltda." },
+
+  { "nombre": "Cooperativa Rural de Ahorro y Crédito Jalles Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Rural Abierta Abisur Ltda." },
+
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta San Jorge Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta San Martín Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta Primavera Ltda." },
+  { "nombre": "Cooperativa de Ahorro y Crédito Abierta Funeraria La Cruz Ltda." }
+]

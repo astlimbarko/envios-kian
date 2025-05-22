@@ -1,6 +1,8 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
+import entidadesFinancieras from '../../../assets/entidades_financieras_bolivia.json'
+import clientes from '../../../assets/clientes.json'
 
 const props = defineProps({
   beneficiarios: {
@@ -19,12 +21,15 @@ const props = defineProps({
 const emit = defineEmits(['seleccionado'])
 const metodoSeleccionado = ref(null)
 const tipoCuenta = ref('existente')
-const cuentaSeleccionada = ref(null)
+const cuentaSeleccionada = ref('')
 const qrPreview = ref(null)
 const nuevoQR = ref(null)
 const nombreBeneficiario = ref('')
 const mostrarFormularioNuevaCuenta = ref(true)
 const nuevaCuenta = ref({
+  titular: '',
+  carnetIdentidad: '',
+  complemento: '',
   banco: '',
   numeroCuenta: '',
   tipoCuenta: '',
@@ -32,27 +37,102 @@ const nuevaCuenta = ref({
   guardarCuenta: false
 })
 
-const cuentasGuardadas = ref([
-  {
-    id: 1,
-    titular: 'Juan Perez',
-    banco: 'Banco Mercantil Santa Cruz',
-    numeroCuenta: '1234567890',
-    tipoCuenta: 'ahorro',
-    sucursal: 'Santa Cruz'
-  },
-  {
-    id: 2,
-    titular: 'Maria Lopez',
-    banco: 'Banco Bisa',
-    numeroCuenta: '0987654321',
-    tipoCuenta: 'corriente',
-    sucursal: 'La Paz'
-  }
-])
+const cuentasGuardadas = ref(clientes)
 
 const ultimoQR = ref(null)
 const botonUsado = ref(false)
+
+const errores = ref({
+  titular: '',
+  ci: '',
+  banco: '',
+  numeroCuenta: '',
+  tipoCuenta: '',
+  sucursal: ''
+})
+
+const beneficiarioSeleccionado = ref('')
+const mostrarNuevoBeneficiario = ref(false)
+
+const qrSeleccionado = ref('existente') // 'existente' o 'nuevo'
+const qrExistente = ref(null)
+const qrNuevo = ref(null)
+
+// Computed para filtrar beneficiarios con QR
+const beneficiariosQR = computed(() => {
+  return clientes.filter(cliente => cliente.viaPago === 'QR')
+})
+
+// Función para cargar el QR existente
+const cargarQRExistente = async (idCliente) => {
+  try {
+    const response = await import(`../../../assets/clientes/${idCliente}/qr.png`)
+    qrExistente.value = response.default
+  } catch (error) {
+    console.error('Error al cargar el QR:', error)
+    qrExistente.value = null
+  }
+}
+
+// Observar cambios en el beneficiario seleccionado
+watch(beneficiarioSeleccionado, (nuevoValor) => {
+  if (nuevoValor && nuevoValor !== 'nuevo') {
+    const beneficiario = beneficiariosQR.value.find(b => b.titular === nuevoValor)
+    if (beneficiario) {
+      cargarQRExistente(beneficiario.id)
+    }
+  } else {
+    qrExistente.value = null
+  }
+  qrSeleccionado.value = 'existente' // Resetear a QR existente por defecto
+})
+
+const validarFormulario = () => {
+  let esValido = true
+  errores.value = {
+    titular: '',
+    ci: '',
+    banco: '',
+    numeroCuenta: '',
+    tipoCuenta: '',
+    sucursal: ''
+  }
+
+  if (!nuevaCuenta.value.titular.trim()) {
+    errores.value.titular = 'El nombre del titular es requerido'
+    esValido = false
+  }
+
+  if (!nuevaCuenta.value.carnetIdentidad.trim()) {
+    errores.value.ci = 'El C.I. es requerido'
+    esValido = false
+  } else if (!/^\d+$/.test(nuevaCuenta.value.carnetIdentidad)) {
+    errores.value.ci = 'El C.I. debe contener solo números'
+    esValido = false
+  }
+
+  if (!nuevaCuenta.value.banco) {
+    errores.value.banco = 'Debe seleccionar una entidad financiera'
+    esValido = false
+  }
+
+  if (!nuevaCuenta.value.numeroCuenta.trim()) {
+    errores.value.numeroCuenta = 'El número de cuenta es requerido'
+    esValido = false
+  }
+
+  if (!nuevaCuenta.value.tipoCuenta) {
+    errores.value.tipoCuenta = 'Debe seleccionar un tipo de cuenta'
+    esValido = false
+  }
+
+  if (!nuevaCuenta.value.sucursal) {
+    errores.value.sucursal = 'Debe seleccionar una sucursal'
+    esValido = false
+  }
+
+  return esValido
+}
 
 const subirQR = (event) => {
   const file = event.target.files[0]
@@ -77,6 +157,15 @@ const subirQR = (event) => {
   }
 }
 
+const confirmarQR = () => {
+  if (qrSeleccionado.value === 'nuevo' && !qrPreview.value) {
+    alert('Por favor, sube un código QR antes de continuar')
+    return
+  }
+  // Aquí puedes agregar la lógica para guardar el QR si es necesario
+  qrSeleccionado.value = 'confirmado'
+}
+
 const eliminarQR = () => {
   nuevoQR.value = null
   qrPreview.value = null
@@ -93,13 +182,15 @@ const seleccionarMetodo = (metodo) => {
 }
 
 const guardarNuevaCuenta = () => {
-  mostrarFormularioNuevaCuenta.value = false
-  setTimeout(() => {
-    const detallesCuenta = document.querySelector('.p-4.bg-white')
-    if (detallesCuenta) {
-      detallesCuenta.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }, 100)
+  if (validarFormulario()) {
+    mostrarFormularioNuevaCuenta.value = false
+    setTimeout(() => {
+      const detallesCuenta = document.querySelector('.p-4.bg-white')
+      if (detallesCuenta) {
+        detallesCuenta.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  }
 }
 
 const editarNuevaCuenta = () => {
@@ -246,50 +337,108 @@ watch(tipoCuenta, (nuevoTipo) => {
     <div v-if="metodoSeleccionado === 'qr'" id="seccion-qr" class="mb-6">
       <!-- Campo para el nombre del beneficiario -->
       <div class="mb-6">
-        <label for="nombreBeneficiario" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Nombre completo del beneficiario
-        </label>
-        <input
-          type="text"
-          id="nombreBeneficiario"
-          v-model="nombreBeneficiario"
-          class="w-full px-4 py-2.5 text-lg border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-          placeholder="Ingrese el nombre completo del beneficiario"
-          required
-        />
-      </div>
-
-      <div v-if="ultimoQR" class="mb-4">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Último código QR registrado</h3>
-        <div class="flex justify-center">
-          <img :src="ultimoQR" alt="Último QR" class="w-40 h-40 object-contain rounded-xl border border-gray-300 dark:border-gray-600">
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Subir nuevo código QR</label>
-        <div class="flex items-center justify-center w-full">
-          <label class="flex flex-col items-center justify-center w-full h-36 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 transition-colors">
-            <div class="flex flex-col items-center justify-center pt-4 pb-4">
-              <i class="fas fa-qrcode text-4xl text-gray-400 mb-2"></i>
-              <p class="mb-1 text-base text-gray-500 dark:text-gray-400">
-                <span class="font-semibold">Haga clic para subir</span> o arrastre y suelte
-              </p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">PNG o JPG (MAX. 10MB)</p>
-            </div>
-            <input type="file" accept="image/*" @change="subirQR" class="hidden">
-          </label>
-        </div>
-      </div>
-
-      <div v-if="qrPreview" class="flex justify-center mb-4">
-        <div class="relative">
-          <img :src="qrPreview" class="w-40 h-40 object-contain rounded-xl border border-gray-300 dark:border-gray-600">
-          <button 
-            @click="eliminarQR" 
-            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors"
+        <select 
+          v-model="beneficiarioSeleccionado"
+          class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
+          @change="mostrarNuevoBeneficiario = beneficiarioSeleccionado === 'nuevo'"
+        >
+          <option value="" disabled>Seleccione un beneficiario</option>
+          <option value="nuevo">+ Añadir Nuevo Beneficiario</option>
+          <option 
+            v-for="beneficiario in beneficiariosQR" 
+            :key="beneficiario.id" 
+            :value="beneficiario.titular"
           >
-            <i class="fas fa-times"></i>
+            {{ beneficiario.titular }}
+          </option>
+        </select>
+
+        <!-- Campo para nuevo beneficiario -->
+        <div v-if="mostrarNuevoBeneficiario" class="mt-4">
+          <input
+            type="text"
+            v-model="nombreBeneficiario"
+            class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
+            placeholder="Nombre completo del beneficiario"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Sección de QR -->
+      <div v-if="beneficiarioSeleccionado" class="mt-6">
+        <div class="flex flex-col md:flex-row gap-6">
+          <!-- QR Existente -->
+          <div class="flex-1">
+            <div class="flex items-center mb-3">
+              <input 
+                type="radio" 
+                id="qrExistente" 
+                v-model="qrSeleccionado" 
+                value="existente"
+                class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+              >
+              <label for="qrExistente" class="ml-2 text-lg text-gray-700 dark:text-gray-300">
+                Usar QR existente
+              </label>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border-2 border-blue-500">
+              <div v-if="qrExistente" class="flex justify-center">
+                <img :src="qrExistente" alt="QR Existente" class="w-40 h-40 object-contain">
+              </div>
+              <div v-else class="flex justify-center items-center h-40 text-gray-500">
+                <p>No hay QR disponible</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- QR Nuevo -->
+          <div class="flex-1">
+            <div class="flex items-center mb-3">
+              <input 
+                type="radio" 
+                id="qrNuevo" 
+                v-model="qrSeleccionado" 
+                value="nuevo"
+                class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+              >
+              <label for="qrNuevo" class="ml-2 text-lg text-gray-700 dark:text-gray-300">
+                Cargar nuevo QR
+              </label>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border-2 border-blue-500">
+              <div v-if="qrPreview" class="flex flex-col items-center">
+                <img :src="qrPreview" alt="QR Nuevo" class="w-40 h-40 object-contain mb-4">
+                <button 
+                  @click="eliminarQR" 
+                  class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  <i class="fas fa-times mr-2"></i>Eliminar
+                </button>
+              </div>
+              <div v-else class="flex items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <label class="flex flex-col items-center justify-center w-full h-full cursor-pointer">
+                  <i class="fas fa-qrcode text-4xl text-gray-400 mb-2"></i>
+                  <p class="text-base text-gray-500 dark:text-gray-400">
+                    <span class="font-semibold">Haga clic para cargar</span> o arrastre y suelte
+                  </p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">PNG o JPG (MAX. 10MB)</p>
+                  <input type="file" accept="image/*" @change="subirQR" class="hidden">
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón Subir -->
+        <div class="flex justify-center mt-6">
+          <button 
+            @click="confirmarQR"
+            class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors text-lg font-semibold flex items-center"
+            :disabled="qrSeleccionado === 'nuevo' && !qrPreview"
+          >
+            <i class="fas fa-upload mr-2"></i>
+            Cargar QR
           </button>
         </div>
       </div>
@@ -310,14 +459,14 @@ watch(tipoCuenta, (nuevoTipo) => {
 
       <!-- Cuenta existente -->
       <div v-if="tipoCuenta === 'existente'" id="seccion-cuenta-existente" class="mb-4">
-        <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Seleccione cuenta:</label>
+        <!-- <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Seleccione cuenta:</label> -->
         <select 
           v-model="cuentaSeleccionada" 
-          class="w-full p-3 text-lg rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+          class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
         >
-          <option value="">Seleccione una cuenta</option>
+          <option value="" disabled>Seleccione una cuenta</option>
           <option v-for="cuenta in cuentasGuardadas" :key="cuenta.id" :value="cuenta">
-            {{ cuenta.titular }} - {{ cuenta.banco }}
+            {{ cuenta.titular }} - {{ cuenta.banco }} - {{ cuenta.numeroCuenta }}
           </option>
         </select>
 
@@ -325,7 +474,8 @@ watch(tipoCuenta, (nuevoTipo) => {
           <h4 class="text-xl font-semibold mb-3">Detalles de la cuenta</h4>
           <div class="space-y-2">
             <p class="text-lg"><span class="font-semibold">Titular:</span> {{ cuentaSeleccionada.titular }}</p>
-            <p class="text-lg"><span class="font-semibold">Banco:</span> {{ cuentaSeleccionada.banco }}</p>
+            <p class="text-lg"><span class="font-semibold">C.I.:</span> {{ cuentaSeleccionada.carnetIdentidad }}{{ cuentaSeleccionada.complemento ? ' - ' + cuentaSeleccionada.complemento : '' }}</p>
+            <p class="text-lg"><span class="font-semibold">Entidad Financiera:</span> {{ cuentaSeleccionada.banco }}</p>
             <p class="text-lg"><span class="font-semibold">Número de cuenta:</span> {{ cuentaSeleccionada.numeroCuenta }}</p>
             <p class="text-lg"><span class="font-semibold">Tipo de cuenta:</span> {{ cuentaSeleccionada.tipoCuenta === 'ahorro' ? 'Caja de ahorro' : 'Cuenta corriente' }}</p>
             <p class="text-lg"><span class="font-semibold">Sucursal:</span> {{ cuentaSeleccionada.sucursal }}</p>
@@ -335,56 +485,113 @@ watch(tipoCuenta, (nuevoTipo) => {
 
       <!-- Nueva cuenta -->
       <div v-if="tipoCuenta === 'nueva'">
-        <div v-if="mostrarFormularioNuevaCuenta" id="formulario-nueva-cuenta" class="space-y-3">
-          <div>
-            <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nombre del banco</label>
-            <input 
-              v-model="nuevaCuenta.banco" 
-              type="text" 
-              placeholder="Ingrese el nombre del banco" 
-              class="w-full p-2.5 text-lg rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm"
-            >
+        <div v-if="mostrarFormularioNuevaCuenta" id="formulario-nueva-cuenta" class="space-y-4">
+          <!-- Primera línea: Titular y C.I. -->
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <input 
+                v-model="nuevaCuenta.titular" 
+                type="text" 
+                placeholder="Nombre Completo del titular de la cuenta" 
+                class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
+                :class="{'border-red-500': errores.titular}"
+              >
+              <p v-if="errores.titular" class="text-red-500 text-sm mt-1">{{ errores.titular }}</p>
+            </div>
+            <div class="flex gap-2">
+              <div class="flex-1">
+                <input 
+                  v-model="nuevaCuenta.carnetIdentidad" 
+                  type="text" 
+                  placeholder="C.I." 
+                  class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
+                  :class="{'border-red-500': errores.ci}"
+                >
+                <p v-if="errores.ci" class="text-red-500 text-sm mt-1">{{ errores.ci }}</p>
+              </div>
+              <div class="w-20">
+                <input 
+                  v-model="nuevaCuenta.complemento" 
+                  type="text" 
+                  placeholder="Comp." 
+                  class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
+                >
+              </div>
+            </div>
           </div>
+
+          <!-- Entidad Financiera -->
           <div>
-            <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-1.5">Número de cuenta</label>
+            <select 
+              v-model="nuevaCuenta.banco" 
+              class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
+              style="max-height: 200px; overflow-y: auto;"
+              :class="{'border-red-500': errores.banco}"
+            >
+              <option value="" disabled>Seleccione la entidad financiera</option>
+              <option 
+                v-for="entidad in entidadesFinancieras" 
+                :key="entidad.nombre" 
+                :value="entidad.nombre"
+              >
+                {{ entidad.nombre }}
+              </option>
+            </select>
+            <p v-if="errores.banco" class="text-red-500 text-sm mt-1">{{ errores.banco }}</p>
+          </div>
+
+          <!-- Número de cuenta -->
+          <div>
             <input 
               v-model="nuevaCuenta.numeroCuenta" 
               type="text" 
-              placeholder="Ingrese el número de cuenta" 
-              class="w-full p-2.5 text-lg rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+              placeholder="Número de cuenta" 
+              class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
+              :class="{'border-red-500': errores.numeroCuenta}"
             >
+            <p v-if="errores.numeroCuenta" class="text-red-500 text-sm mt-1">{{ errores.numeroCuenta }}</p>
           </div>
-          <div>
-            <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-1.5">Tipo de cuenta</label>
-            <select 
-              v-model="nuevaCuenta.tipoCuenta" 
-              class="w-full p-2.5 text-lg rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm"
-            >
-              <option value="">Seleccione tipo de cuenta</option>
-              <option value="ahorro">Caja de ahorro</option>
-              <option value="corriente">Cuenta corriente</option>
-            </select>
+
+          <!-- Segunda línea: Tipo de cuenta y Sucursal -->
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <select 
+                v-model="nuevaCuenta.tipoCuenta" 
+                class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
+                :class="{'border-red-500': errores.tipoCuenta}"
+              >
+                <option value="" disabled>Tipo de cuenta</option>
+                <option value="ahorro">Caja de ahorro</option>
+                <option value="corriente">Cuenta corriente</option>
+              </select>
+              <p v-if="errores.tipoCuenta" class="text-red-500 text-sm mt-1">{{ errores.tipoCuenta }}</p>
+            </div>
+            <div class="flex-1">
+              <select 
+                v-model="nuevaCuenta.sucursal" 
+                class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
+                :class="{'border-red-500': errores.sucursal}"
+              >
+                <option value="" disabled>Seleccione sucursal</option>
+                <option v-for="dep in departamentos" :key="dep" :value="dep">{{ dep }}</option>
+              </select>
+              <p v-if="errores.sucursal" class="text-red-500 text-sm mt-1">{{ errores.sucursal }}</p>
+            </div>
           </div>
-          <div>
-            <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-1.5">Sucursal</label>
-            <select 
-              v-model="nuevaCuenta.sucursal" 
-              class="w-full p-2.5 text-lg rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm"
-            >
-              <option value="">Seleccione sucursal</option>
-              <option v-for="dep in departamentos" :key="dep" :value="dep">{{ dep }}</option>
-            </select>
-          </div>
-          <div class="flex items-center mt-4">
+
+          <!-- Checkbox para guardar cuenta -->
+          <label class="flex items-center mt-4 cursor-pointer">
             <input 
               type="checkbox" 
               v-model="nuevaCuenta.guardarCuenta"
-              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              class="w-5 h-5 rounded-md border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
             >
-            <label class="ml-2 text-lg text-gray-700 dark:text-gray-300">
+            <span class="ml-2 text-lg text-gray-700 dark:text-gray-300">
               Guardar esta cuenta en mi lista de beneficiarios
-            </label>
-          </div>
+            </span>
+          </label>
+
+          <!-- Botón confirmar -->
           <div class="flex justify-center mt-3">
             <button 
               @click="guardarNuevaCuenta"
@@ -399,7 +606,9 @@ watch(tipoCuenta, (nuevoTipo) => {
           <div class="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md">
             <h4 class="text-xl font-semibold mb-3">Detalles de la nueva cuenta</h4>
             <div class="space-y-2">
-              <p class="text-lg"><span class="font-semibold">Banco:</span> {{ nuevaCuenta.banco }}</p>
+              <p class="text-lg"><span class="font-semibold">Titular:</span> {{ nuevaCuenta.titular }}</p>
+              <p class="text-lg"><span class="font-semibold">C.I.:</span> {{ nuevaCuenta.carnetIdentidad }}{{ nuevaCuenta.complemento ? ' - ' + nuevaCuenta.complemento : '' }}</p>
+              <p class="text-lg"><span class="font-semibold">Entidad Financiera:</span> {{ nuevaCuenta.banco }}</p>
               <p class="text-lg"><span class="font-semibold">Número de cuenta:</span> {{ nuevaCuenta.numeroCuenta }}</p>
               <p class="text-lg"><span class="font-semibold">Tipo de cuenta:</span> {{ nuevaCuenta.tipoCuenta === 'ahorro' ? 'Caja de ahorro' : 'Cuenta corriente' }}</p>
               <p class="text-lg"><span class="font-semibold">Sucursal:</span> {{ nuevaCuenta.sucursal }}</p>

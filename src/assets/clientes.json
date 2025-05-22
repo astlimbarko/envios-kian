@@ -1,0 +1,35 @@
+[
+    {
+        "id": 3265,
+        "viaPago": "QR",
+        "titular": "Juan Perez",
+        "carnetIdentidad": "12345678",
+        "complemento": "A",
+        "banco": "Banco Mercantil Santa Cruz",
+        "numeroCuenta": "1234567890",
+        "tipoCuenta": "ahorro",
+        "sucursal": "Santa Cruz"
+    },
+    {
+        "id": 6752,
+        "viaPago": "QR",
+        "titular": "María Fernanda López",
+        "carnetIdentidad": "87654321",
+        "complemento": "",
+        "banco": "Banco Nacional de Bolivia",
+        "numeroCuenta": "0987654321",
+        "tipoCuenta": "Caja de Ahorro",
+        "sucursal": "La Paz"
+    },
+    {
+        "id": 3,
+        "viaPago": "Banco",
+        "titular": "Gonzalo Lopez",
+        "carnetIdentidad": "87654321",
+        "complemento": "A",
+        "banco": "Banco Bisa",
+        "numeroCuenta": "0987654321",
+        "tipoCuenta": "Cuenta Corriente",
+        "sucursal": "La Paz"
+    }
+]

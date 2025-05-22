@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
+import CargadorArchivo from '../../../components/CargadorArchivo.vue'
 
 const props = defineProps({
   metodos: {
     type: Array,
     default: () => [
-      { nombre: 'Swish', valor: 'swisho', icono: 'fas fa-mobile-alt' },
+      { nombre: 'Swish', valor: 'swish', icono: 'fas fa-mobile-alt' },
       { nombre: 'Transferencia Bancaria', valor: 'banco', icono: 'fas fa-university' }
     ]
   }
@@ -39,6 +40,9 @@ const datosSwish = {
   numero: '0722729763',
   referencia: 'Gåva'
 }
+
+const flagSuecia = '/flags/flag_sve.svg'
+const flagEstonia = '/flags/flag_est.svg'
 
 const seleccionarMetodo = (metodo) => {
   seleccionado.value = metodo
@@ -193,8 +197,8 @@ const copiarAlPortapapeles = (texto) => {
       <!-- Swish -->
       <template v-if="seleccionado === 'swish'">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Detalles de Swish</h3>
-        <div class="space-y-3">
-          <div>
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="flex-1">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de Swish</label>
             <div class="flex items-center space-x-2">
               <input 
@@ -211,7 +215,7 @@ const copiarAlPortapapeles = (texto) => {
               </button>
             </div>
           </div>
-          <div>
+          <div class="flex-1">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Referencia</label>
             <div class="flex items-center space-x-2">
               <input 
@@ -238,7 +242,10 @@ const copiarAlPortapapeles = (texto) => {
           <!-- Cuenta en Suecia -->
           <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
             <div class="flex items-center justify-between mb-2">
-              <h5 class="text-base font-medium text-gray-900 dark:text-white">Suecia</h5>
+              <div class="flex items-center gap-2">
+                <img :src="flagSuecia" alt="Bandera Suecia" class="w-6 h-6 rounded-full shadow-sm">
+                <h5 class="text-base font-medium text-gray-900 dark:text-white">Suecia</h5>
+              </div>
               <span class="text-sm text-blue-600 dark:text-blue-400">Cuenta Principal</span>
             </div>
             <div class="space-y-2">
@@ -316,7 +323,10 @@ const copiarAlPortapapeles = (texto) => {
           <!-- Cuenta en Estonia -->
           <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4">
             <div class="flex items-center justify-between mb-2">
-              <h5 class="text-base font-medium text-gray-900 dark:text-white">Estonia</h5>
+              <div class="flex items-center gap-2">
+                <img :src="flagEstonia" alt="Bandera Estonia" class="w-6 h-6 rounded-full shadow-sm">
+                <h5 class="text-base font-medium text-gray-900 dark:text-white">Estonia</h5>
+              </div>
               <span class="text-sm text-green-600 dark:text-green-400">Cuenta Alternativa</span>
             </div>
             <div class="space-y-2">
@@ -394,35 +404,14 @@ const copiarAlPortapapeles = (texto) => {
       </template>
 
       <!-- Comprobante de pago -->
-      <div class="mt-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Comprobante de pago</h3>
-        <div class="flex items-center justify-center w-full">
-          <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 transition-colors">
-            <div class="flex flex-col items-center justify-center pt-3 pb-4">
-              <i class="fas fa-file-alt text-3xl text-gray-400 mb-2"></i>
-              <p class="mb-1 text-sm text-gray-500 dark:text-gray-400">
-                <span class="font-semibold">Haga clic para subir</span> o arrastre y suelte
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG o PDF (MAX. 10MB)</p>
-            </div>
-            <input type="file" accept="image/*,.pdf" @change="e=>archivo=e.target.files[0]" class="hidden">
-          </label>
-        </div>
-        <div v-if="archivo" class="mt-3 flex justify-center">
-          <div class="relative">
-            <img v-if="archivo.type.startsWith('image/')" :src="preview" class="w-32 h-32 object-contain rounded-xl border border-gray-200 dark:border-gray-700">
-            <div v-else class="w-32 h-32 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-700">
-              <i class="fas fa-file-pdf text-3xl text-red-500"></i>
-            </div>
-            <button 
-              @click="archivo = null" 
-              class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-            >
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
-      </div>
+      <CargadorArchivo
+        titulo="Comprobante de pago"
+        :tiposPermitidos="['image/jpeg', 'image/png', 'application/pdf']"
+        :tamanoMaximo="10 * 1024 * 1024"
+        icono="fa-file-alt"
+        @archivo-cargado="archivo = $event"
+        @archivo-eliminado="archivo = null"
+      />
     </div>
 
     <!-- Botón continuar -->
