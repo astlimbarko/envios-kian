@@ -281,7 +281,13 @@ watch(tipoCuenta, (nuevoTipo) => {
 // Función para seleccionar beneficiario
 const seleccionarBeneficiario = (beneficiario) => {
   console.log('Seleccionando beneficiario:', beneficiario)
-  beneficiarioSeleccionado.value = beneficiario
+  if (beneficiario === 'nuevo') {
+    mostrarNuevoBeneficiario.value = true
+    beneficiarioSeleccionado.value = null
+  } else {
+    mostrarNuevoBeneficiario.value = false
+    beneficiarioSeleccionado.value = beneficiario
+  }
   error.value = null
 }
 
@@ -371,14 +377,14 @@ const scrollToNextStep = () => {
         <select 
           v-model="beneficiarioSeleccionado"
           class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
-          @change="mostrarNuevoBeneficiario = beneficiarioSeleccionado === 'nuevo'"
+          @change="seleccionarBeneficiario($event.target.value)"
         >
           <option value="" disabled>Seleccione un beneficiario</option>
           <option value="nuevo">+ Añadir Nuevo Beneficiario</option>
           <option 
             v-for="beneficiario in beneficiariosQR" 
             :key="beneficiario.id" 
-            :value="beneficiario.titular"
+            :value="beneficiario"
           >
             {{ beneficiario.titular }}
           </option>
@@ -490,10 +496,10 @@ const scrollToNextStep = () => {
 
       <!-- Cuenta existente -->
       <div v-if="tipoCuenta === 'existente'" id="seccion-cuenta-existente" class="mb-4">
-        <!-- <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Seleccione cuenta:</label> -->
         <select 
           v-model="cuentaSeleccionada" 
           class="w-full p-2 text-lg rounded-xl border-2 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md transition-all duration-200"
+          @change="seleccionarCuenta($event.target.value)"
         >
           <option value="" disabled>Seleccione una cuenta</option>
           <option v-for="cuenta in cuentasGuardadas" :key="cuenta.id" :value="cuenta">

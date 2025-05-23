@@ -236,7 +236,7 @@ const handleSiguientePaso = (paso) => {
     </div>
 
     <!-- Tarjetas de precios -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <!-- Tarjeta de precio estándar -->
       <div class="bg-indigo-600 dark:bg-indigo-700 rounded-xl shadow-lg p-4 border-2 border-indigo-500 dark:border-indigo-600 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
         <div class="flex items-center justify-between mb-2">

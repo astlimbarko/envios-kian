@@ -42,9 +42,12 @@ const numeroRecibo = computed(() => {
 const metodoRecepcion = computed(() => {
   const { tipo, nombreBeneficiario, cuenta } = store.estado.recepcion
   if (tipo === 'qr') {
-    return `QR - ${nombreBeneficiario}`
-  } else if (tipo === 'banco') {
-    return `Cuenta Bancaria - ${cuenta?.banco}`
+    if (nombreBeneficiario === 'nuevo') {
+      return `QR - Nuevo Beneficiario`
+    }
+    return `QR - ${nombreBeneficiario?.titular || nombreBeneficiario}`
+  } else if (tipo === 'cuenta') {
+    return `Cuenta Bancaria - ${cuenta?.banco || 'No especificado'}`
   }
   return 'No especificado'
 })
@@ -200,11 +203,11 @@ const confirmarRemesa = () => {
           <!-- Detalles para QR -->
           <template v-if="store.estado.recepcion.tipo === 'qr'">
             <div class="text-gray-600 dark:text-gray-400">Beneficiario:</div>
-            <div>{{ store.estado.recepcion.nombreBeneficiario }}</div>
+            <div>{{ store.estado.recepcion.nombreBeneficiario?.titular || store.estado.recepcion.nombreBeneficiario }}</div>
           </template>
 
           <!-- Detalles para cuenta bancaria -->
-          <template v-if="store.estado.recepcion.tipo === 'banco' && store.estado.recepcion.cuenta">
+          <template v-if="store.estado.recepcion.tipo === 'cuenta' && store.estado.recepcion.cuenta">
             <div class="text-gray-600 dark:text-gray-400">Titular:</div>
             <div>{{ store.estado.recepcion.cuenta.titular }}</div>
 
