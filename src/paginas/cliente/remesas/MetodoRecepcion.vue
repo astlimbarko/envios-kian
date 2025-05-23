@@ -86,15 +86,18 @@ const cargarQRExistente = async (idCliente) => {
 
 // Observar cambios en el beneficiario seleccionado
 watch(beneficiarioSeleccionado, (nuevoValor) => {
-  if (nuevoValor && nuevoValor !== 'nuevo') {
-    const beneficiario = beneficiariosQR.value.find(b => b.titular === nuevoValor)
-    if (beneficiario) {
-      cargarQRExistente(beneficiario.id)
+  if (nuevoValor) {
+    store.resetearPasosSiguientes(2)
+    if (nuevoValor && nuevoValor !== 'nuevo') {
+      const beneficiario = beneficiariosQR.value.find(b => b.titular === nuevoValor)
+      if (beneficiario) {
+        cargarQRExistente(beneficiario.id)
+      }
+    } else {
+      qrExistente.value = null
     }
-  } else {
-    qrExistente.value = null
+    qrSeleccionado.value = 'existente'
   }
-  qrSeleccionado.value = 'existente' // Resetear a QR existente por defecto
 })
 
 const validarFormulario = () => {
@@ -333,6 +336,27 @@ watch(tipoCuenta, (nuevoTipo) => {
     }
   }, 100)
 })
+
+// Observar cambios en el método seleccionado
+watch(metodoSeleccionado, (nuevoValor) => {
+  if (nuevoValor) {
+    store.resetearPasosSiguientes(2)
+  }
+})
+
+// Observar cambios en el nombre del beneficiario
+watch(nombreBeneficiario, (nuevoValor) => {
+  if (nuevoValor) {
+    store.resetearPasosSiguientes(2)
+  }
+})
+
+// Observar cambios en la nueva cuenta
+watch(nuevaCuenta, (nuevoValor) => {
+  if (nuevoValor && Object.values(nuevoValor).some(valor => valor)) {
+    store.resetearPasosSiguientes(2)
+  }
+}, { deep: true })
 </script>
 
 <template>

@@ -6,7 +6,7 @@
  */
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRemesaStore } from '../../../store/remesa'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
 import CargadorArchivo from '../../../components/CargadorArchivo.vue'
@@ -176,6 +176,13 @@ const copiarAlPortapapeles = (texto) => {
     }, 3000)
   })
 }
+
+// Observar cambios en el método seleccionado
+watch(seleccionado, (nuevoValor) => {
+  if (nuevoValor) {
+    store.resetearPasosSiguientes(3)
+  }
+})
 </script>
 
 <template>
