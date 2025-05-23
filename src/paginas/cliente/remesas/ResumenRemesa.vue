@@ -10,6 +10,8 @@ import { ref, computed, watch } from 'vue'
 import { useRemesaStore } from '../../../store/remesa'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
 import html2pdf from 'html2pdf.js'
+import ModalTerminos from './modalTerminos.vue'
+import { useRouter } from 'vue-router'
 
 const store = useRemesaStore()
 const logoKian = '/kian-logo.svg'
@@ -17,8 +19,14 @@ const aceptoTerminos = ref(false)
 const remesaEnviada = ref(false)
 const mostrarConfirmacion = ref(false)
 const mostrarOpcionesPDF = ref(false)
+const mostrarTerminos = ref(false)
+const mostrarToast = ref(false)
+const mensajeToast = ref('')
+const audioBell = new Audio('/src/assets/sound/bell.mp3')
 
 const emit = defineEmits(['confirmado', 'siguiente-paso'])
+
+const router = useRouter()
 
 // Computed properties para los datos del resumen
 const fechaActual = computed(() => {
@@ -121,16 +129,28 @@ const confirmarRemesa = () => {
   mostrarConfirmacion.value = false
   mostrarOpcionesPDF.value = true
   emit('confirmado')
+  
+  // Reproducir sonido y mostrar toast
+  audioBell.play()
+  mensajeToast.value = '¡Remesa confirmada exitosamente!'
+  mostrarToast.value = true
+  setTimeout(() => {
+    mostrarToast.value = false
+  }, 3000)
+}
+
+const irANuevaRemesa = () => {
+  router.push('/cliente/nueva-remesa')
 }
 </script>
 
 <template>
-  <div v-show="store.resumenVisible" class="min-h-screen py-8" :class="{'bg-red-50 dark:bg-red-900/20': remesaEnviada, 'bg-gray-100 dark:bg-gray-900': !remesaEnviada}">
-    <div id="comprobante-remesa" class="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-6 text-[15px] text-gray-800 dark:text-gray-200 space-y-4">
+  <div v-show="store.resumenVisible" class="min-h-screen py-4" :class="{'bg-red-50 dark:bg-red-900/20': remesaEnviada, 'bg-gray-100 dark:bg-gray-900': !remesaEnviada}">
+    <div id="comprobante-remesa" class="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-4 text-[14px] text-gray-800 dark:text-gray-200 space-y-2">
       <!-- Logo y Encabezado -->
-      <div class="text-center border-b border-gray-200 dark:border-gray-700 pb-3">
-        <img :src="logoKian" alt="KIAN Logo" class="h-12 mx-auto mb-3">
-        <h1 class="text-xl font-semibold text-gray-800 dark:text-white resumen-titulo">Recibo de Remesa</h1>
+      <div class="text-center border-b border-gray-200 dark:border-gray-700 pb-2">
+        <img :src="logoKian" alt="KIAN Logo" class="h-10 mx-auto mb-2">
+        <h1 class="text-lg font-semibold text-gray-800 dark:text-white resumen-titulo">Recibo de Remesa</h1>
       </div>
 
       <!-- Información general -->
@@ -209,7 +229,7 @@ const confirmarRemesa = () => {
       </div>
 
       <!-- Pie -->
-      <div class="pt-3 border-t border-gray-200 dark:border-gray-700 text-center text-xs text-gray-500 dark:text-gray-400 space-y-1">
+      <div class="pt-2 border-t border-gray-200 dark:border-gray-700 text-center text-xs text-gray-500 dark:text-gray-400 space-y-1">
         <p>La remesa será procesada una vez confirmada la recepción de fondos.</p>
         <p>Este documento no tiene validez para crédito fiscal.</p>
       </div>
@@ -223,7 +243,13 @@ const confirmarRemesa = () => {
           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
         >
         <label for="terminos" class="text-sm text-gray-600 dark:text-gray-400">
-          Acepto los términos y condiciones
+          Acepto los 
+          <button 
+            @click="mostrarTerminos = true"
+            class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            términos y condiciones
+          </button>
         </label>
       </div>
 
@@ -243,6 +269,13 @@ const confirmarRemesa = () => {
           >
             <i class="fas fa-print mr-2"></i>
             Imprimir
+          </button>
+          <button 
+            @click="irANuevaRemesa"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+          >
+            <i class="fas fa-arrow-right mr-2"></i>
+            Continuar
           </button>
         </div>
         <button 
@@ -280,5 +313,38 @@ const confirmarRemesa = () => {
         </div>
       </div>
     </div>
+
+    <!-- Modal de términos y condiciones -->
+    <ModalTerminos 
+      :mostrar="mostrarTerminos"
+      @cerrar="mostrarTerminos = false"
+    />
+
+    <!-- Toast Notification -->
+    <div 
+      v-if="mostrarToast"
+      class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300"
+    >
+      <div class="flex items-center">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span>{{ mensajeToast }}</span>
+      </div>
+    </div>
   </div>
-</template> 
+</template>
+
+<style scoped>
+/* ... existing styles ... */
+
+/* Animación para el toast */
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+</style> 
