@@ -244,14 +244,15 @@ const irANuevaRemesa = () => {
         >
         <label for="terminos" class="text-sm text-gray-600 dark:text-gray-400">
           Acepto los 
-          <button 
+          <span 
             @click="mostrarTerminos = true"
-            class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            class="cursor-pointer text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
           >
             términos y condiciones
-          </button>
+          </span>
         </label>
       </div>
+
 
       <!-- Botones de acción -->
       <div class="flex justify-end space-x-4 botones-accion">
