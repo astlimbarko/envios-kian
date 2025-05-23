@@ -232,11 +232,185 @@ watch(seleccionado, (nuevoValor) => {
 
     <!-- Detalles del método seleccionado -->
     <div v-if="seleccionado" class="mt-6">
+      <!-- Detalles Transferencia Bancaria -->
+      <template v-if="seleccionado === 'banco'">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+          <h3 class="text-xl font-semibold mb-4">Detalles de transferencia bancaria</h3>
+          
+          <!-- Cuentas en grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Cuenta Suecia -->
+            <div class="space-y-4">
+              <div class="flex items-center space-x-2 mb-4">
+                <img :src="flagSuecia" alt="Bandera Suecia" class="w-8 h-8 rounded-full shadow-md">
+                <h4 class="text-lg font-medium">Suecia</h4>
+              </div>
+              
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banco</label>
+                  <div class="flex items-center space-x-2">
+                    <input 
+                      type="text" 
+                      :value="cuentasBancarias.suecia.banco" 
+                      readonly 
+                      class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                    <button 
+                      @click="copiarAlPortapapeles(cuentasBancarias.suecia.banco)"
+                      class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de cuenta</label>
+                  <div class="flex items-center space-x-2">
+                    <input 
+                      type="text" 
+                      :value="cuentasBancarias.suecia.cuenta" 
+                      readonly 
+                      class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                    <button 
+                      @click="copiarAlPortapapeles(cuentasBancarias.suecia.cuenta)"
+                      class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SWIFT/BIC</label>
+                  <div class="flex items-center space-x-2">
+                    <input 
+                      type="text" 
+                      :value="cuentasBancarias.suecia.swift" 
+                      readonly 
+                      class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                    <button 
+                      @click="copiarAlPortapapeles(cuentasBancarias.suecia.swift)"
+                      class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titular</label>
+                  <div class="flex items-center space-x-2">
+                    <input 
+                      type="text" 
+                      :value="cuentasBancarias.suecia.titular" 
+                      readonly 
+                      class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                    <button 
+                      @click="copiarAlPortapapeles(cuentasBancarias.suecia.titular)"
+                      class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cuenta Estonia -->
+            <div class="space-y-4">
+              <div class="flex items-center space-x-2 mb-4">
+                <img :src="flagEstonia" alt="Bandera Estonia" class="w-8 h-8 rounded-full shadow-md">
+                <h4 class="text-lg font-medium">Estonia</h4>
+              </div>
+              
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banco</label>
+                  <div class="flex items-center space-x-2">
+                    <input 
+                      type="text" 
+                      :value="cuentasBancarias.estonia.banco" 
+                      readonly 
+                      class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                    <button 
+                      @click="copiarAlPortapapeles(cuentasBancarias.estonia.banco)"
+                      class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de cuenta</label>
+                  <div class="flex items-center space-x-2">
+                    <input 
+                      type="text" 
+                      :value="cuentasBancarias.estonia.cuenta" 
+                      readonly 
+                      class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                    <button 
+                      @click="copiarAlPortapapeles(cuentasBancarias.estonia.cuenta)"
+                      class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SWIFT/BIC</label>
+                  <div class="flex items-center space-x-2">
+                    <input 
+                      type="text" 
+                      :value="cuentasBancarias.estonia.swift" 
+                      readonly 
+                      class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                    <button 
+                      @click="copiarAlPortapapeles(cuentasBancarias.estonia.swift)"
+                      class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titular</label>
+                  <div class="flex items-center space-x-2">
+                    <input 
+                      type="text" 
+                      :value="cuentasBancarias.estonia.titular" 
+                      readonly 
+                      class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                    <button 
+                      @click="copiarAlPortapapeles(cuentasBancarias.estonia.titular)"
+                      class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
       <!-- Detalles Swish -->
       <template v-if="seleccionado === 'swish'">
         <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
           <h3 class="text-xl font-semibold mb-4">Detalles de pago Swish</h3>
-          <div class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número Swish</label>
               <div class="flex items-center space-x-2">
@@ -266,86 +440,6 @@ watch(seleccionado, (nuevoValor) => {
                 >
                 <button 
                   @click="copiarAlPortapapeles(datosSwish.referencia)"
-                  class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  <i class="fas fa-copy"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </template>
-
-      <!-- Detalles Transferencia Bancaria -->
-      <template v-if="seleccionado === 'banco'">
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
-          <h3 class="text-xl font-semibold mb-4">Detalles de transferencia bancaria</h3>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banco</label>
-              <div class="flex items-center space-x-2">
-                <input 
-                  type="text" 
-                  :value="cuentasBancarias.suecia.banco" 
-                  readonly 
-                  class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                <button 
-                  @click="copiarAlPortapapeles(cuentasBancarias.suecia.banco)"
-                  class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  <i class="fas fa-copy"></i>
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de cuenta</label>
-              <div class="flex items-center space-x-2">
-                <input 
-                  type="text" 
-                  :value="cuentasBancarias.suecia.cuenta" 
-                  readonly 
-                  class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                <button 
-                  @click="copiarAlPortapapeles(cuentasBancarias.suecia.cuenta)"
-                  class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  <i class="fas fa-copy"></i>
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SWIFT/BIC</label>
-              <div class="flex items-center space-x-2">
-                <input 
-                  type="text" 
-                  :value="cuentasBancarias.suecia.swift" 
-                  readonly 
-                  class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                <button 
-                  @click="copiarAlPortapapeles(cuentasBancarias.suecia.swift)"
-                  class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  <i class="fas fa-copy"></i>
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titular</label>
-              <div class="flex items-center space-x-2">
-                <input 
-                  type="text" 
-                  :value="cuentasBancarias.suecia.titular" 
-                  readonly 
-                  class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                <button 
-                  @click="copiarAlPortapapeles(cuentasBancarias.suecia.titular)"
                   class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                 >
                   <i class="fas fa-copy"></i>

@@ -84,10 +84,27 @@ const cargarQRExistente = async (idCliente) => {
   }
 }
 
+const scrollToTitulo = () => {
+  setTimeout(() => {
+    const titulo = document.querySelector('.metodo-recepcion-titulo')
+    if (titulo) {
+      const headerOffset = 80
+      const elementPosition = titulo.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+  }, 100)
+}
+
 // Observar cambios en el beneficiario seleccionado
 watch(beneficiarioSeleccionado, (nuevoValor) => {
   if (nuevoValor) {
     store.resetearPasosSiguientes(2)
+    scrollToTitulo()
     if (nuevoValor && nuevoValor !== 'nuevo') {
       const beneficiario = beneficiariosQR.value.find(b => b.titular === nuevoValor)
       if (beneficiario) {
@@ -362,7 +379,7 @@ watch(nuevaCuenta, (nuevoValor) => {
 <template>
   <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-6 mb-4 border-4 border-gray-400 dark:border-gray-500">
     <div class="text-center mb-6">
-      <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Método de recepción</h2>
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2 metodo-recepcion-titulo">Método de recepción</h2>
       <p class="text-lg text-gray-600 dark:text-gray-300">Selecciona cómo deseas que el beneficiario reciba el dinero</p>
     </div>
 

@@ -61,21 +61,14 @@ watch(() => store.estado.pago, (nuevoValor) => {
   console.log('ResumenRemesa: Pago actualizado:', nuevoValor)
 }, { deep: true })
 
-const generarPDF = () => {
-  const element = document.getElementById('comprobante-remesa')
-  const opt = {
-    margin: 1,
-    filename: `remesa-${numeroComprobante.value}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
-  }
-
-  html2pdf().set(opt).from(element).save()
-}
-
 const imprimirComprobante = () => {
   const element = document.getElementById('comprobante-remesa')
+  const contenido = element.cloneNode(true)
+  
+  // Eliminar elementos que no deben aparecer en la impresión
+  const elementosAEliminar = contenido.querySelectorAll('.botones-accion, .terminos-condiciones')
+  elementosAEliminar.forEach(el => el.remove())
+  
   const ventana = window.open('', '_blank')
   ventana.document.write(`
     <html>
@@ -96,12 +89,31 @@ const imprimirComprobante = () => {
         </style>
       </head>
       <body>
-        ${element.innerHTML}
+        ${contenido.innerHTML}
       </body>
     </html>
   `)
   ventana.document.close()
   ventana.print()
+}
+
+const generarPDF = () => {
+  const element = document.getElementById('comprobante-remesa')
+  const contenido = element.cloneNode(true)
+  
+  // Eliminar elementos que no deben aparecer en el PDF
+  const elementosAEliminar = contenido.querySelectorAll('.botones-accion, .terminos-condiciones')
+  elementosAEliminar.forEach(el => el.remove())
+  
+  const opt = {
+    margin: 1,
+    filename: `remesa-${numeroComprobante.value}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
+  }
+
+  html2pdf().set(opt).from(contenido).save()
 }
 
 const confirmarRemesa = () => {
@@ -203,7 +215,7 @@ const confirmarRemesa = () => {
       </div>
 
       <!-- Términos y condiciones -->
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-2 terminos-condiciones">
         <input 
           type="checkbox" 
           id="terminos" 
@@ -216,7 +228,7 @@ const confirmarRemesa = () => {
       </div>
 
       <!-- Botones de acción -->
-      <div class="flex justify-end space-x-4">
+      <div class="flex justify-end space-x-4 botones-accion">
         <div v-if="remesaEnviada && mostrarOpcionesPDF" class="flex space-x-4">
           <button 
             @click="generarPDF"
