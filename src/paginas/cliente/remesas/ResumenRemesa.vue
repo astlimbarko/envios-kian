@@ -173,10 +173,10 @@ const irANuevaRemesa = () => {
 
           <div class="text-gray-600 dark:text-gray-400">Cantidad a recibir:</div>
           <div>{{ datosTransaccion.montoRecibirFormateado }} {{ datosTransaccion.pais?.moneda || 'BOB' }}</div>
-
+          <!--
           <div class="text-gray-600 dark:text-gray-400">Tipo de cambio:</div>
           <div>1 SEK = {{ datosTransaccion.tipoCambio }} {{ datosTransaccion.pais?.moneda || 'BOB' }}</div>
-
+          -->
           <div class="text-gray-600 dark:text-gray-400">País destino:</div>
           <div>{{ datosTransaccion.pais?.nombre || 'Bolivia' }}</div>
         </div>
