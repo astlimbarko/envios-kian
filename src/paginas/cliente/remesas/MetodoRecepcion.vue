@@ -182,13 +182,12 @@ const eliminarQR = () => {
 }
 
 const seleccionarMetodo = (metodo) => {
+  console.log('Seleccionando método:', metodo)
   metodoSeleccionado.value = metodo
-  setTimeout(() => {
-    const seccion = document.getElementById(metodo === 'qr' ? 'seccion-qr' : 'seccion-cuenta')
-    if (seccion) {
-      seccion.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }, 100)
+  beneficiarioSeleccionado.value = null
+  cuentaSeleccionada.value = null
+  mostrarFormularioNuevaCuenta.value = true
+  errores.value = null
 }
 
 const guardarNuevaCuenta = () => {
@@ -214,102 +213,47 @@ const editarNuevaCuenta = () => {
 }
 
 const continuar = () => {
-  console.log('MetodoRecepcion: Iniciando función continuar')
-  console.log('MetodoRecepcion: Estado actual:', {
-    metodoSeleccionado: metodoSeleccionado.value,
-    tipoCuenta: tipoCuenta.value,
-    cuentaSeleccionada: cuentaSeleccionada.value,
-    nuevaCuenta: nuevaCuenta.value,
-    beneficiarioSeleccionado: beneficiarioSeleccionado.value,
-    nombreBeneficiario: nombreBeneficiario.value
-  })
+  console.log('Validando datos antes de continuar...')
+  console.log('Método seleccionado:', metodoSeleccionado.value)
+  console.log('Beneficiario seleccionado:', beneficiarioSeleccionado.value)
+  console.log('Cuenta seleccionada:', cuentaSeleccionada.value)
 
-  try {
-    // Validar que se haya seleccionado un método
-    if (!metodoSeleccionado.value) {
-      console.log('MetodoRecepcion: No se ha seleccionado un método')
+  if (!metodoSeleccionado.value) {
+    errores.value = 'Por favor, seleccione un método de recepción'
+    return
+  }
+
+  const datosRecepcion = {
+    tipo: metodoSeleccionado.value
+  }
+
+  if (metodoSeleccionado.value === 'qr') {
+    if (!beneficiarioSeleccionado.value) {
+      errores.value = 'Por favor, seleccione un beneficiario'
       return
     }
-
-    let datosRecepcion = {
-      tipo: metodoSeleccionado.value
+    datosRecepcion.nombreBeneficiario = beneficiarioSeleccionado.value
+  } else if (metodoSeleccionado.value === 'cuenta') {
+    if (tipoCuenta.value === 'existente') {
+      if (!cuentaSeleccionada.value) {
+        errores.value = 'Por favor, seleccione una cuenta'
+        return
+      }
+      datosRecepcion.cuenta = cuentaSeleccionada.value
+    } else {
+      if (!validarFormulario()) {
+        errores.value = 'Por favor, complete los datos de la nueva cuenta'
+        return
+      }
+      datosRecepcion.cuenta = nuevaCuenta.value
     }
-
-    // Validar según el método seleccionado
-    if (metodoSeleccionado.value === 'qr') {
-      // Si es un beneficiario existente
-      if (beneficiarioSeleccionado.value && beneficiarioSeleccionado.value !== 'nuevo') {
-        const beneficiario = beneficiariosQR.value.find(b => b.titular === beneficiarioSeleccionado.value)
-        if (beneficiario) {
-          datosRecepcion.nombreBeneficiario = beneficiario.titular
-          datosRecepcion.qr = qrExistente.value
-        }
-      } 
-      // Si es un nuevo beneficiario
-      else if (mostrarNuevoBeneficiario.value) {
-        if (!nombreBeneficiario.value) {
-          console.log('MetodoRecepcion: Nombre del beneficiario requerido')
-          return
-        }
-        datosRecepcion.nombreBeneficiario = nombreBeneficiario.value
-        datosRecepcion.qr = qrPreview.value
-      }
-    } 
-    // Si es cuenta bancaria
-    else if (metodoSeleccionado.value === 'cuenta') {
-      if (tipoCuenta.value === 'existente') {
-        if (!cuentaSeleccionada.value) {
-          console.log('MetodoRecepcion: Debe seleccionar una cuenta')
-          return
-        }
-        datosRecepcion.cuenta = cuentaSeleccionada.value
-      } else {
-        if (!validarFormulario()) {
-          console.log('MetodoRecepcion: Debe completar los datos de la nueva cuenta')
-          return
-        }
-        datosRecepcion.cuenta = nuevaCuenta.value
-      }
-    }
-
-    // Actualizar el store con los datos de recepción
-    store.actualizarRecepcion(datosRecepcion)
-    console.log('MetodoRecepcion: Store actualizado exitosamente')
-
-    // Avanzar al siguiente paso
-    store.setPasoActual(3)
-    console.log('MetodoRecepcion: Paso actual actualizado a 3')
-
-    // Emitir evento para mostrar el siguiente paso
-    emit('siguiente-paso', 3)
-    console.log('MetodoRecepcion: Evento siguiente-paso emitido con paso 3')
-
-    // Scroll al siguiente paso
-    setTimeout(() => {
-      console.log('MetodoRecepcion: Iniciando scroll')
-      const siguientePaso = document.querySelector('.paso-3')
-      if (siguientePaso) {
-        console.log('MetodoRecepcion: Elemento siguiente paso encontrado')
-        const headerOffset = 80
-        const elementPosition = siguientePaso.getBoundingClientRect().top
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        })
-
-        siguientePaso.classList.add('paso-activo')
-        setTimeout(() => {
-          siguientePaso.classList.remove('paso-activo')
-        }, 2000)
-      } else {
-        console.log('MetodoRecepcion: No se encontró el elemento siguiente paso')
-      }
-    }, 100)
-  } catch (error) {
-    console.error('MetodoRecepcion: Error en la función continuar:', error)
   }
+
+  console.log('Actualizando store con datos de recepción:', datosRecepcion)
+  store.actualizarRecepcion(datosRecepcion)
+  store.setPasoActual(3)
+  emit('siguiente-paso', 3)
+  scrollToNextStep()
 }
 
 // Observar cambios en cuentaSeleccionada
@@ -333,6 +277,46 @@ watch(tipoCuenta, (nuevoTipo) => {
     }
   }, 100)
 })
+
+// Función para seleccionar beneficiario
+const seleccionarBeneficiario = (beneficiario) => {
+  console.log('Seleccionando beneficiario:', beneficiario)
+  beneficiarioSeleccionado.value = beneficiario
+  error.value = null
+}
+
+// Función para seleccionar cuenta
+const seleccionarCuenta = (cuenta) => {
+  console.log('Seleccionando cuenta:', cuenta)
+  cuentaSeleccionada.value = cuenta
+  error.value = null
+}
+
+// Función para scroll al siguiente paso
+const scrollToNextStep = () => {
+  setTimeout(() => {
+    console.log('MetodoRecepcion: Iniciando scroll')
+    const siguientePaso = document.querySelector('.paso-3')
+    if (siguientePaso) {
+      console.log('MetodoRecepcion: Elemento siguiente paso encontrado')
+      const headerOffset = 80
+      const elementPosition = siguientePaso.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+
+      siguientePaso.classList.add('paso-activo')
+      setTimeout(() => {
+        siguientePaso.classList.remove('paso-activo')
+      }, 2000)
+    } else {
+      console.log('MetodoRecepcion: No se encontró el elemento siguiente paso')
+    }
+  }, 100)
+}
 </script>
 
 <template>

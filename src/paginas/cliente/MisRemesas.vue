@@ -219,40 +219,11 @@ const store = useRemesaStore()
 // Función para manejar el siguiente paso
 const handleSiguientePaso = (paso) => {
   console.log('MisRemesas: Recibido evento siguiente-paso', paso)
-  try {
-    // Actualizar el paso actual en el store
+  if (paso) {
     store.setPasoActual(paso)
     console.log('MisRemesas: Paso actual actualizado a', paso)
-
-    // Actualizar el paso actual local
     currentStep.value = paso
     console.log('MisRemesas: Paso local actualizado a', paso)
-
-    // Centrar el paso en la pantalla
-    setTimeout(() => {
-      console.log('MisRemesas: Iniciando scroll al paso', paso)
-      const pasoElement = document.querySelector(`.paso-${paso}`)
-      if (pasoElement) {
-        console.log('MisRemesas: Elemento del paso encontrado')
-        const headerOffset = 80
-        const elementPosition = pasoElement.getBoundingClientRect().top
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        })
-
-        pasoElement.classList.add('paso-activo')
-        setTimeout(() => {
-          pasoElement.classList.remove('paso-activo')
-        }, 2000)
-      } else {
-        console.log('MisRemesas: No se encontró el elemento del paso')
-      }
-    }, 100)
-  } catch (error) {
-    console.error('MisRemesas: Error al manejar siguiente-paso:', error)
   }
 }
 </script>
@@ -265,7 +236,7 @@ const handleSiguientePaso = (paso) => {
     </div>
 
     <!-- Tarjetas de precios -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <!-- Tarjeta de precio estándar -->
       <div class="bg-indigo-600 dark:bg-indigo-700 rounded-xl shadow-lg p-4 border-2 border-indigo-500 dark:border-indigo-600 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
         <div class="flex items-center justify-between mb-2">
@@ -299,14 +270,11 @@ const handleSiguientePaso = (paso) => {
       </div>
     </div>
 
-    <!-- Contenedor de pasos -->
+    <!-- Pasos del proceso -->
     <div class="space-y-8">
       <!-- Paso 1: Formulario de envío -->
       <div v-show="currentStep >= 1" class="paso-1">
-        <FormularioEnvio 
-          :paises="paises"
-          :cambioEstandar="cambioEstandar"
-          :cambioEspecial="cambioEspecial"
+        <FormularioEnvio
           @siguiente-paso="handleSiguientePaso"
           @datos="handleFormularioDatos"
         />
@@ -314,25 +282,23 @@ const handleSiguientePaso = (paso) => {
 
       <!-- Paso 2: Método de recepción -->
       <div v-show="currentStep >= 2" class="paso-2">
-        <MetodoRecepcion 
-          :beneficiarios="beneficiarios"
-          :departamentos="departamentos"
+        <MetodoRecepcion
           @siguiente-paso="handleSiguientePaso"
         />
       </div>
 
       <!-- Paso 3: Método de pago -->
       <div v-show="currentStep >= 3" class="paso-3">
-        <MetodoPagoSuecia 
+        <MetodoPagoSuecia
           @siguiente-paso="handleSiguientePaso"
         />
       </div>
 
       <!-- Paso 4: Resumen -->
       <div v-show="currentStep >= 4" class="paso-4">
-        <ResumenRemesa 
-          @siguiente-paso="handleSiguientePaso"
+        <ResumenRemesa
           @confirmado="handleSubmit"
+          @siguiente-paso="handleSiguientePaso"
         />
       </div>
     </div>

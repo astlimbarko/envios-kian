@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { watch } from 'vue'
 
 export const useRemesaStore = defineStore('remesa', {
   state: () => ({
@@ -84,14 +85,50 @@ export const useRemesaStore = defineStore('remesa', {
 
     validarRecepcion() {
       const { tipo, nombreBeneficiario, cuenta } = this.estado.recepcion
-      this.validacion.recepcion = !!(tipo && (nombreBeneficiario || cuenta))
-      console.log('Store: Validación de recepción:', this.validacion.recepcion)
+      let esValido = false
+
+      if (tipo === 'qr') {
+        esValido = !!nombreBeneficiario
+      } else if (tipo === 'cuenta') {
+        esValido = !!cuenta && !!cuenta.titular && !!cuenta.banco && !!cuenta.numeroCuenta
+      }
+
+      this.validacion.recepcion = esValido
+      console.log('Store: Validación de recepción:', esValido)
+      this.actualizarResumen()
     },
 
     validarPago() {
       const { tipo } = this.estado.pago
       this.validacion.pago = !!tipo
       console.log('Store: Validación de pago:', this.validacion.pago)
+      this.actualizarResumen()
+    },
+
+    // Inicializar watchers
+    inicializarWatchers() {
+      // Watch para recepción
+      watch(() => this.estado.recepcion, (nuevoValor) => {
+        console.log('Store: Cambios detectados en recepción:', nuevoValor)
+        this.validarRecepcion()
+        this.actualizarResumen()
+      }, { deep: true })
+
+      // Watch para pago
+      watch(() => this.estado.pago, (nuevoValor) => {
+        console.log('Store: Cambios detectados en pago:', nuevoValor)
+        this.validarPago()
+        this.actualizarResumen()
+      }, { deep: true })
+    },
+
+    // Actualizar visibilidad del resumen
+    actualizarResumen() {
+      const todosValidos = this.validacion.transaccion && 
+                          this.validacion.recepcion && 
+                          this.validacion.pago
+      console.log('Store: Actualizando visibilidad del resumen a', todosValidos)
+      this.resumenVisible = todosValidos
     }
   }
 }) 

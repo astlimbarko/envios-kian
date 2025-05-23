@@ -16,36 +16,73 @@ const aceptoTerminos = ref(false)
 
 const emit = defineEmits(['confirmado', 'siguiente-paso'])
 
-// Computed properties para los datos del resumen
+// Watchers para actualizar la vista
+watch(() => store.estado.recepcion, (nuevoValor) => {
+  console.log('ResumenRemesa: Cambios detectados en recepción:', nuevoValor)
+}, { deep: true })
+
+watch(() => store.estado.pago, (nuevoValor) => {
+  console.log('ResumenRemesa: Cambios detectados en pago:', nuevoValor)
+}, { deep: true })
+
+// Computed properties
 const fechaActual = computed(() => {
-  return new Date().toLocaleDateString('es-ES', {
+  const fecha = new Date()
+  return fecha.toLocaleDateString('es-ES', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    day: 'numeric'
   })
 })
 
-const numeroComprobante = computed(() => {
-  const timestamp = Date.now()
-  const random = Math.floor(Math.random() * 1000)
-  return `REM-${timestamp}-${random}`
+const numeroRecibo = computed(() => {
+  return `REM-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`
 })
 
-const metodoRecepcionFormateado = computed(() => {
-  return store.estado.recepcion.tipo === 'qr' ? 'Código QR' : 'Cuenta Bancaria'
+const metodoRecepcion = computed(() => {
+  const { tipo, nombreBeneficiario, cuenta } = store.estado.recepcion
+  if (tipo === 'qr') {
+    return `QR - ${nombreBeneficiario}`
+  } else if (tipo === 'banco') {
+    return `Cuenta Bancaria - ${cuenta?.banco}`
+  }
+  return 'No especificado'
 })
 
-const metodoPagoFormateado = computed(() => {
-  return store.estado.pago.tipo === 'swish' ? 'Swish' : 'Transferencia Bancaria'
+const metodoPago = computed(() => {
+  const { tipo } = store.estado.pago
+  if (tipo === 'swish') {
+    return 'Swish'
+  } else if (tipo === 'banco') {
+    return 'Transferencia Bancaria'
+  }
+  return 'No especificado'
 })
 
-// Observar cambios en los datos para actualizar la visibilidad del resumen
-watch(() => store.datosValidos, (nuevoValor) => {
-  console.log('ResumenRemesa: Datos válidos cambiaron a', nuevoValor)
-  store.setResumenVisible(nuevoValor)
-}, { immediate: true })
+const validarDatos = () => {
+  const { transaccion, recepcion, pago } = store.estado
+  const datosValidos = !!transaccion && !!recepcion && !!pago
+  console.log('ResumenRemesa: Validando datos:', { transaccion, recepcion, pago })
+  console.log('ResumenRemesa: Datos válidos:', datosValidos)
+  store.setResumenVisible(datosValidos)
+}
+
+// Observar cambios en el estado
+watch(() => store.estado, (nuevoEstado) => {
+  console.log('ResumenRemesa: Estado actualizado:', nuevoEstado)
+  validarDatos()
+}, { deep: true, immediate: true })
+
+// Observar cambios específicos
+watch(() => store.estado.recepcion, (nuevaRecepcion) => {
+  console.log('ResumenRemesa: Cambios detectados en recepción:', nuevaRecepcion)
+  validarDatos()
+}, { deep: true })
+
+watch(() => store.estado.pago, (nuevoPago) => {
+  console.log('ResumenRemesa: Cambios detectados en pago:', nuevoPago)
+  validarDatos()
+}, { deep: true })
 
 // Confirmar la remesa
 const confirmarRemesa = () => {
@@ -128,7 +165,7 @@ const confirmarRemesa = () => {
         <div>{{ fechaActual }}</div>
 
         <div class="text-gray-600 dark:text-gray-400 font-medium">N° Comprobante:</div>
-        <div>{{ numeroComprobante }}</div>
+        <div>{{ numeroRecibo }}</div>
       </div>
 
       <hr class="border-gray-200 dark:border-gray-700" />
@@ -158,7 +195,7 @@ const confirmarRemesa = () => {
         <h2 class="text-sm font-semibold text-gray-800 dark:text-white mb-2">Método de Recepción</h2>
         <div class="grid grid-cols-2 gap-y-2">
           <div class="text-gray-600 dark:text-gray-400">Tipo:</div>
-          <div>{{ metodoRecepcionFormateado }}</div>
+          <div>{{ metodoRecepcion }}</div>
 
           <!-- Detalles para QR -->
           <template v-if="store.estado.recepcion.tipo === 'qr'">
@@ -193,7 +230,7 @@ const confirmarRemesa = () => {
         <h2 class="text-sm font-semibold text-gray-800 dark:text-white mb-2">Método de Pago</h2>
         <div class="grid grid-cols-2 gap-y-2">
           <div class="text-gray-600 dark:text-gray-400">Tipo:</div>
-          <div>{{ metodoPagoFormateado }}</div>
+          <div>{{ metodoPago }}</div>
         </div>
       </div>
 

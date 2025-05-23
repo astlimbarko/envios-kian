@@ -6,17 +6,88 @@
  */
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRemesaStore } from '../../../store/remesa'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
 import CargadorArchivo from '../../../components/CargadorArchivo.vue'
 
 const store = useRemesaStore()
+const emit = defineEmits(['siguiente-paso'])
 
-const seleccionado = ref('')
+// Estado local
+const metodoSeleccionado = ref(null)
+const error = ref(null)
+
+// Watcher para actualizar el store
+watch(metodoSeleccionado, (nuevoValor) => {
+  if (nuevoValor) {
+    actualizarStore()
+  }
+}, { immediate: true })
+
+// Función para actualizar el store
+const actualizarStore = () => {
+  if (!metodoSeleccionado.value) return
+
+  const datosPago = {
+    tipo: metodoSeleccionado.value
+  }
+
+  console.log('Actualizando store con datos de pago:', datosPago)
+  store.actualizarPago(datosPago)
+}
+
+// Función para seleccionar método
+const seleccionarMetodo = (metodo) => {
+  console.log('Seleccionando método de pago:', metodo)
+  metodoSeleccionado.value = metodo
+  error.value = null
+}
+
+// Función para continuar
+const continuar = () => {
+  console.log('Validando datos antes de continuar...')
+  console.log('Método de pago seleccionado:', metodoSeleccionado.value)
+
+  if (!metodoSeleccionado.value) {
+    error.value = 'Por favor, seleccione un método de pago'
+    return
+  }
+
+  actualizarStore()
+  store.setPasoActual(4)
+  emit('siguiente-paso', 4)
+  scrollToNextStep()
+}
+
+// Función para scroll al siguiente paso
+const scrollToNextStep = () => {
+  setTimeout(() => {
+    console.log('MetodoPagoSuecia: Iniciando scroll')
+    const siguientePaso = document.querySelector('.paso-4')
+    if (siguientePaso) {
+      console.log('MetodoPagoSuecia: Elemento siguiente paso encontrado')
+      const headerOffset = 80
+      const elementPosition = siguientePaso.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+
+      siguientePaso.classList.add('paso-activo')
+      setTimeout(() => {
+        siguientePaso.classList.remove('paso-activo')
+      }, 2000)
+    } else {
+      console.log('MetodoPagoSuecia: No se encontró el elemento siguiente paso')
+    }
+  }, 100)
+}
+
 const archivo = ref(null)
 const preview = ref(null)
-const error = ref(null)
 const botonUsado = ref(false)
 const nombreBeneficiario = ref('')
 
@@ -42,97 +113,6 @@ const datosSwish = {
 
 const flagSuecia = '/flags/flag_sve.svg'
 const flagEstonia = '/flags/flag_est.svg'
-
-const seleccionarMetodo = (metodo) => {
-  seleccionado.value = metodo
-  // Scroll al título del paso actual
-  setTimeout(() => {
-    const tituloPaso = document.querySelector('.metodo-pago-titulo')
-    if (tituloPaso) {
-      const headerOffset = 80
-      const elementPosition = tituloPaso.getBoundingClientRect().top
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      })
-
-      tituloPaso.classList.add('paso-activo')
-      setTimeout(() => {
-        tituloPaso.classList.remove('paso-activo')
-      }, 2000)
-    }
-  }, 100)
-}
-
-const emit = defineEmits(['seleccionado', 'siguiente-paso'])
-
-const continuar = () => {
-  console.log('MetodoPagoSuecia: Iniciando función continuar')
-  console.log('MetodoPagoSuecia: Estado actual:', {
-    seleccionado: seleccionado.value
-  })
-
-  try {
-    if (!seleccionado.value) {
-      console.log('MetodoPagoSuecia: Método no seleccionado')
-      return
-    }
-
-    if (seleccionado.value === 'swish') {
-      store.actualizarPago({
-        tipo: 'swish',
-        numero: datosSwish.numero,
-        referencia: datosSwish.referencia
-      })
-    } else if (seleccionado.value === 'banco') {
-      store.actualizarPago({
-        tipo: 'banco',
-        banco: cuentasBancarias.suecia.banco,
-        cuenta: cuentasBancarias.suecia.cuenta,
-        swift: cuentasBancarias.suecia.swift,
-        titular: cuentasBancarias.suecia.titular
-      })
-    }
-
-    console.log('MetodoPagoSuecia: Store actualizado exitosamente')
-
-    // Avanzar al siguiente paso
-    store.setPasoActual(4)
-    console.log('MetodoPagoSuecia: Paso actual actualizado a 4')
-
-    // Emitir evento para mostrar el siguiente paso
-    emit('siguiente-paso', 4)
-    console.log('MetodoPagoSuecia: Evento siguiente-paso emitido con paso 4')
-
-    // Scroll al siguiente paso
-    setTimeout(() => {
-      console.log('MetodoPagoSuecia: Iniciando scroll')
-      const siguientePaso = document.querySelector('.resumen-titulo')
-      if (siguientePaso) {
-        console.log('MetodoPagoSuecia: Elemento siguiente paso encontrado')
-        const headerOffset = 80
-        const elementPosition = siguientePaso.getBoundingClientRect().top
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        })
-
-        siguientePaso.classList.add('paso-activo')
-        setTimeout(() => {
-          siguientePaso.classList.remove('paso-activo')
-        }, 2000)
-      } else {
-        console.log('MetodoPagoSuecia: No se encontró el elemento siguiente paso')
-      }
-    }, 100)
-  } catch (error) {
-    console.error('MetodoPagoSuecia: Error en la función continuar:', error)
-  }
-}
 
 const subir = (event) => {
   const file = event.target.files[0]
@@ -191,14 +171,14 @@ const copiarAlPortapapeles = (texto) => {
         @click="seleccionarMetodo('swish')"
         class="p-3 rounded-xl border-2 transition-all duration-300"
         :class="[
-          seleccionado === 'swish' 
+          metodoSeleccionado === 'swish' 
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
             : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
         ]"
       >
         <div class="flex items-center space-x-2">
-          <i class="fas fa-mobile-alt text-xl" :class="seleccionado === 'swish' ? 'text-blue-500' : 'text-gray-400'"></i>
-          <span class="text-base font-medium" :class="seleccionado === 'swish' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
+          <i class="fas fa-mobile-alt text-xl" :class="metodoSeleccionado === 'swish' ? 'text-blue-500' : 'text-gray-400'"></i>
+          <span class="text-base font-medium" :class="metodoSeleccionado === 'swish' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
             Swish
           </span>
         </div>
@@ -209,14 +189,14 @@ const copiarAlPortapapeles = (texto) => {
         @click="seleccionarMetodo('banco')"
         class="p-3 rounded-xl border-2 transition-all duration-300"
         :class="[
-          seleccionado === 'banco' 
+          metodoSeleccionado === 'banco' 
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
             : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
         ]"
       >
         <div class="flex items-center space-x-2">
-          <i class="fas fa-university text-xl" :class="seleccionado === 'banco' ? 'text-blue-500' : 'text-gray-400'"></i>
-          <span class="text-base font-medium" :class="seleccionado === 'banco' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
+          <i class="fas fa-university text-xl" :class="metodoSeleccionado === 'banco' ? 'text-blue-500' : 'text-gray-400'"></i>
+          <span class="text-base font-medium" :class="metodoSeleccionado === 'banco' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
             Transferencia Bancaria
           </span>
         </div>
@@ -224,9 +204,9 @@ const copiarAlPortapapeles = (texto) => {
     </div>
 
     <!-- Detalles del método seleccionado -->
-    <div v-if="seleccionado" class="mt-6">
+    <div v-if="metodoSeleccionado" class="mt-6">
       <!-- Detalles Swish -->
-      <template v-if="seleccionado === 'swish'">
+      <template v-if="metodoSeleccionado === 'swish'">
         <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
           <h3 class="text-xl font-semibold mb-4">Detalles de pago Swish</h3>
           <div class="space-y-4">
@@ -270,7 +250,7 @@ const copiarAlPortapapeles = (texto) => {
       </template>
 
       <!-- Detalles Transferencia Bancaria -->
-      <template v-if="seleccionado === 'banco'">
+      <template v-if="metodoSeleccionado === 'banco'">
         <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
           <h3 class="text-xl font-semibold mb-4">Detalles de transferencia bancaria</h3>
           <div class="space-y-4">
@@ -365,7 +345,7 @@ const copiarAlPortapapeles = (texto) => {
       <BotonContinuar
         :texto="'Continuar'"
         :colorInicial="'blue'"
-        :deshabilitado="!seleccionado"
+        :deshabilitado="!metodoSeleccionado"
         @click="continuar"
       />
     </div>
