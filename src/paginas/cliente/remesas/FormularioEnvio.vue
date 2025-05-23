@@ -1,32 +1,47 @@
+/**
+ * Componente FormularioEnvio.vue
+ * 
+ * Este componente maneja el formulario inicial de la remesa.
+ * Utiliza el store centralizado para manejar el estado.
+ */
+
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useRemesaStore } from '../../../store/remesa'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
+
+const store = useRemesaStore()
 
 const props = defineProps({
   cambioEstandar: {
     type: Number,
-    required: true
+    required: true,
+    default: 1.08
   },
   cambioEspecial: {
     type: Number,
-    required: true
+    required: true,
+    default: 1.09
   }
 })
 
-const emit = defineEmits(['datos'])
+const emit = defineEmits(['datos', 'siguiente-paso'])
 
-// Estados para el formulario
+// Inicializar el estado local
 const montoEnviar = ref('')
 const montoRecibir = ref('')
-const campoActivo = ref('enviar') // 'enviar' o 'recibir'
+const tipoCambio = ref(0)
+const pais = ref(null)
+const campoActivo = ref('enviar')
 const botonUsado = ref(false)
-const valoresIniciales = ref({ enviar: '', recibir: '' })
-const hayCambios = ref(false)
-const paisSeleccionado = ref({
-  nombre: 'Bolivia',
-  codigo: 'BO',
-  moneda: 'BOB',
-  bandera: '/flag_bo.svg'
+
+// Computed properties para los montos formateados
+const montoEnviarFormateado = computed(() => {
+  return montoEnviar.value ? parseFloat(montoEnviar.value).toFixed(2) : '0.00'
+})
+
+const montoRecibirFormateado = computed(() => {
+  return montoRecibir.value ? parseFloat(montoRecibir.value).toFixed(2) : '0.00'
 })
 
 // Lista de países (por ahora solo Bolivia)
@@ -39,57 +54,94 @@ const paises = ref([
   }
 ])
 
+const paisSeleccionado = ref(paises.value[0])
+
 // Cálculo del tipo de cambio a usar
-const tipoCambio = computed(() => {
+const tipoCambioComputed = computed(() => {
   if (props.cambioEstandar === props.cambioEspecial) return props.cambioEstandar
   if (Number(montoRecibir.value) >= 5000) return props.cambioEspecial
   return props.cambioEstandar
 })
 
-// Actualización automática de montos
+// Función para actualizar montos
 const actualizarMontos = (valor, campo) => {
   if (campo === 'enviar' && valor) {
-    montoRecibir.value = (parseFloat(valor) * tipoCambio.value).toFixed(2)
+    montoEnviar.value = valor
+    montoRecibir.value = (parseFloat(valor) * tipoCambioComputed.value).toFixed(2)
   } else if (campo === 'recibir' && valor) {
-    montoEnviar.value = (parseFloat(valor) / tipoCambio.value).toFixed(2)
+    montoRecibir.value = valor
+    montoEnviar.value = (parseFloat(valor) / tipoCambioComputed.value).toFixed(2)
   }
-}
-
-// Función para detectar cambios
-const detectarCambios = () => {
-  hayCambios.value = montoEnviar.value !== valoresIniciales.value.enviar || 
-                     montoRecibir.value !== valoresIniciales.value.recibir
 }
 
 // Función para continuar
 const continuar = () => {
-  emit('datos', {
+  console.log('FormularioEnvio: Iniciando función continuar')
+  console.log('FormularioEnvio: Estado actual:', {
     montoEnviar: montoEnviar.value,
     montoRecibir: montoRecibir.value,
-    tipoCambio: tipoCambio.value,
+    tipoCambio: tipoCambioComputed.value,
     pais: paisSeleccionado.value
   })
 
-  // Asegurar que el siguiente paso se muestre en la parte superior
-  setTimeout(() => {
-    const siguientePaso = document.getElementById('paso-2')
-    if (siguientePaso) {
-      const headerOffset = 80
-      const elementPosition = siguientePaso.getBoundingClientRect().top
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      })
-
-      // Agregar efecto de resaltado
-      siguientePaso.classList.add('paso-activo')
-      setTimeout(() => {
-        siguientePaso.classList.remove('paso-activo')
-      }, 2000)
+  try {
+    if (!montoEnviar.value || !montoRecibir.value || !paisSeleccionado.value) {
+      console.log('FormularioEnvio: Faltan datos requeridos')
+      return
     }
-  }, 100)
+
+    // Actualizar el store con los datos finales
+    store.actualizarTransaccion({
+      montoEnviar: parseFloat(montoEnviar.value),
+      montoRecibir: parseFloat(montoRecibir.value),
+      tipoCambio: tipoCambioComputed.value,
+      pais: paisSeleccionado.value
+    })
+    console.log('FormularioEnvio: Store actualizado exitosamente')
+
+    // Avanzar al siguiente paso
+    store.setPasoActual(2)
+    console.log('FormularioEnvio: Paso actual actualizado a 2')
+
+    // Emitir evento para mostrar el siguiente paso
+    emit('siguiente-paso', 2)
+    console.log('FormularioEnvio: Evento siguiente-paso emitido con paso 2')
+
+    // Emitir evento con los datos
+    emit('datos', {
+      montoEnviar: parseFloat(montoEnviar.value),
+      montoRecibir: parseFloat(montoRecibir.value),
+      tipoCambio: tipoCambioComputed.value,
+      pais: paisSeleccionado.value
+    })
+    console.log('FormularioEnvio: Evento datos emitido')
+
+    // Scroll al siguiente paso
+    setTimeout(() => {
+      console.log('FormularioEnvio: Iniciando scroll')
+      const siguientePaso = document.querySelector('.metodo-recepcion-titulo')
+      if (siguientePaso) {
+        console.log('FormularioEnvio: Elemento siguiente paso encontrado')
+        const headerOffset = 80
+        const elementPosition = siguientePaso.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+
+        siguientePaso.classList.add('paso-activo')
+        setTimeout(() => {
+          siguientePaso.classList.remove('paso-activo')
+        }, 2000)
+      } else {
+        console.log('FormularioEnvio: No se encontró el elemento siguiente paso')
+      }
+    }, 100)
+  } catch (error) {
+    console.error('FormularioEnvio: Error en la función continuar:', error)
+  }
 }
 
 // Observar cambios en los montos
@@ -202,10 +254,10 @@ const handleKeyPress = (event) => {
     <div class="mb-3">
       <div class="flex items-center justify-between">
         <div class="text-sm text-gray-600 dark:text-gray-400">
-          <span class="font-medium text-gray-900 dark:text-white">1.00 SEK = {{ tipoCambio.toFixed(4) }} {{ paisSeleccionado.moneda }}</span>
+          <span class="font-medium text-gray-900 dark:text-white">1.00 SEK = {{ tipoCambioComputed.toFixed(4) }} {{ paisSeleccionado.moneda }}</span>
           <template v-if="cambioEstandar !== cambioEspecial">
             <span 
-              v-if="tipoCambio === cambioEspecial" 
+              v-if="tipoCambioComputed === cambioEspecial" 
               class="ml-2 px-2 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-xs font-semibold"
             >
               Tipo especial aplicado
@@ -215,12 +267,15 @@ const handleKeyPress = (event) => {
       </div>
     </div>
 
-    <!-- Reemplazar el botón existente con el nuevo componente -->
-    <BotonContinuar
-      :texto="'Ir al siguiente paso'"
-      :colorInicial="'blue'"
-      @click="continuar"
-    />
+    <!-- Botón continuar -->
+    <div class="w-full mt-6">
+      <BotonContinuar
+        :texto="'Continuar'"
+        :colorInicial="'blue'"
+        :deshabilitado="!montoEnviar || !montoRecibir"
+        @click="continuar"
+      />
+    </div>
   </div>
 </template>
 
@@ -266,6 +321,33 @@ input {
 @media (max-width: 480px) {
   select {
     background-size: 18% auto !important;
+  }
+}
+
+/* Animación para el paso activo */
+.paso-activo {
+  animation: highlight 2s ease-in-out;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: rgba(59, 130, 246, 0.1);
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.2);
+    transform: scale(1.02);
+    box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.2);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
   }
 }
 </style> 

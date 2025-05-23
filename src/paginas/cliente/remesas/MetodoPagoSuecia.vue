@@ -1,19 +1,18 @@
+/**
+ * Componente MetodoPagoSuecia.vue
+ * 
+ * Este componente maneja la selección del método de pago.
+ * Utiliza el store centralizado para manejar el estado.
+ */
+
 <script setup>
 import { ref } from 'vue'
+import { useRemesaStore } from '../../../store/remesa'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
 import CargadorArchivo from '../../../components/CargadorArchivo.vue'
 
-const props = defineProps({
-  metodos: {
-    type: Array,
-    default: () => [
-      { nombre: 'Swish', valor: 'swish', icono: 'fas fa-mobile-alt' },
-      { nombre: 'Transferencia Bancaria', valor: 'banco', icono: 'fas fa-university' }
-    ]
-  }
-})
+const store = useRemesaStore()
 
-const emit = defineEmits(['seleccionado'])
 const seleccionado = ref('')
 const archivo = ref(null)
 const preview = ref(null)
@@ -67,50 +66,72 @@ const seleccionarMetodo = (metodo) => {
   }, 100)
 }
 
+const emit = defineEmits(['seleccionado', 'siguiente-paso'])
+
 const continuar = () => {
-  // Emitir el método seleccionado y los datos correspondientes
-  const datos = {
-    metodo: seleccionado.value,
-    comprobantePago: archivo.value
-  }
+  console.log('MetodoPagoSuecia: Iniciando función continuar')
+  console.log('MetodoPagoSuecia: Estado actual:', {
+    seleccionado: seleccionado.value
+  })
 
-  if (seleccionado.value === 'swish') {
-    Object.assign(datos, {
-      numero: datosSwish.numero,
-      referencia: datosSwish.referencia,
-      nombreBeneficiario: nombreBeneficiario.value
-    })
-  } else if (seleccionado.value === 'banco') {
-    Object.assign(datos, {
-      banco: cuentasBancarias.suecia.banco,
-      cuenta: cuentasBancarias.suecia.cuenta,
-      swift: cuentasBancarias.suecia.swift,
-      titular: cuentasBancarias.suecia.titular,
-      cuentas: cuentasBancarias
-    })
-  }
-
-  emit('seleccionado', datos)
-
-  // Scroll al paso de resumen
-  setTimeout(() => {
-    const siguientePaso = document.getElementById('resumen-remesa')
-    if (siguientePaso) {
-      const headerOffset = 80
-      const elementPosition = siguientePaso.getBoundingClientRect().top
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      })
-
-      siguientePaso.classList.add('paso-activo')
-      setTimeout(() => {
-        siguientePaso.classList.remove('paso-activo')
-      }, 2000)
+  try {
+    if (!seleccionado.value) {
+      console.log('MetodoPagoSuecia: Método no seleccionado')
+      return
     }
-  }, 100)
+
+    if (seleccionado.value === 'swish') {
+      store.actualizarPago({
+        tipo: 'swish',
+        numero: datosSwish.numero,
+        referencia: datosSwish.referencia
+      })
+    } else if (seleccionado.value === 'banco') {
+      store.actualizarPago({
+        tipo: 'banco',
+        banco: cuentasBancarias.suecia.banco,
+        cuenta: cuentasBancarias.suecia.cuenta,
+        swift: cuentasBancarias.suecia.swift,
+        titular: cuentasBancarias.suecia.titular
+      })
+    }
+
+    console.log('MetodoPagoSuecia: Store actualizado exitosamente')
+
+    // Avanzar al siguiente paso
+    store.setPasoActual(4)
+    console.log('MetodoPagoSuecia: Paso actual actualizado a 4')
+
+    // Emitir evento para mostrar el siguiente paso
+    emit('siguiente-paso', 4)
+    console.log('MetodoPagoSuecia: Evento siguiente-paso emitido con paso 4')
+
+    // Scroll al siguiente paso
+    setTimeout(() => {
+      console.log('MetodoPagoSuecia: Iniciando scroll')
+      const siguientePaso = document.querySelector('.resumen-titulo')
+      if (siguientePaso) {
+        console.log('MetodoPagoSuecia: Elemento siguiente paso encontrado')
+        const headerOffset = 80
+        const elementPosition = siguientePaso.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+
+        siguientePaso.classList.add('paso-activo')
+        setTimeout(() => {
+          siguientePaso.classList.remove('paso-activo')
+        }, 2000)
+      } else {
+        console.log('MetodoPagoSuecia: No se encontró el elemento siguiente paso')
+      }
+    }, 100)
+  } catch (error) {
+    console.error('MetodoPagoSuecia: Error en la función continuar:', error)
+  }
 }
 
 const subir = (event) => {
@@ -142,12 +163,6 @@ const subir = (event) => {
   }
 }
 
-const eliminarArchivo = () => {
-  archivo.value = null
-  preview.value = null
-  error.value = null
-}
-
 // Función para copiar al portapapeles
 const copiarAlPortapapeles = (texto) => {
   navigator.clipboard.writeText(texto).then(() => {
@@ -164,239 +179,170 @@ const copiarAlPortapapeles = (texto) => {
 </script>
 
 <template>
-  <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-4 mb-4 border-4 border-gray-400 dark:border-gray-500">
-    <div class="text-center mb-4">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1 metodo-pago-titulo">Método de pago</h2>
-      <p class="text-base text-gray-600 dark:text-gray-300">Selecciona cómo deseas realizar el pago</p>
+  <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-6 mb-4 border-4 border-gray-400 dark:border-gray-500">
+    <div class="text-center mb-6">
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2 metodo-pago-titulo">Método de pago</h2>
+      <p class="text-lg text-gray-600 dark:text-gray-300">Selecciona cómo deseas realizar el pago</p>
     </div>
 
-    <!-- Métodos de pago -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+      <!-- Opción Swish -->
       <button 
-        v-for="metodo in metodos" 
-        :key="metodo.valor"
-        @click="seleccionarMetodo(metodo.valor)"
+        @click="seleccionarMetodo('swish')"
         class="p-3 rounded-xl border-2 transition-all duration-300"
         :class="[
-          seleccionado === metodo.valor 
+          seleccionado === 'swish' 
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
             : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
         ]"
       >
         <div class="flex items-center space-x-2">
-          <i :class="[metodo.icono, 'text-xl', seleccionado === metodo.valor ? 'text-blue-500' : 'text-gray-400']"></i>
-          <span class="text-base font-medium" :class="seleccionado === metodo.valor ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
-            {{ metodo.nombre }}
+          <i class="fas fa-mobile-alt text-xl" :class="seleccionado === 'swish' ? 'text-blue-500' : 'text-gray-400'"></i>
+          <span class="text-base font-medium" :class="seleccionado === 'swish' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
+            Swish
+          </span>
+        </div>
+      </button>
+
+      <!-- Opción Transferencia Bancaria -->
+      <button 
+        @click="seleccionarMetodo('banco')"
+        class="p-3 rounded-xl border-2 transition-all duration-300"
+        :class="[
+          seleccionado === 'banco' 
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+        ]"
+      >
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-university text-xl" :class="seleccionado === 'banco' ? 'text-blue-500' : 'text-gray-400'"></i>
+          <span class="text-base font-medium" :class="seleccionado === 'banco' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
+            Transferencia Bancaria
           </span>
         </div>
       </button>
     </div>
 
     <!-- Detalles del método seleccionado -->
-    <div v-if="seleccionado" class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 mb-4">
-      <!-- Swish -->
+    <div v-if="seleccionado" class="mt-6">
+      <!-- Detalles Swish -->
       <template v-if="seleccionado === 'swish'">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Detalles de Swish</h3>
-        <div class="flex flex-col md:flex-row gap-4">
-          <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de Swish</label>
-            <div class="flex items-center space-x-2">
-              <input 
-                type="text" 
-                :value="datosSwish.numero" 
-                readonly 
-                class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-              <button 
-                @click="copiarAlPortapapeles(datosSwish.numero)"
-                class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                <i class="fas fa-copy"></i>
-              </button>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+          <h3 class="text-xl font-semibold mb-4">Detalles de pago Swish</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número Swish</label>
+              <div class="flex items-center space-x-2">
+                <input 
+                  type="text" 
+                  :value="datosSwish.numero" 
+                  readonly 
+                  class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                <button 
+                  @click="copiarAlPortapapeles(datosSwish.numero)"
+                  class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Referencia</label>
-            <div class="flex items-center space-x-2">
-              <input 
-                type="text" 
-                :value="datosSwish.referencia" 
-                readonly 
-                class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-              <button 
-                @click="copiarAlPortapapeles(datosSwish.referencia)"
-                class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                <i class="fas fa-copy"></i>
-              </button>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Referencia</label>
+              <div class="flex items-center space-x-2">
+                <input 
+                  type="text" 
+                  :value="datosSwish.referencia" 
+                  readonly 
+                  class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                <button 
+                  @click="copiarAlPortapapeles(datosSwish.referencia)"
+                  class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </template>
 
-      <!-- Transferencia Bancaria -->
+      <!-- Detalles Transferencia Bancaria -->
       <template v-if="seleccionado === 'banco'">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Detalles de las cuentas bancarias</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Cuenta en Suecia -->
-          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <img :src="flagSuecia" alt="Bandera Suecia" class="w-6 h-6 rounded-full shadow-sm">
-                <h5 class="text-base font-medium text-gray-900 dark:text-white">Suecia</h5>
-              </div>
-              <span class="text-sm text-blue-600 dark:text-blue-400">Cuenta Principal</span>
-            </div>
-            <div class="space-y-2">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banco</label>
-                <div class="flex items-center space-x-2">
-                  <input 
-                    type="text" 
-                    :value="cuentasBancarias.suecia.banco" 
-                    readonly 
-                    class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                  <button 
-                    @click="copiarAlPortapapeles(cuentasBancarias.suecia.banco)"
-                    class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de cuenta</label>
-                <div class="flex items-center space-x-2">
-                  <input 
-                    type="text" 
-                    :value="cuentasBancarias.suecia.cuenta" 
-                    readonly 
-                    class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                  <button 
-                    @click="copiarAlPortapapeles(cuentasBancarias.suecia.cuenta)"
-                    class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SWIFT/BIC</label>
-                <div class="flex items-center space-x-2">
-                  <input 
-                    type="text" 
-                    :value="cuentasBancarias.suecia.swift" 
-                    readonly 
-                    class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                  <button 
-                    @click="copiarAlPortapapeles(cuentasBancarias.suecia.swift)"
-                    class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titular</label>
-                <div class="flex items-center space-x-2">
-                  <input 
-                    type="text" 
-                    :value="cuentasBancarias.suecia.titular" 
-                    readonly 
-                    class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                  <button 
-                    @click="copiarAlPortapapeles(cuentasBancarias.suecia.titular)"
-                    class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+          <h3 class="text-xl font-semibold mb-4">Detalles de transferencia bancaria</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banco</label>
+              <div class="flex items-center space-x-2">
+                <input 
+                  type="text" 
+                  :value="cuentasBancarias.suecia.banco" 
+                  readonly 
+                  class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                <button 
+                  @click="copiarAlPortapapeles(cuentasBancarias.suecia.banco)"
+                  class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
               </div>
             </div>
-          </div>
 
-          <!-- Cuenta en Estonia -->
-          <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4">
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <img :src="flagEstonia" alt="Bandera Estonia" class="w-6 h-6 rounded-full shadow-sm">
-                <h5 class="text-base font-medium text-gray-900 dark:text-white">Estonia</h5>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de cuenta</label>
+              <div class="flex items-center space-x-2">
+                <input 
+                  type="text" 
+                  :value="cuentasBancarias.suecia.cuenta" 
+                  readonly 
+                  class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                <button 
+                  @click="copiarAlPortapapeles(cuentasBancarias.suecia.cuenta)"
+                  class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
               </div>
-              <span class="text-sm text-green-600 dark:text-green-400">Cuenta Alternativa</span>
             </div>
-            <div class="space-y-2">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banco</label>
-                <div class="flex items-center space-x-2">
-                  <input 
-                    type="text" 
-                    :value="cuentasBancarias.estonia.banco" 
-                    readonly 
-                    class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                  <button 
-                    @click="copiarAlPortapapeles(cuentasBancarias.estonia.banco)"
-                    class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SWIFT/BIC</label>
+              <div class="flex items-center space-x-2">
+                <input 
+                  type="text" 
+                  :value="cuentasBancarias.suecia.swift" 
+                  readonly 
+                  class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                <button 
+                  @click="copiarAlPortapapeles(cuentasBancarias.suecia.swift)"
+                  class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de cuenta</label>
-                <div class="flex items-center space-x-2">
-                  <input 
-                    type="text" 
-                    :value="cuentasBancarias.estonia.cuenta" 
-                    readonly 
-                    class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                  <button 
-                    @click="copiarAlPortapapeles(cuentasBancarias.estonia.cuenta)"
-                    class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SWIFT/BIC</label>
-                <div class="flex items-center space-x-2">
-                  <input 
-                    type="text" 
-                    :value="cuentasBancarias.estonia.swift" 
-                    readonly 
-                    class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                  <button 
-                    @click="copiarAlPortapapeles(cuentasBancarias.estonia.swift)"
-                    class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titular</label>
-                <div class="flex items-center space-x-2">
-                  <input 
-                    type="text" 
-                    :value="cuentasBancarias.estonia.titular" 
-                    readonly 
-                    class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                  <button 
-                    @click="copiarAlPortapapeles(cuentasBancarias.estonia.titular)"
-                    class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titular</label>
+              <div class="flex items-center space-x-2">
+                <input 
+                  type="text" 
+                  :value="cuentasBancarias.suecia.titular" 
+                  readonly 
+                  class="flex-1 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                <button 
+                  @click="copiarAlPortapapeles(cuentasBancarias.suecia.titular)"
+                  class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -415,11 +361,11 @@ const copiarAlPortapapeles = (texto) => {
     </div>
 
     <!-- Botón continuar -->
-    <div class="w-full">
+    <div class="w-full mt-6">
       <BotonContinuar
         :texto="'Continuar'"
         :colorInicial="'blue'"
-        :deshabilitado="!seleccionado || !archivo"
+        :deshabilitado="!seleccionado"
         @click="continuar"
       />
     </div>

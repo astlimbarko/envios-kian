@@ -1,8 +1,18 @@
+/**
+ * Componente MetodoRecepcion.vue
+ * 
+ * Este componente maneja la selección del método de recepción.
+ * Utiliza el store centralizado para manejar el estado.
+ */
+
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { useRemesaStore } from '../../../store/remesa'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
 import entidadesFinancieras from '../../../assets/entidades_financieras_bolivia.json'
 import clientes from '../../../assets/clientes.json'
+
+const store = useRemesaStore()
 
 const props = defineProps({
   beneficiarios: {
@@ -18,7 +28,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['seleccionado'])
+const emit = defineEmits(['seleccionado', 'siguiente-paso'])
 const metodoSeleccionado = ref(null)
 const tipoCuenta = ref('existente')
 const cuentaSeleccionada = ref('')
@@ -204,65 +214,102 @@ const editarNuevaCuenta = () => {
 }
 
 const continuar = () => {
-  if (metodoSeleccionado.value === 'qr') {
-    emit('seleccionado', {
-      tipo: 'qr',
-      esQR: true,
-      qr: nuevoQR.value,
-      nombreBeneficiario: nombreBeneficiario.value,
-      cuenta: null // Aseguramos que no haya datos de cuenta cuando es QR
-    })
-  } else if (metodoSeleccionado.value === 'cuenta') {
-    if (tipoCuenta.value === 'existente' && cuentaSeleccionada.value) {
-      emit('seleccionado', {
-        tipo: 'banco',
-        esQR: false,
-        qr: null, // Aseguramos que no haya datos de QR cuando es cuenta
-        nombreBeneficiario: null,
-        cuenta: {
-          titular: cuentaSeleccionada.value.titular,
-          banco: cuentaSeleccionada.value.banco,
-          numeroCuenta: cuentaSeleccionada.value.numeroCuenta,
-          tipoCuenta: cuentaSeleccionada.value.tipoCuenta,
-          sucursal: cuentaSeleccionada.value.sucursal
-        }
-      })
-    } else if (tipoCuenta.value === 'nueva' && nuevaCuenta.value) {
-      emit('seleccionado', {
-        tipo: 'banco',
-        esQR: false,
-        qr: null, // Aseguramos que no haya datos de QR cuando es cuenta
-        nombreBeneficiario: null,
-        cuenta: {
-          titular: nuevaCuenta.value.titular,
-          banco: nuevaCuenta.value.banco,
-          numeroCuenta: nuevaCuenta.value.numeroCuenta,
-          tipoCuenta: nuevaCuenta.value.tipoCuenta,
-          sucursal: nuevaCuenta.value.sucursal
-        }
-      })
+  console.log('MetodoRecepcion: Iniciando función continuar')
+  console.log('MetodoRecepcion: Estado actual:', {
+    metodoSeleccionado: metodoSeleccionado.value,
+    tipoCuenta: tipoCuenta.value,
+    cuentaSeleccionada: cuentaSeleccionada.value,
+    nuevaCuenta: nuevaCuenta.value,
+    beneficiarioSeleccionado: beneficiarioSeleccionado.value,
+    nombreBeneficiario: nombreBeneficiario.value
+  })
+
+  try {
+    // Validar que se haya seleccionado un método
+    if (!metodoSeleccionado.value) {
+      console.log('MetodoRecepcion: No se ha seleccionado un método')
+      return
     }
+
+    let datosRecepcion = {
+      tipo: metodoSeleccionado.value
+    }
+
+    // Validar según el método seleccionado
+    if (metodoSeleccionado.value === 'qr') {
+      // Si es un beneficiario existente
+      if (beneficiarioSeleccionado.value && beneficiarioSeleccionado.value !== 'nuevo') {
+        const beneficiario = beneficiariosQR.value.find(b => b.titular === beneficiarioSeleccionado.value)
+        if (beneficiario) {
+          datosRecepcion.nombreBeneficiario = beneficiario.titular
+          datosRecepcion.qr = qrExistente.value
+        }
+      } 
+      // Si es un nuevo beneficiario
+      else if (mostrarNuevoBeneficiario.value) {
+        if (!nombreBeneficiario.value) {
+          console.log('MetodoRecepcion: Nombre del beneficiario requerido')
+          return
+        }
+        datosRecepcion.nombreBeneficiario = nombreBeneficiario.value
+        datosRecepcion.qr = qrPreview.value
+      }
+    } 
+    // Si es cuenta bancaria
+    else if (metodoSeleccionado.value === 'cuenta') {
+      if (tipoCuenta.value === 'existente') {
+        if (!cuentaSeleccionada.value) {
+          console.log('MetodoRecepcion: Debe seleccionar una cuenta')
+          return
+        }
+        datosRecepcion.cuenta = cuentaSeleccionada.value
+      } else {
+        if (!validarFormulario()) {
+          console.log('MetodoRecepcion: Debe completar los datos de la nueva cuenta')
+          return
+        }
+        datosRecepcion.cuenta = nuevaCuenta.value
+      }
+    }
+
+    // Actualizar el store con los datos de recepción
+    store.actualizarRecepcion(datosRecepcion)
+    console.log('MetodoRecepcion: Store actualizado exitosamente')
+
+    // Avanzar al siguiente paso
+    store.setPasoActual(3)
+    console.log('MetodoRecepcion: Paso actual actualizado a 3')
+
+    // Emitir evento para mostrar el siguiente paso
+    emit('siguiente-paso', 3)
+    console.log('MetodoRecepcion: Evento siguiente-paso emitido con paso 3')
+
+    // Scroll al siguiente paso
+    setTimeout(() => {
+      console.log('MetodoRecepcion: Iniciando scroll')
+      const siguientePaso = document.querySelector('.paso-3')
+      if (siguientePaso) {
+        console.log('MetodoRecepcion: Elemento siguiente paso encontrado')
+        const headerOffset = 80
+        const elementPosition = siguientePaso.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+
+        siguientePaso.classList.add('paso-activo')
+        setTimeout(() => {
+          siguientePaso.classList.remove('paso-activo')
+        }, 2000)
+      } else {
+        console.log('MetodoRecepcion: No se encontró el elemento siguiente paso')
+      }
+    }, 100)
+  } catch (error) {
+    console.error('MetodoRecepcion: Error en la función continuar:', error)
   }
-
-  // Scroll al siguiente paso
-  setTimeout(() => {
-    const siguientePaso = document.querySelector('.metodo-pago-titulo')
-    if (siguientePaso) {
-      const headerOffset = 80
-      const elementPosition = siguientePaso.getBoundingClientRect().top
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      })
-
-      siguientePaso.classList.add('paso-activo')
-      setTimeout(() => {
-        siguientePaso.classList.remove('paso-activo')
-      }, 2000)
-    }
-  }, 100)
 }
 
 // Observar cambios en cuentaSeleccionada

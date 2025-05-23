@@ -5,6 +5,7 @@ import FormularioEnvio from './remesas/FormularioEnvio.vue'
 import MetodoPagoSuecia from './remesas/MetodoPagoSuecia.vue'
 import ResumenRemesa from './remesas/ResumenRemesa.vue'
 import MetodoRecepcion from './remesas/MetodoRecepcion.vue'
+import { useRemesaStore } from '../../store/remesa'
 
 // Estados para las remesas
 const remesas = ref([
@@ -126,11 +127,18 @@ const prevStep = () => {
 
 // Función para manejar los datos del formulario
 const handleFormularioDatos = (datos) => {
-  datosRemesa.value = {
-    ...datosRemesa.value,
-    ...datos
+  console.log('MisRemesas: Recibidos datos del formulario:', datos)
+  try {
+    datosRemesa.value = {
+      ...datosRemesa.value,
+      ...datos
+    }
+    currentStep.value = 2
+    console.log('MisRemesas: Datos actualizados y paso cambiado a 2')
+    centrarPaso(2)
+  } catch (error) {
+    console.error('MisRemesas: Error al manejar datos del formulario:', error)
   }
-  currentStep.value = 2
 }
 
 // Función para manejar la selección del método de recepción
@@ -204,10 +212,53 @@ const handleNewRemittance = (newRemittance) => {
     showSuccessNotification.value = false
   }, 5000)
 }
+
+// Inicializar el store
+const store = useRemesaStore()
+
+// Función para manejar el siguiente paso
+const handleSiguientePaso = (paso) => {
+  console.log('MisRemesas: Recibido evento siguiente-paso', paso)
+  try {
+    // Actualizar el paso actual en el store
+    store.setPasoActual(paso)
+    console.log('MisRemesas: Paso actual actualizado a', paso)
+
+    // Actualizar el paso actual local
+    currentStep.value = paso
+    console.log('MisRemesas: Paso local actualizado a', paso)
+
+    // Centrar el paso en la pantalla
+    setTimeout(() => {
+      console.log('MisRemesas: Iniciando scroll al paso', paso)
+      const pasoElement = document.querySelector(`.paso-${paso}`)
+      if (pasoElement) {
+        console.log('MisRemesas: Elemento del paso encontrado')
+        const headerOffset = 80
+        const elementPosition = pasoElement.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+
+        pasoElement.classList.add('paso-activo')
+        setTimeout(() => {
+          pasoElement.classList.remove('paso-activo')
+        }, 2000)
+      } else {
+        console.log('MisRemesas: No se encontró el elemento del paso')
+      }
+    }, 100)
+  } catch (error) {
+    console.error('MisRemesas: Error al manejar siguiente-paso:', error)
+  }
+}
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-4">
+  <div class="container mx-auto px-4 py-8">
     <!-- Fecha de actualización -->
     <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">
       Última actualización: {{ fechaActualizacion }}
@@ -249,51 +300,39 @@ const handleNewRemittance = (newRemittance) => {
     </div>
 
     <!-- Contenedor de pasos -->
-    <div class="space-y-4 min-h-screen">
+    <div class="space-y-8">
       <!-- Paso 1: Formulario de envío -->
-      <div 
-        id="paso-1"
-        class="transition-all duration-500"
-      >
+      <div v-show="currentStep >= 1" class="paso-1">
         <FormularioEnvio 
+          :paises="paises"
           :cambioEstandar="cambioEstandar"
           :cambioEspecial="cambioEspecial"
+          @siguiente-paso="handleSiguientePaso"
           @datos="handleFormularioDatos"
         />
       </div>
 
       <!-- Paso 2: Método de recepción -->
-      <div 
-        v-show="currentStep >= 2 && datosRemesa.montoEnviar" 
-        id="paso-2"
-        class="animate-fade-in transition-all duration-500"
-      >
+      <div v-show="currentStep >= 2" class="paso-2">
         <MetodoRecepcion 
-          @seleccionado="handleMetodoRecepcion"
+          :beneficiarios="beneficiarios"
+          :departamentos="departamentos"
+          @siguiente-paso="handleSiguientePaso"
         />
       </div>
 
       <!-- Paso 3: Método de pago -->
-      <div 
-        v-if="currentStep >= 3 && datosRemesa.metodoRecepcion" 
-        id="paso-3"
-        class="animate-fade-in transition-all duration-500"
-      >
+      <div v-show="currentStep >= 3" class="paso-3">
         <MetodoPagoSuecia 
-          :metodos="metodosPagoSuecia"
-          @seleccionado="handleMetodoPago"
+          @siguiente-paso="handleSiguientePaso"
         />
       </div>
 
       <!-- Paso 4: Resumen -->
-      <div 
-        v-if="currentStep >= 4 && datosRemesa.metodoPago" 
-        id="paso-4"
-        class="animate-fade-in transition-all duration-500"
-      >
+      <div v-show="currentStep >= 4" class="paso-4">
         <ResumenRemesa 
-          :datos="datosRemesa"
-          @enviar="handleSubmit"
+          @siguiente-paso="handleSiguientePaso"
+          @confirmado="handleSubmit"
         />
       </div>
     </div>
@@ -378,8 +417,10 @@ const handleNewRemittance = (newRemittance) => {
           <!-- Paso 1: Formulario de envío -->
           <div v-if="currentStep === 1">
             <FormularioEnvio 
+              :paises="paises"
               :cambioEstandar="cambioEstandar"
               :cambioEspecial="cambioEspecial"
+              @siguiente-paso="handleSiguientePaso"
               @datos="handleFormularioDatos"
             />
           </div>
@@ -387,19 +428,15 @@ const handleNewRemittance = (newRemittance) => {
           <!-- Paso 2: Método de pago -->
           <div v-if="currentStep === 2">
             <MetodoPagoSuecia 
-              :metodos="metodosPagoSuecia"
-              @seleccionado="metodo => {
-                datosRemesa.metodoPago = metodo;
-                nextStep();
-              }"
+              @siguiente-paso="handleSiguientePaso"
             />
           </div>
 
           <!-- Paso 3: Resumen -->
           <div v-if="currentStep === 3">
             <ResumenRemesa 
-              :datos="datosRemesa"
-              @enviar="handleSubmit"
+              @siguiente-paso="handleSiguientePaso"
+              @confirmado="handleSubmit"
             />
           </div>
         </div>
@@ -547,7 +584,7 @@ input {
 }
 
 /* Asegurar que los pasos tengan un margen superior consistente */
-.space-y-4 > * {
+.space-y-8 > * {
   margin-top: 1rem;
   scroll-margin-top: 5rem; /* Ajustamos el margen de scroll para cada paso */
 }
