@@ -25,6 +25,11 @@ const sidebarClasses = computed(() => {
     'lg:translate-x-0': !layoutStore.isMobile
   }
 })
+
+const cerrarSesion = () => {
+  // Aquí iría la lógica para cerrar sesión
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -58,12 +63,22 @@ const sidebarClasses = computed(() => {
     <nav class="px-4 py-6">
       <ul class="space-y-3">
         <li class="relative">
-          <router-link to="/cliente/mis-remesas" 
-            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
-            :class="{ 'active-menu-item': $route.path === '/cliente/mis-remesas' || $route.path === '/cliente' }"
-            @click="layoutStore.isMobile && layoutStore.closeSidebar()"
+          <router-link 
+            to="/cliente/nueva-remesa"
+            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            :class="{ 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400': $route.path === '/cliente/nueva-remesa' }"
           >
-            <i class="fas fa-paper-plane text-lg mr-3" :class="{ 'text-blue-600 dark:text-blue-400': $route.path === '/cliente/mis-remesas' || $route.path === '/cliente' }"></i>
+            <i class="fas fa-plus-circle w-6 text-lg"></i>
+            <span>Nueva Remesa</span>
+          </router-link>
+        </li>
+        <li class="relative">
+          <router-link 
+            to="/cliente/mis-remesas"
+            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            :class="{ 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400': $route.path === '/cliente/mis-remesas' }"
+          >
+            <i class="fas fa-exchange-alt w-6 text-lg"></i>
             <span>Mis Remesas</span>
           </router-link>
         </li>

@@ -174,7 +174,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRemesaStore } from '../store/remesa'
+import { useRemesaStore } from '../../store/remesa'
 import { useRouter } from 'vue-router'
 
 const store = useRemesaStore()
