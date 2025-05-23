@@ -112,9 +112,9 @@ const continuar = () => {
       const siguientePaso = document.querySelector('.resumen-titulo')
       if (siguientePaso) {
         console.log('MetodoPagoSuecia: Elemento siguiente paso encontrado')
-        const headerOffset = 80
+        const headerOffset = 120
         const elementPosition = siguientePaso.getBoundingClientRect().top
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset - 20
 
         window.scrollTo({
           top: offsetPosition,

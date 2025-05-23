@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import P_cliente from '../paginas/cliente/P_cliente.vue'
-import MisRemesas from '../paginas/cliente/NuevaRemesa.vue' // Intercambiado
+import MisRemesas from '../paginas/cliente/MisRemesas.vue' // Intercambiado
 import Beneficiarios from '../paginas/cliente/Beneficiarios.vue'
 import Soporte from '../paginas/cliente/Soporte.vue'
 import Contacto from '../paginas/cliente/Contacto.vue'
-import NuevaRemesa from '../paginas/cliente/MisRemesas.vue' // Intercambiado
+import NuevaRemesa from '../paginas/cliente/NuevaRemesa.vue' // Intercambiado
 
 // Definición de rutas
 const routes = [

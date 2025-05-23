@@ -1,172 +1,126 @@
 <template>
-  <div class="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
-    <div class="max-w-4xl mx-auto px-4">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Encabezado -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+      <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Mis Remesas</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          Completa los siguientes pasos para enviar tu dinero
+        </p>
+      </div>
+
+      <!-- Barra de progreso -->
+      <div class="mb-8">
         <div class="flex justify-between items-center">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mi Remesa</h1>
-            <p class="text-gray-600 dark:text-gray-400">Número: {{ numeroComprobante }}</p>
-          </div>
-          <div class="flex items-center space-x-4">
-            <span 
-              class="px-4 py-2 rounded-full text-sm font-medium"
-              :class="{
-                'bg-yellow-100 text-yellow-800': estado === 'En proceso',
-                'bg-green-100 text-green-800': estado === 'Realizada',
-                'bg-red-100 text-red-800': estado === 'Cancelada'
-              }"
+          <div 
+            v-for="step in 4" 
+            :key="step"
+            class="flex-1 text-center"
+          >
+            <div 
+              class="w-10 h-10 mx-auto rounded-full flex items-center justify-center transition-all duration-300"
+              :class="[
+                currentStep >= step 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+              ]"
             >
-              {{ estado }}
-            </span>
-            <button 
-              v-if="estado === 'En proceso'"
-              @click="cancelarRemesa"
-              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              {{ step }}
+            </div>
+            <div 
+              class="text-xs mt-2 font-medium"
+              :class="[
+                currentStep >= step 
+                  ? 'text-blue-600 dark:text-blue-400' 
+                  : 'text-gray-500 dark:text-gray-400'
+              ]"
             >
-              Cancelar Remesa
-            </button>
+              {{ 
+                step === 1 ? 'Envío' :
+                step === 2 ? 'Recepción' :
+                step === 3 ? 'Pago' :
+                'Resumen'
+              }}
+            </div>
           </div>
+        </div>
+        <div class="relative h-1 bg-gray-200 dark:bg-gray-700 rounded-full mt-4">
+          <div 
+            class="absolute h-1 bg-blue-600 rounded-full transition-all duration-300"
+            :style="{ width: `${(currentStep - 1) * 33.33}%` }"
+          ></div>
         </div>
       </div>
 
-      <!-- Resumen -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Detalles de la Transacción -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Detalles de la Transacción</h2>
-          <div class="space-y-3">
-            <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Monto Enviado:</span>
-              <span class="font-medium">{{ datosTransaccion.montoEnviarFormateado }} SEK</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Monto a Recibir:</span>
-              <span class="font-medium">{{ datosTransaccion.montoRecibirFormateado }} {{ datosTransaccion.pais?.moneda }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Tipo de Cambio:</span>
-              <span class="font-medium">1 SEK = {{ datosTransaccion.tipoCambio }} {{ datosTransaccion.pais?.moneda }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">País Destino:</span>
-              <span class="font-medium">{{ datosTransaccion.pais?.nombre }}</span>
-            </div>
-          </div>
+      <!-- Contenedor de pasos -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <!-- Paso 1: Formulario de envío -->
+        <div v-show="currentStep >= 1" class="p-6">
+          <FormularioEnvio 
+            :paises="paises"
+            :cambioEstandar="cambioEstandar"
+            :cambioEspecial="cambioEspecial"
+            @siguiente-paso="handleSiguientePaso"
+            @datos="handleFormularioDatos"
+          />
         </div>
 
-        <!-- Detalles de Recepción -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Detalles de Recepción</h2>
-          <div class="space-y-3">
-            <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Método:</span>
-              <span class="font-medium">{{ datosRecepcion.tipoFormateado }}</span>
-            </div>
-            <template v-if="datosRecepcion.tipo === 'qr'">
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Beneficiario:</span>
-                <span class="font-medium">{{ datosRecepcion.nombreBeneficiario }}</span>
-              </div>
-            </template>
-            <template v-if="datosRecepcion.tipo === 'cuenta'">
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Titular:</span>
-                <span class="font-medium">{{ datosRecepcion.cuenta.titular }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Banco:</span>
-                <span class="font-medium">{{ datosRecepcion.cuenta.banco }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">N° Cuenta:</span>
-                <span class="font-medium">{{ datosRecepcion.cuenta.numeroCuenta }}</span>
-              </div>
-            </template>
-          </div>
+        <!-- Paso 2: Método de recepción -->
+        <div v-show="currentStep >= 2" class="p-6">
+          <MetodoRecepcion 
+            :beneficiarios="beneficiarios"
+            :departamentos="departamentos"
+            @siguiente-paso="handleSiguientePaso"
+          />
         </div>
 
-        <!-- Detalles de Pago -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Detalles de Pago</h2>
-          <div class="space-y-3">
-            <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Método:</span>
-              <span class="font-medium">{{ datosPago.tipoFormateado }}</span>
-            </div>
-            <template v-if="datosPago.tipo === 'swish'">
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Número Swish:</span>
-                <span class="font-medium">{{ datosPago.numero }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Referencia:</span>
-                <span class="font-medium">{{ datosPago.referencia }}</span>
-              </div>
-            </template>
-          </div>
+        <!-- Paso 3: Método de pago -->
+        <div v-show="currentStep >= 3" class="p-6">
+          <MetodoPagoSuecia 
+            @siguiente-paso="handleSiguientePaso"
+          />
         </div>
 
-        <!-- Tiempo Estimado -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Tiempo Estimado</h2>
-          <div class="space-y-3">
-            <div class="flex items-center space-x-2">
-              <i class="fas fa-clock text-blue-500"></i>
-              <span class="text-gray-600 dark:text-gray-400">
-                Tiempo estimado de procesamiento: 
-                <span class="font-medium">
-                  {{ datosRecepcion.tipo === 'qr' ? '30 minutos' : '60 minutos' }}
-                </span>
-              </span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <i class="fas fa-calendar-alt text-blue-500"></i>
-              <span class="text-gray-600 dark:text-gray-400">
-                Horario de atención: 
-                <span class="font-medium">Lunes a Sábado, 7:00 AM - 7:00 PM</span>
-              </span>
-            </div>
-          </div>
+        <!-- Paso 4: Resumen -->
+        <div v-show="currentStep >= 4" class="p-6">
+          <ResumenRemesa 
+            @siguiente-paso="handleSiguientePaso"
+            @confirmado="handleSubmit"
+          />
         </div>
       </div>
 
-      <!-- Botones de Acción -->
-      <div class="mt-6 flex justify-end space-x-4">
+      <!-- Botones de navegación -->
+      <div class="mt-6 flex justify-between">
         <button 
-          @click="editarRemesa"
-          class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          v-if="currentStep > 1"
+          @click="prevStep"
+          class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
         >
-          Editar Remesa
+          <i class="fas fa-arrow-left mr-2"></i>
+          Anterior
         </button>
+        <div v-else></div>
+        
         <button 
-          @click="descargarComprobante"
-          class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          v-if="currentStep < 4"
+          @click="nextStep"
+          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          Descargar Comprobante
+          Siguiente
+          <i class="fas fa-arrow-right ml-2"></i>
         </button>
       </div>
     </div>
 
-    <!-- Modal de Confirmación de Cancelación -->
-    <div v-if="mostrarConfirmacionCancelacion" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-semibold mb-4">Confirmar Cancelación</h3>
-        <p class="mb-6">¿Está seguro que desea cancelar esta remesa? Esta acción no se puede deshacer.</p>
-        <div class="flex justify-end space-x-4">
-          <button 
-            @click="mostrarConfirmacionCancelacion = false"
-            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-          >
-            No Cancelar
-          </button>
-          <button 
-            @click="confirmarCancelacion"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-          >
-            Sí, Cancelar
-          </button>
-        </div>
+    <!-- Notificación de éxito -->
+    <div 
+      v-if="showSuccessNotification" 
+      class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50"
+    >
+      <div class="flex items-center">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span>¡Remesa enviada con éxito!</span>
       </div>
     </div>
   </div>
@@ -174,36 +128,151 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import FormularioEnvio from './remesas/FormularioEnvio.vue'
+import MetodoPagoSuecia from './remesas/MetodoPagoSuecia.vue'
+import ResumenRemesa from './remesas/ResumenRemesa.vue'
+import MetodoRecepcion from './remesas/MetodoRecepcion.vue'
 import { useRemesaStore } from '../../store/remesa'
-import { useRouter } from 'vue-router'
 
+// Estados para el formulario
+const currentStep = ref(1)
+const showSuccessNotification = ref(false)
+const datosRemesa = ref({
+  montoEnviar: '',
+  montoRecibir: '',
+  tipoCambio: 0,
+  pais: null,
+  metodoRecepcion: null,
+  metodoPago: null,
+  destinatario: null,
+  comprobante: null,
+  qrCode: null,
+  nombreBeneficiario: null,
+  cuenta: null
+})
+
+// Datos para los tipos de cambio
+const cambioEstandar = ref(1.08)
+const cambioEspecial = ref(1.09)
+
+// Lista de países
+const paises = ref([
+  {
+    nombre: 'Bolivia',
+    codigo: 'BO',
+    moneda: 'BOB',
+    bandera: '/flag_bo.svg'
+  }
+])
+
+// Lista de beneficiarios
+const beneficiarios = ref([
+  {
+    id: 1,
+    nombre: 'María González',
+    documento: '12345678',
+    telefono: '591-76543210',
+    departamento: 'Santa Cruz'
+  }
+])
+
+// Lista de departamentos
+const departamentos = ref([
+  'Santa Cruz',
+  'La Paz',
+  'Cochabamba',
+  'Oruro',
+  'Potosí',
+  'Tarija',
+  'Chuquisaca',
+  'Beni',
+  'Pando'
+])
+
+// Cálculo del tipo de cambio a usar
+const tipoCambio = computed(() => {
+  if (cambioEstandar.value === cambioEspecial.value) return cambioEstandar.value
+  if (Number(datosRemesa.value.montoRecibir) >= 5000) return cambioEspecial.value
+  return cambioEstandar.value
+})
+
+// Función para avanzar al siguiente paso
+const nextStep = () => {
+  if (currentStep.value < 4) {
+    currentStep.value++
+  }
+}
+
+// Función para retroceder al paso anterior
+const prevStep = () => {
+  if (currentStep.value > 1) {
+    currentStep.value--
+  }
+}
+
+// Función para manejar los datos del formulario
+const handleFormularioDatos = (datos) => {
+  datosRemesa.value = {
+    ...datosRemesa.value,
+    ...datos
+  }
+  currentStep.value = 2
+}
+
+// Función para manejar el siguiente paso
+const handleSiguientePaso = (paso) => {
+  currentStep.value = paso
+}
+
+// Función para manejar el envío final
+const handleSubmit = () => {
+  showSuccessNotification.value = true
+  setTimeout(() => {
+    showSuccessNotification.value = false
+  }, 5000)
+}
+
+// Inicializar el store
 const store = useRemesaStore()
-const router = useRouter()
-
-const estado = ref('En proceso')
-const mostrarConfirmacionCancelacion = ref(false)
-
-// Usar los datos del store
-const datosTransaccion = computed(() => store.datosTransaccion)
-const datosRecepcion = computed(() => store.datosRecepcion)
-const datosPago = computed(() => store.datosPago)
-const numeroComprobante = computed(() => store.numeroComprobante)
-
-const cancelarRemesa = () => {
-  mostrarConfirmacionCancelacion.value = true
-}
-
-const confirmarCancelacion = () => {
-  estado.value = 'Cancelada'
-  mostrarConfirmacionCancelacion.value = false
-  // Aquí iría la lógica para actualizar el estado en el backend
-}
-
-const editarRemesa = () => {
-  router.push('/cliente/remesas')
-}
-
-const descargarComprobante = () => {
-  // Aquí iría la lógica para descargar el comprobante
-}
 </script>
+
+<style scoped>
+/* Transiciones suaves */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Animación para los pasos */
+[v-show] {
+  display: block !important;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* Efecto de hover en botones */
+button {
+  transition: all 0.15s ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Animación para la notificación */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.fixed.top-4.right-4 {
+  animation: slideIn 0.3s ease-out forwards;
+}
+</style>
