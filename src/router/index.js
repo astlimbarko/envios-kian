@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import P_cliente from '../paginas/cliente/P_cliente.vue'
-import MisRemesas from '../paginas/cliente/MisRemesas.vue'
+import MisRemesas from '../paginas/cliente/NuevaRemesa.vue' // Intercambiado
 import Beneficiarios from '../paginas/cliente/Beneficiarios.vue'
 import Soporte from '../paginas/cliente/Soporte.vue'
 import Contacto from '../paginas/cliente/Contacto.vue'
-import NuevaRemesa from '../paginas/cliente/NuevaRemesa.vue'
+import NuevaRemesa from '../paginas/cliente/MisRemesas.vue' // Intercambiado
 
 // Definición de rutas
 const routes = [
@@ -20,17 +20,17 @@ const routes = [
       {
         path: '',
         name: 'ClienteDefault',
-        component: MisRemesas
+        component: MisRemesas // Ahora es NuevaRemesa.vue
       },
       {
         path: 'mis-remesas',
         name: 'MisRemesas',
-        component: MisRemesas
+        component: MisRemesas // Ahora es NuevaRemesa.vue
       },
       {
         path: 'nueva-remesa',
         name: 'NuevaRemesa',
-        component: NuevaRemesa
+        component: NuevaRemesa // Ahora es MisRemesas.vue
       },
       {
         path: 'beneficiarios',
@@ -118,10 +118,9 @@ const routes = [
   }
 ]
 
-// Crear instancia del router
 const router = createRouter({
   history: createWebHistory(),
   routes
 })
 
-export default router 
+export default router
