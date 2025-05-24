@@ -50,7 +50,7 @@ const paises = ref([
     nombre: 'Bolivia',
     codigo: 'BO',
     moneda: 'BOB',
-    bandera: '/flag_bo.svg'
+    bandera: '/flags/flag_bo.svg'
   }
 ])
 
