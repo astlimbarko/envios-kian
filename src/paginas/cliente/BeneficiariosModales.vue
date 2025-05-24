@@ -91,7 +91,7 @@ const handleQRUpload = (event) => {
 <template>
   <!-- Modal para agregar/editar beneficiario -->
   <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col dark:bg-gray-800 dark:text-gray-100">
+    <div class="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-lg shadow-xl bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
       <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
         <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">
           {{ isEditing ? 'Modificar Beneficiario' : 'Nuevo Beneficiario' }}
@@ -187,36 +187,47 @@ const handleQRUpload = (event) => {
 
           <!-- Campos para Cuenta Bancaria -->
           <div v-if="selectedMethod === 'BANCO'" class="space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Titular o Beneficiario *</label>
-                <input 
-                  :value="formData.titular"
-                  @input="e => updateFormData('titular', e.target.value)"
-                  type="text" 
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
-                  required
-                >
-              </div>
-              <div>
-                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">C.I. *</label>
-                <input 
-                  :value="formData.carnetIdentidad"
-                  @input="e => updateFormData('carnetIdentidad', e.target.value)"
-                  type="text" 
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
-                  required
-                >
-              </div>
-              <div>
-                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Complemento</label>
-                <input 
-                  :value="formData.complemento"
-                  @input="e => updateFormData('complemento', e.target.value)"
-                  type="text" 
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white"
-                >
-              </div>
+            <!-- Fila 1: Nombre, CI, Complemento -->
+            <div class="flex flex-col md:flex-row gap-4">
+          <!-- Nombre del Beneficiario: que ocupe la mayor parte -->
+          <div class="flex-1">
+            <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Nombre del Beneficiario *</label>
+            <input 
+              :value="formData.titular"
+              @input="e => updateFormData('titular', e.target.value)"
+              type="text" 
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
+              required
+            >
+          </div>
+
+          <!-- Carnet de Identidad: ancho medio -->
+          <div class="w-full md:w-[180px]">
+            <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">C.I. *</label>
+            <input 
+              :value="formData.carnetIdentidad"
+              @input="e => updateFormData('carnetIdentidad', e.target.value)"
+              type="text" 
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
+              required
+            >
+          </div>
+
+          <!-- Complemento: ancho reducido -->
+          <div class="w-full md:w-[100px]">
+            <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Comp.</label>
+            <input 
+              :value="formData.complemento"
+              @input="e => updateFormData('complemento', e.target.value)"
+              type="text" 
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white"
+            >
+          </div>
+        </div>
+
+
+            <!-- Fila 2: Banco y Sucursal -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Entidad Financiera *</label>
                 <select 
@@ -225,12 +236,30 @@ const handleQRUpload = (event) => {
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
                   required
                 >
-                  <option value="">Seleccione un banco</option>
+                  <option value="" disabled selected class="text-gray-500">Seleccione un banco</option>
                   <option v-for="entidad in entidadesFinancieras" :key="entidad.nombre" :value="entidad.nombre">
                     {{ entidad.nombre }}
                   </option>
                 </select>
               </div>
+              <div>
+                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Sucursal *</label>
+                <select 
+                  :value="formData.sucursal"
+                  @change="e => updateFormData('sucursal', e.target.value)"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
+                  required
+                >
+                  <option value="" disabled selected class="text-gray-500">Seleccione sucursal</option>
+                  <option v-for="departamento in departamentos" :key="departamento" :value="departamento">
+                    {{ departamento }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Fila 3: Número de cuenta y tipo de cuenta -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Número de cuenta *</label>
                 <input 
@@ -249,23 +278,9 @@ const handleQRUpload = (event) => {
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
                   required
                 >
-                  <option value="">Seleccione tipo de cuenta</option>
+                  <option value="" >Seleccione tipo de cuenta</option>
                   <option value="Caja de Ahorro">Caja de Ahorro</option>
                   <option value="Cuenta Corriente">Cuenta Corriente</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Sucursal *</label>
-                <select 
-                  :value="formData.sucursal"
-                  @change="e => updateFormData('sucursal', e.target.value)"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
-                  required
-                >
-                  <option value="">Seleccione sucursal</option>
-                  <option v-for="departamento in departamentos" :key="departamento" :value="departamento">
-                    {{ departamento }}
-                  </option>
                 </select>
               </div>
             </div>
@@ -421,4 +436,4 @@ input[type="radio"]:checked + label {
 .dark .overflow-y-auto::-webkit-scrollbar-thumb {
   background-color: rgba(75, 85, 99, 0.5);
 }
-</style> 
+</style>
