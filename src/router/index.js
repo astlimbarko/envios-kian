@@ -71,11 +71,6 @@ const routes = [
     component: () => import('../paginas/cliente/FAQ.vue')
   },
   {
-    path: '/mensajes',
-    name: 'Mensajes',
-    component: () => import('../paginas/cliente/Mensajes.vue')
-  },
-  {
     path: '/blog',
     name: 'Blog',
     component: () => import('../paginas/cliente/Blog.vue')
