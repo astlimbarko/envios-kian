@@ -134,7 +134,7 @@ const continuar = () => {
         siguientePaso.classList.add('paso-activo')
         setTimeout(() => {
           siguientePaso.classList.remove('paso-activo')
-        }, 2000)
+        }, 2)
       } else {
         console.log('FormularioEnvio: No se encontró el elemento siguiente paso')
       }
