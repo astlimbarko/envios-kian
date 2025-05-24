@@ -2,6 +2,8 @@
     {
         "id": 3265,
         "viaPago": "QR",
+        "QR": "true",
+        "cuentaBancaria": "true",
         "titular": "Juan Perez",
         "carnetIdentidad": "12345678",
         "complemento": "A",
@@ -13,6 +15,8 @@
     {
         "id": 6752,
         "viaPago": "QR",
+        "QR": "true",
+        "cuentaBancaria": "true",
         "titular": "María Fernanda López",
         "carnetIdentidad": "87654321",
         "complemento": "",
@@ -24,6 +28,8 @@
     {
         "id": 3,
         "viaPago": "Banco",
+        "QR": "false",
+        "cuentaBancaria": "true",
         "titular": "Gonzalo Lopez",
         "carnetIdentidad": "87654321",
         "complemento": "A",
@@ -35,6 +41,8 @@
     {
         "id": 4,
         "viaPago": "QR",
+        "QR": "true",
+        "cuentaBancaria": "false",
         "titular": "Yeison Bustamante"
     }
 ]
