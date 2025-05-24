@@ -1,25 +1,44 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import entidadesFinancieras from '../../assets/entidades_financieras_bolivia.json'
 
 const props = defineProps({
   showAddModal: Boolean,
   showQuickAccessModal: Boolean,
+  showEditModal: Boolean,
   formData: Object,
   accessCode: String,
   isCodeValid: Boolean,
-  paises: Array
+  isEditing: Boolean
 })
 
 const emit = defineEmits([
   'update:showAddModal',
   'update:showQuickAccessModal',
+  'update:showEditModal',
   'update:formData',
   'update:accessCode',
   'update:isCodeValid',
   'saveBeneficiario',
+  'updateBeneficiario',
   'validateAccessCode',
   'processAccessCode'
 ])
+
+const selectedMethod = ref('QR')
+const qrImage = ref(null)
+
+const departamentos = [
+  'La Paz',
+  'Cochabamba',
+  'Santa Cruz',
+  'Oruro',
+  'Potosí',
+  'Tarija',
+  'Chuquisaca',
+  'Beni',
+  'Pando'
+]
 
 const updateFormData = (field, value) => {
   const updatedFormData = { ...props.formData }
@@ -36,6 +55,10 @@ const closeAddModal = () => {
   emit('update:showAddModal', false)
 }
 
+const closeEditModal = () => {
+  emit('update:showEditModal', false)
+}
+
 const closeQuickAccessModal = () => {
   emit('update:showQuickAccessModal', false)
 }
@@ -44,201 +67,233 @@ const saveBeneficiario = () => {
   emit('saveBeneficiario')
 }
 
+const updateBeneficiario = () => {
+  emit('updateBeneficiario')
+}
+
 const processAccessCode = () => {
   emit('processAccessCode')
+}
+
+const handleQRUpload = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      qrImage.value = e.target.result
+      updateFormData('qrImage', e.target.result)
+    }
+    reader.readAsDataURL(file)
+  }
 }
 </script>
 
 <template>
-  <!-- Modal para agregar beneficiario -->
-  <div v-if="showAddModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-xl p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto dark:bg-gray-800 dark:text-gray-100">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Nuevo Beneficiario</h3>
-        <button @click="closeAddModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100">
+  <!-- Modal para agregar/editar beneficiario -->
+  <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col dark:bg-gray-800 dark:text-gray-100">
+      <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">
+          {{ isEditing ? 'Modificar Beneficiario' : 'Nuevo Beneficiario' }}
+        </h3>
+        <button @click="isEditing ? closeEditModal() : closeAddModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100">
           <i class="fas fa-times"></i>
         </button>
       </div>
       
-      <form @submit.prevent="saveBeneficiario" class="space-y-6">
-        <!-- Datos personales -->
-        <div>
-          <h4 class="font-semibold text-gray-700 dark:text-gray-200 border-b dark:border-gray-700 pb-2 mb-4">Datos Personales</h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Nombre(s) *</label>
-              <input 
-                :value="formData.nombre"
-                @input="e => updateFormData('nombre', e.target.value)"
-                type="text" 
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
-                required
-              >
-            </div>
-            <div>
-              <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Apellido(s) *</label>
-              <input 
-                :value="formData.apellido"
-                @input="e => updateFormData('apellido', e.target.value)"
-                type="text" 
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
-                required
-              >
-            </div>
-            <div>
-              <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">ID / DNI / CI *</label>
-              <input 
-                :value="formData.dni"
-                @input="e => updateFormData('dni', e.target.value)"
-                type="text" 
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
-                required
-              >
-            </div>
-            <div>
-              <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Teléfono *</label>
-              <input 
-                :value="formData.telefono"
-                @input="e => updateFormData('telefono', e.target.value)"
-                type="tel" 
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
-                required
-              >
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Correo Electrónico</label>
-              <input 
-                :value="formData.correo"
-                @input="e => updateFormData('correo', e.target.value)"
-                type="email" 
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white"
-              >
-            </div>
-          </div>
-        </div>
-        
-        <!-- Dirección -->
-        <div>
-          <h4 class="font-semibold text-gray-700 dark:text-gray-200 border-b dark:border-gray-700 pb-2 mb-4">Dirección</h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="md:col-span-2">
-              <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Dirección de domicilio *</label>
-              <input 
-                :value="formData.direccion"
-                @input="e => updateFormData('direccion', e.target.value)"
-                type="text" 
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
-                required
-              >
-            </div>
-            <div>
-              <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Ciudad *</label>
-              <input 
-                :value="formData.ciudad"
-                @input="e => updateFormData('ciudad', e.target.value)"
-                type="text" 
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
-                required
-              >
-            </div>
-            <div>
-              <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">País *</label>
-              <select 
-                :value="formData.pais"
-                @change="e => updateFormData('pais', e.target.value)"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
-                required
-              >
-                <option v-for="pais in paises" :key="pais" :value="pais">{{ pais }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Información de pago -->
-        <div>
-          <h4 class="font-semibold text-gray-700 dark:text-gray-200 border-b dark:border-gray-700 pb-2 mb-4">Información de Pago</h4>
-          <div class="space-y-4">
-            <div>
-              <div class="flex items-center mb-2">
+      <div class="overflow-y-auto flex-grow">
+        <form @submit.prevent="isEditing ? updateBeneficiario() : saveBeneficiario()" class="p-6 space-y-6">
+          <!-- Selección de método -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Método de Recepción</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
                 <input 
-                  id="has_qr" 
-                  :checked="formData.hasQR"
-                  @change="e => updateFormData('hasQR', e.target.checked)"
-                  type="checkbox" 
-                  class="text-[#146EBE]"
+                  type="radio" 
+                  id="method_qr" 
+                  v-model="selectedMethod" 
+                  value="QR"
+                  class="hidden peer"
                 >
-                <label for="has_qr" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Tiene código QR para recibir pagos</label>
+                <label 
+                  for="method_qr" 
+                  class="flex items-center justify-center p-4 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <div class="text-center">
+                    <i class="fas fa-qrcode text-2xl mb-2 text-gray-600 dark:text-gray-400"></i>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">Código QR</div>
+                  </div>
+                </label>
               </div>
-              <div v-if="formData.hasQR" class="ml-6 mt-2">
-                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center">
-                  <i class="fas fa-qrcode text-4xl text-gray-400 dark:text-gray-500 mb-2"></i>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Haz clic para subir una imagen del código QR</p>
-                </div>
+              <div>
+                <input 
+                  type="radio" 
+                  id="method_bank" 
+                  v-model="selectedMethod" 
+                  value="BANCO"
+                  class="hidden peer"
+                >
+                <label 
+                  for="method_bank" 
+                  class="flex items-center justify-center p-4 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <div class="text-center">
+                    <i class="fas fa-university text-2xl mb-2 text-gray-600 dark:text-gray-400"></i>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">Cuenta Bancaria</div>
+                  </div>
+                </label>
               </div>
+            </div>
+          </div>
+
+          <!-- Campos para QR -->
+          <div v-if="selectedMethod === 'QR'" class="space-y-4">
+            <div>
+              <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Nombre del Beneficiario *</label>
+              <input 
+                :value="formData.titular"
+                @input="e => updateFormData('titular', e.target.value)"
+                type="text" 
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
+                required
+              >
             </div>
             
             <div>
-              <div class="flex items-center mb-2">
-                <input 
-                  id="has_bank" 
-                  :checked="formData.hasBankAccount"
-                  @change="e => updateFormData('hasBankAccount', e.target.checked)"
-                  type="checkbox" 
-                  class="text-[#146EBE]"
-                >
-                <label for="has_bank" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Tiene cuenta bancaria</label>
-              </div>
-              <div v-if="formData.hasBankAccount" class="ml-6 mt-2 space-y-3">
-                <div>
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Banco</label>
-                  <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white">
-                    <option value="">Seleccione un banco</option>
-                    <option value="banco_union">Banco Unión</option>
-                    <option value="banco_fassil">Banco Fassil</option>
-                    <option value="banco_bcp">Banco BCP</option>
-                    <option value="banco_nacional">Banco Nacional de Bolivia</option>
-                    <option value="banco_mercantil">Banco Mercantil Santa Cruz</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Número de cuenta</label>
-                  <input type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white">
-                </div>
-                <div>
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Tipo de cuenta</label>
-                  <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white">
-                    <option value="savings">Caja de Ahorro</option>
-                    <option value="checking">Cuenta Corriente</option>
-                  </select>
+              <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Código QR *</label>
+              <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg">
+                <div class="space-y-1 text-center">
+                  <div v-if="!qrImage" class="flex flex-col sm:flex-row text-sm text-gray-600 dark:text-gray-400">
+                    <label class="relative cursor-pointer rounded-md font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 focus-within:outline-none">
+                      <span>Subir una imagen</span>
+                      <input type="file" class="sr-only" accept="image/*" @change="handleQRUpload">
+                    </label>
+                    <p class="pl-1">o arrastrar y soltar</p>
+                  </div>
+                  <div v-else class="flex flex-col items-center">
+                    <img :src="qrImage" alt="QR Code" class="h-32 w-32 object-contain">
+                    <button 
+                      type="button"
+                      @click="qrImage = null; updateFormData('qrImage', null)"
+                      class="mt-2 text-sm text-red-600 dark:text-red-400 hover:text-red-500"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <button 
-            type="button"
-            @click="closeAddModal" 
-            class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
-          >
-            Cancelar
-          </button>
-          <button 
-            type="submit"
-            class="px-4 py-2 bg-[#146EBE] text-white rounded hover:bg-blue-700"
-          >
-            Guardar Beneficiario
-          </button>
-        </div>
-      </form>
+
+          <!-- Campos para Cuenta Bancaria -->
+          <div v-if="selectedMethod === 'BANCO'" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Titular o Beneficiario *</label>
+                <input 
+                  :value="formData.titular"
+                  @input="e => updateFormData('titular', e.target.value)"
+                  type="text" 
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
+                  required
+                >
+              </div>
+              <div>
+                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">C.I. *</label>
+                <input 
+                  :value="formData.carnetIdentidad"
+                  @input="e => updateFormData('carnetIdentidad', e.target.value)"
+                  type="text" 
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
+                  required
+                >
+              </div>
+              <div>
+                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Complemento</label>
+                <input 
+                  :value="formData.complemento"
+                  @input="e => updateFormData('complemento', e.target.value)"
+                  type="text" 
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white"
+                >
+              </div>
+              <div>
+                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Entidad Financiera *</label>
+                <select 
+                  :value="formData.banco"
+                  @change="e => updateFormData('banco', e.target.value)"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
+                  required
+                >
+                  <option value="">Seleccione un banco</option>
+                  <option v-for="entidad in entidadesFinancieras" :key="entidad.nombre" :value="entidad.nombre">
+                    {{ entidad.nombre }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Número de cuenta *</label>
+                <input 
+                  :value="formData.numeroCuenta"
+                  @input="e => updateFormData('numeroCuenta', e.target.value)"
+                  type="text" 
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
+                  required
+                >
+              </div>
+              <div>
+                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Tipo de cuenta *</label>
+                <select 
+                  :value="formData.tipoCuenta"
+                  @change="e => updateFormData('tipoCuenta', e.target.value)"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
+                  required
+                >
+                  <option value="">Seleccione tipo de cuenta</option>
+                  <option value="Caja de Ahorro">Caja de Ahorro</option>
+                  <option value="Cuenta Corriente">Cuenta Corriente</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Sucursal *</label>
+                <select 
+                  :value="formData.sucursal"
+                  @change="e => updateFormData('sucursal', e.target.value)"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white" 
+                  required
+                >
+                  <option value="">Seleccione sucursal</option>
+                  <option v-for="departamento in departamentos" :key="departamento" :value="departamento">
+                    {{ departamento }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      
+      <div class="flex justify-end space-x-4 p-6 border-t border-gray-200 dark:border-gray-700">
+        <button 
+          type="button"
+          @click="isEditing ? closeEditModal() : closeAddModal()" 
+          class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
+        >
+          Cancelar
+        </button>
+        <button 
+          type="submit"
+          class="px-4 py-2 bg-[#146EBE] text-white rounded hover:bg-blue-700"
+        >
+          {{ isEditing ? 'Modificar' : 'Guardar' }} Beneficiario
+        </button>
+      </div>
     </div>
   </div>
   
   <!-- Modal para registro rápido con código -->
-  <div v-if="showQuickAccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+  <div v-if="showQuickAccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Registro Rápido por Código</h3>
         <button @click="closeQuickAccessModal" class="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100">
@@ -331,5 +386,39 @@ input:focus, select:focus, textarea:focus {
 
 .dark input:focus, .dark select:focus, .dark textarea:focus {
   box-shadow: 0 0 0 3px rgba(20, 110, 190, 0.4);
+}
+
+/* Estilo para radio buttons personalizados */
+input[type="radio"]:checked + label {
+  border-color: #146EBE;
+  background-color: rgba(20, 110, 190, 0.1);
+}
+
+.dark input[type="radio"]:checked + label {
+  border-color: #146EBE;
+  background-color: rgba(20, 110, 190, 0.2);
+}
+
+/* Estilo para scrollbar */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.5);
 }
 </style> 

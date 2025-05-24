@@ -1,82 +1,32 @@
 <script setup>
 import { ref, computed } from 'vue'
 import BeneficiariosModales from './BeneficiariosModales.vue'
+import clientesData from '../../assets/clientes.json'
 
 // Estados para los modales
 const showAddModal = ref(false)
 const showQuickAccessModal = ref(false)
-const activeTab = ref('list')
-const beneficiarios = ref([
-  {
-    id: 1,
-    nombre: 'María González',
-    apellido: 'López',
-    dni: '12345678',
-    telefono: '+591 73015689',
-    correo: 'maria.gonzalez@gmail.com',
-    direccion: 'Av. Cristóbal de Mendoza #123',
-    ciudad: 'Santa Cruz de la Sierra',
-    pais: 'Bolivia',
-    hasQR: true,
-    hasBankAccount: true
-  },
-  {
-    id: 2,
-    nombre: 'Juan Carlos',
-    apellido: 'Martínez Rodríguez',
-    dni: '87654321',
-    telefono: '+591 71023458',
-    correo: 'juancarlos.martinez@outlook.com',
-    direccion: 'Calle Junín #456',
-    ciudad: 'La Paz',
-    pais: 'Bolivia',
-    hasQR: true,
-    hasBankAccount: false
-  },
-  {
-    id: 3,
-    nombre: 'Ana María',
-    apellido: 'Flores Castro',
-    dni: '56781234',
-    telefono: '+57 3015698741',
-    correo: 'ana.flores@hotmail.com',
-    direccion: 'Carrera 7 #45-32',
-    ciudad: 'Bogotá',
-    pais: 'Colombia',
-    hasQR: false,
-    hasBankAccount: true
-  }
-])
+const showEditModal = ref(false)
+const selectedBeneficiario = ref(null)
 
 // Búsqueda
 const searchTerm = ref('')
 
-// Formulario para nuevo beneficiario
-const formData = ref({
-  nombre: '',
-  apellido: '',
-  dni: '',
-  telefono: '',
-  correo: '',
-  direccion: '',
-  ciudad: '',
-  pais: 'Bolivia',
-  hasQR: false,
-  hasBankAccount: false
-})
+// Cargar beneficiarios desde el JSON
+const beneficiarios = ref(clientesData)
 
-const paises = [
-  'Bolivia',
-  'Colombia',
-  'Perú',
-  'Ecuador',
-  'Argentina',
-  'Chile',
-  'Brasil',
-  'Paraguay',
-  'Uruguay',
-  'Venezuela'
-]
+// Formulario para editar beneficiario
+const formData = ref({
+  titular: '',
+  carnetIdentidad: '',
+  complemento: '',
+  banco: '',
+  numeroCuenta: '',
+  tipoCuenta: '',
+  sucursal: '',
+  QR: false,
+  cuentaBancaria: false
+})
 
 // Código de acceso rápido
 const accessCode = ref('')
@@ -91,16 +41,15 @@ const validateAccessCode = () => {
 // Resetear formulario
 const resetForm = () => {
   formData.value = {
-    nombre: '',
-    apellido: '',
-    dni: '',
-    telefono: '',
-    correo: '',
-    direccion: '',
-    ciudad: '',
-    pais: 'Bolivia',
-    hasQR: false,
-    hasBankAccount: false
+    titular: '',
+    carnetIdentidad: '',
+    complemento: '',
+    banco: '',
+    numeroCuenta: '',
+    tipoCuenta: '',
+    sucursal: '',
+    QR: false,
+    cuentaBancaria: false
   }
 }
 
@@ -108,6 +57,13 @@ const resetForm = () => {
 const openAddModal = () => {
   resetForm()
   showAddModal.value = true
+}
+
+// Abrir el modal de edición
+const openEditModal = (beneficiario) => {
+  selectedBeneficiario.value = beneficiario
+  formData.value = { ...beneficiario }
+  showEditModal.value = true
 }
 
 // Abrir el modal de acceso rápido
@@ -123,10 +79,8 @@ const filteredBeneficiarios = computed(() => {
   
   const term = searchTerm.value.toLowerCase()
   return beneficiarios.value.filter(b => 
-    b.nombre.toLowerCase().includes(term) ||
-    b.apellido.toLowerCase().includes(term) ||
-    b.ciudad.toLowerCase().includes(term) ||
-    b.pais.toLowerCase().includes(term)
+    b.titular.toLowerCase().includes(term) ||
+    b.banco?.toLowerCase().includes(term)
   )
 })
 
@@ -140,27 +94,19 @@ const saveBeneficiario = () => {
   showAddModal.value = false
 }
 
+// Modificar beneficiario existente
+const updateBeneficiario = () => {
+  const index = beneficiarios.value.findIndex(b => b.id === selectedBeneficiario.value.id)
+  if (index !== -1) {
+    beneficiarios.value[index] = { ...selectedBeneficiario.value, ...formData.value }
+  }
+  showEditModal.value = false
+}
+
 // Procesar código de acceso rápido
 const processAccessCode = () => {
   if (isCodeValid.value) {
     // Aquí iría la lógica para verificar el código en el backend
-    // y obtener los datos del beneficiario
-    
-    // Simulación de éxito:
-    resetForm()
-    formData.value = {
-      nombre: 'Beneficiario',
-      apellido: 'Acceso Rápido',
-      dni: '99887766',
-      telefono: '+591 70123456',
-      correo: 'beneficiario.rapido@gmail.com',
-      direccion: 'Dirección Automática',
-      ciudad: 'Cochabamba',
-      pais: 'Bolivia',
-      hasQR: true,
-      hasBankAccount: false
-    }
-    
     showQuickAccessModal.value = false
     showAddModal.value = true
   }
@@ -168,110 +114,86 @@ const processAccessCode = () => {
 </script>
 
 <template>
-  <div>
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Beneficiarios</h1>
-      <div class="flex space-x-3">
-        <button 
-          @click="openQuickAccessModal"
-          class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 py-2 px-4 rounded flex items-center text-sm transition-colors"
-        >
-          <i class="fas fa-qrcode mr-2"></i> Registro Rápido
-        </button>
-        <button 
-          @click="openAddModal" 
-          class="bg-[#146EBE] hover:bg-blue-700 text-white py-2 px-4 rounded flex items-center text-sm transition-colors"
-        >
-          <i class="fas fa-plus mr-2"></i> Nuevo Beneficiario
-        </button>
-      </div>
-    </div>
-    
-    <!-- Pestañas -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
-      <div class="flex border-b border-gray-200 dark:border-gray-700">
-        <button 
-          @click="activeTab = 'list'" 
-          :class="[
-            'py-3 px-6 focus:outline-none',
-            activeTab === 'list' 
-              ? 'text-[#146EBE] border-b-2 border-[#146EBE] font-medium' 
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-          ]"
-        >
-          <i class="fas fa-list mr-2"></i> Lista de Beneficiarios
-        </button>
-        <button 
-          @click="activeTab = 'favorites'" 
-          :class="[
-            'py-3 px-6 focus:outline-none',
-            activeTab === 'favorites' 
-              ? 'text-[#146EBE] border-b-2 border-[#146EBE] font-medium' 
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-          ]"
-        >
-          <i class="fas fa-star mr-2"></i> Favoritos
-        </button>
-      </div>
-      
-      <!-- Panel de búsqueda -->
-      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-        <div class="flex">
-          <div class="relative flex-grow">
-            <input 
-              v-model="searchTerm"
-              type="text" 
-              placeholder="Buscar beneficiario..." 
-              class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white"
-            >
-            <div class="absolute left-3 top-2.5 text-gray-400 dark:text-gray-500">
-              <i class="fas fa-search"></i>
-            </div>
-          </div>
-          <button class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-4 rounded-r border-y border-r border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300">
-            <i class="fas fa-filter"></i>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-4 sm:py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Beneficiarios</h1>
+        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+          <button 
+            @click="openQuickAccessModal"
+            class="w-full sm:w-auto bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 py-2 px-4 rounded flex items-center justify-center text-sm transition-colors"
+          >
+            <i class="fas fa-qrcode mr-2"></i> Registro Rápido
+          </button>
+          <button 
+            @click="openAddModal" 
+            class="w-full sm:w-auto bg-[#146EBE] hover:bg-blue-700 text-white py-2 px-4 rounded flex items-center justify-center text-sm transition-colors"
+          >
+            <i class="fas fa-plus mr-2"></i> Nuevo Beneficiario
           </button>
         </div>
       </div>
       
-      <!-- Lista de beneficiarios -->
-      <div v-if="activeTab === 'list'" class="divide-y divide-gray-200 dark:divide-gray-700">
-        <div v-if="beneficiarios.length === 0" class="p-6 text-center text-gray-500 dark:text-gray-400">
-          No hay beneficiarios registrados.
-        </div>
-        
-        <div v-for="beneficiario in filteredBeneficiarios" :key="beneficiario.id" class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-          <div class="flex justify-between">
-            <div>
-              <div class="font-medium text-gray-900 dark:text-gray-100">{{ beneficiario.nombre }} {{ beneficiario.apellido }}</div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">{{ beneficiario.ciudad }}, {{ beneficiario.pais }}</div>
-              <div class="mt-1 flex items-center space-x-4 text-sm">
-                <span v-if="beneficiario.hasQR" class="text-green-600 dark:text-green-400 flex items-center">
-                  <i class="fas fa-qrcode mr-1"></i> QR
-                </span>
-                <span v-if="beneficiario.hasBankAccount" class="text-blue-600 dark:text-blue-400 flex items-center">
-                  <i class="fas fa-university mr-1"></i> Cuenta Bancaria
-                </span>
+      <!-- Panel de búsqueda -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex flex-col sm:flex-row gap-2">
+            <div class="relative flex-grow">
+              <input 
+                v-model="searchTerm"
+                type="text" 
+                placeholder="Buscar beneficiario..." 
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent dark:bg-gray-700 dark:text-white"
+              >
+              <div class="absolute left-3 top-2.5 text-gray-400 dark:text-gray-500">
+                <i class="fas fa-search"></i>
               </div>
             </div>
-            <div class="flex items-start space-x-2">
-              <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-1">
-                <i class="fas fa-pencil-alt"></i>
-              </button>
-              <button class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 p-1">
-                <i class="fas fa-ellipsis-v"></i>
-              </button>
-            </div>
+            <button class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-4 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300">
+              <i class="fas fa-filter"></i>
+            </button>
           </div>
         </div>
-      </div>
-      
-      <!-- Favoritos (ejemplo) -->
-      <div v-if="activeTab === 'favorites'" class="p-6">
-        <div class="text-center text-gray-500 dark:text-gray-400">
-          <i class="fas fa-star text-4xl mb-2 text-gray-300 dark:text-gray-600"></i>
-          <p>No tienes beneficiarios marcados como favoritos.</p>
-          <p class="text-sm mt-1">Marca tus beneficiarios más frecuentes como favoritos para acceder rápidamente a ellos.</p>
+        
+        <!-- Lista de beneficiarios -->
+        <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-[calc(100vh-300px)] overflow-y-auto">
+          <div v-if="beneficiarios.length === 0" class="p-6 text-center text-gray-500 dark:text-gray-400">
+            No hay beneficiarios registrados.
+          </div>
+          
+          <div v-for="beneficiario in filteredBeneficiarios" 
+               :key="beneficiario.id" 
+               @click="openEditModal(beneficiario)"
+               class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                  <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                    <i class="fas fa-user text-blue-600 dark:text-blue-300"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ beneficiario.titular }}</h3>
+                  <div class="flex items-center space-x-2 mt-1">
+                    <span v-if="beneficiario.QR === 'true'" class="text-green-600 dark:text-green-400 flex items-center">
+                      <i class="fas fa-qrcode mr-1"></i> QR
+                    </span>
+                    <span v-if="beneficiario.cuentaBancaria === 'true'" class="text-blue-600 dark:text-blue-400 flex items-center">
+                      <i class="fas fa-university mr-1"></i> Cuenta Bancaria
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div v-if="beneficiario.banco" class="text-sm text-gray-600 dark:text-gray-300">
+                  {{ beneficiario.banco }}
+                </div>
+                <div v-if="beneficiario.numeroCuenta" class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ beneficiario.numeroCuenta }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -280,11 +202,13 @@ const processAccessCode = () => {
     <BeneficiariosModales
       v-model:showAddModal="showAddModal"
       v-model:showQuickAccessModal="showQuickAccessModal"
+      v-model:showEditModal="showEditModal"
       v-model:formData="formData"
       v-model:accessCode="accessCode"
       v-model:isCodeValid="isCodeValid"
-      :paises="paises"
+      :isEditing="!!selectedBeneficiario"
       @saveBeneficiario="saveBeneficiario"
+      @updateBeneficiario="updateBeneficiario"
       @validateAccessCode="validateAccessCode"
       @processAccessCode="processAccessCode"
     />
@@ -336,24 +260,26 @@ div[class*='p-4 hover:bg-gray-50']:hover {
   transform: translateX(2px);
 }
 
-/* Estilo para pestañas */
-button[class*='py-3 px-6'] {
-  transition: all 0.3s ease;
+/* Estilo para scrollbar */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
 }
 
-.border-b-2 {
-  border-bottom-width: 3px;
-  border-radius: 0;
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* Efecto de hover para botones de acciones */
-button.p-1 {
-  border-radius: 6px;
-  transition: all 0.2s ease;
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-button.p-1:hover {
-  transform: translateY(-1px);
-  background-color: rgba(209, 213, 219, 0.2);
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.5);
 }
 </style> 
