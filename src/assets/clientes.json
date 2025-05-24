@@ -31,5 +31,10 @@
         "numeroCuenta": "0987654321",
         "tipoCuenta": "Cuenta Corriente",
         "sucursal": "La Paz"
+    },
+    {
+        "id": 4,
+        "viaPago": "QR",
+        "titular": "Yeison Bustamante"
     }
 ]

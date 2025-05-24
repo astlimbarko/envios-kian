@@ -20,7 +20,7 @@ const routes = [
       {
         path: '',
         name: 'ClienteDefault',
-        component: MisRemesas // Ahora es NuevaRemesa.vue
+        component: NuevaRemesa // Ahora es NuevaRemesa.vue
       },
       {
         path: 'mis-remesas',
