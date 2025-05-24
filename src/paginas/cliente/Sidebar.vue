@@ -116,7 +116,7 @@ const cerrarSesion = () => {
             @click="layoutStore.isMobile && layoutStore.closeSidebar()"
           >
             <i class="fas fa-phone text-lg mr-3" :class="{ 'text-blue-600 dark:text-blue-400': $route.path === '/cliente/contacto' }"></i>
-            <span>Información de Contacto</span>
+            <span>Contacto</span>
           </router-link>
         </li>
       </ul>
