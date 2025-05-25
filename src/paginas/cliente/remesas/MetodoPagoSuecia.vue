@@ -192,40 +192,34 @@ watch(seleccionado, (nuevoValor) => {
       <p class="text-lg text-gray-600 dark:text-gray-300">Selecciona cómo deseas realizar el pago</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-      <!-- Opción Swish -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
       <button 
         @click="seleccionarMetodo('swish')"
         class="p-3 rounded-xl border-2 transition-all duration-300"
         :class="[
-          seleccionado === 'swish' 
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+          seleccionado === 'swish'
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-white' 
+            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
         ]"
       >
         <div class="flex items-center space-x-2">
-          <i class="fas fa-mobile-alt text-xl" :class="seleccionado === 'swish' ? 'text-blue-500' : 'text-gray-400'"></i>
-          <span class="text-base font-medium" :class="seleccionado === 'swish' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
-            Swish
-          </span>
+          <i class="fas fa-mobile-alt text-xl" :class="seleccionado === 'swish' ? 'text-blue-500 dark:text-white' : 'text-gray-400 dark:text-gray-500'"></i>
+          <span class="text-base font-medium">Swish</span>
         </div>
       </button>
 
-      <!-- Opción Transferencia Bancaria -->
       <button 
         @click="seleccionarMetodo('banco')"
         class="p-3 rounded-xl border-2 transition-all duration-300"
         :class="[
-          seleccionado === 'banco' 
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+          seleccionado === 'banco'
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-white' 
+            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
         ]"
       >
         <div class="flex items-center space-x-2">
-          <i class="fas fa-university text-xl" :class="seleccionado === 'banco' ? 'text-blue-500' : 'text-gray-400'"></i>
-          <span class="text-base font-medium" :class="seleccionado === 'banco' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
-            Transferencia Bancaria
-          </span>
+          <i class="fas fa-university text-xl" :class="seleccionado === 'banco' ? 'text-blue-500 dark:text-white' : 'text-gray-400 dark:text-gray-500'"></i>
+          <span class="text-base font-medium">Transferencia bancaria</span>
         </div>
       </button>
     </div>

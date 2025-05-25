@@ -390,12 +390,18 @@ watch(nuevaCuenta, (nuevoValor) => {
         class="p-3 rounded-xl border-2 transition-all duration-300"
         :class="[
           metodoSeleccionado === 'qr'
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-white' 
             : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
         ]"
       >
         <div class="flex items-center space-x-2">
-          <i class="fas fa-qrcode text-xl" :class="metodoSeleccionado === 'qr' ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'"></i>
+          <i 
+            class="fas fa-qrcode text-xl"
+            :class="metodoSeleccionado === 'qr' 
+              ? 'text-blue-500 dark:text-white' 
+              : 'text-gray-400 dark:text-gray-500'"
+          ></i>
+
           <span class="text-base font-medium">Código QR</span>
         </div>
       </button>
@@ -405,12 +411,12 @@ watch(nuevaCuenta, (nuevoValor) => {
         class="p-3 rounded-xl border-2 transition-all duration-300"
         :class="[
           metodoSeleccionado === 'cuenta'
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-white' 
             : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
         ]"
       >
         <div class="flex items-center space-x-2">
-          <i class="fas fa-university text-xl" :class="metodoSeleccionado === 'cuenta' ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'"></i>
+          <i class="fas fa-university text-xl" :class="metodoSeleccionado === 'cuenta' ? 'text-blue-500 dark:text-white' : 'text-gray-400 dark:text-gray-500'"></i>
           <span class="text-base font-medium">Cuenta bancaria</span>
         </div>
       </button>

@@ -137,7 +137,7 @@ html {
 }
 
 .dark .text-blue-600 {
-  color: #60a5fa;
+  color: #ffffff;  /* color de texto blanco para botones */
 }
 
 .dark .border-gray-200 {
