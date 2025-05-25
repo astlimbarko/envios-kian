@@ -159,21 +159,24 @@ const handleKeyPress = (event) => {
 </script>
 
 <template>
-  <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-4 mb-4 border-4 border-gray-400 dark:border-gray-500" @keypress="handleKeyPress">
+  <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-6 mb-4 border-4 border-gray-400 dark:border-gray-500">
+
+
+
     <div class="text-center mb-3">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Nueva remesa</h2>
-      <p class="text-gray-600 dark:text-gray-300">Ingresa los detalles de tu envío</p>
+      <h2 class="text-2xl font-bold text-[var(--color-text-primary)] mb-1">Nueva remesa</h2>
+      <p class="text-[var(--color-text-secondary)]">Ingresa los detalles de tu envío</p>
     </div>
 
     <!-- Selector de país -->
     <div class="mb-3">
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+      <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
         País de destino
       </label>
       <div class="relative">
         <select 
           v-model="paisSeleccionado"
-          class="w-full pl-20 pr-4 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 text-gray-900 dark:text-white hover:border-blue-500 transition-colors bg-white dark:bg-gray-800"
+          class="w-full pl-20 pr-4 py-2 rounded-xl border-2 border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-blue-primary)] bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:border-[var(--color-blue-primary)] transition-colors"
           :style="{
             backgroundImage: `url(${paisSeleccionado.bandera})`,
             backgroundRepeat: 'no-repeat',
@@ -199,7 +202,7 @@ const handleKeyPress = (event) => {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
       <!-- Campo SEK -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
           Monto en SEK
         </label>
         <div class="relative">
@@ -210,22 +213,22 @@ const handleKeyPress = (event) => {
             v-model="montoEnviar"
             @focus="campoActivo = 'enviar'"
             @input="e => actualizarMontos(e.target.value, 'enviar')"
-            class="w-full pl-4 pr-12 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 text-gray-900 dark:text-white text-lg hover:border-blue-500 transition-colors bg-white dark:bg-gray-800" 
+            class="w-full pl-4 pr-12 py-2 rounded-xl border-2 border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-blue-primary)] bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] text-lg hover:border-[var(--color-blue-primary)] transition-colors" 
             placeholder="0.00"
-            :class="{'ring-2 ring-blue-500 border-blue-500': campoActivo === 'enviar'}"
+            :class="{'ring-2 ring-[var(--color-blue-primary)] border-[var(--color-blue-primary)]': campoActivo === 'enviar'}"
           >
-          <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-400 font-medium">
+          <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-text-secondary)] font-medium">
             SEK
           </span>
         </div>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-sm text-[var(--color-text-secondary)]">
           Ingresa el monto que deseas enviar
         </p>
       </div>
 
       <!-- Campo BOB -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
           Monto en {{ paisSeleccionado.moneda }}
         </label>
         <div class="relative">
@@ -236,15 +239,15 @@ const handleKeyPress = (event) => {
             v-model="montoRecibir"
             @focus="campoActivo = 'recibir'"
             @input="e => actualizarMontos(e.target.value, 'recibir')"
-            class="w-full pl-4 pr-12 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 text-gray-900 dark:text-white text-lg hover:border-blue-500 transition-colors bg-white dark:bg-gray-800" 
+            class="w-full pl-4 pr-12 py-2 rounded-xl border-2 border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-blue-primary)] bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] text-lg hover:border-[var(--color-blue-primary)] transition-colors" 
             placeholder="0.00"
-            :class="{'ring-2 ring-blue-500 border-blue-500': campoActivo === 'recibir'}"
+            :class="{'ring-2 ring-[var(--color-blue-primary)] border-[var(--color-blue-primary)]': campoActivo === 'recibir'}"
           >
-          <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-400 font-medium">
+          <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-text-secondary)] font-medium">
             {{ paisSeleccionado.moneda }}
           </span>
         </div>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-sm text-[var(--color-text-secondary)]">
           Ingresa el monto que deseas recibir
         </p>
       </div>
@@ -253,8 +256,8 @@ const handleKeyPress = (event) => {
     <!-- Tipo de cambio -->
     <div class="mb-3">
       <div class="flex items-center justify-between">
-        <div class="text-sm text-gray-600 dark:text-gray-400">
-          <span class="font-medium text-gray-900 dark:text-white">1.00 SEK = {{ tipoCambioComputed.toFixed(4) }} {{ paisSeleccionado.moneda }}</span>
+        <div class="text-sm text-[var(--color-text-secondary)]">
+          <span class="font-medium text-[var(--color-text-primary)]">1.00 SEK = {{ tipoCambioComputed.toFixed(4) }} {{ paisSeleccionado.moneda }}</span>
           <template v-if="cambioEstandar !== cambioEspecial">
             <span 
               v-if="tipoCambioComputed === cambioEspecial" 

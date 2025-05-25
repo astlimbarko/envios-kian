@@ -124,19 +124,51 @@ const generarPDF = () => {
   html2pdf().set(opt).from(contenido).save()
 }
 
-const confirmarRemesa = () => {
-  remesaEnviada.value = true
-  mostrarConfirmacion.value = false
-  mostrarOpcionesPDF.value = true
-  emit('confirmado')
-  
-  // Reproducir sonido y mostrar toast
-  audioBell.play()
-  mensajeToast.value = '¡Remesa confirmada exitosamente!'
-  mostrarToast.value = true
-  setTimeout(() => {
-    mostrarToast.value = false
-  }, 3000)
+const handleConfirmar = async () => {
+  try {
+    // Crear la nueva remesa
+    const nuevaRemesa = {
+      id: numeroComprobante.value,
+      date: new Date().toLocaleDateString('es-ES'),
+      recipient: datosRecepcion.value.nombreBeneficiario || datosRecepcion.value.cuenta?.titular,
+      location: datosTransaccion.value.pais?.nombre || 'Bolivia',
+      amount: parseFloat(datosTransaccion.value.montoEnviar),
+      currency: 'SEK',
+      receivedAmount: parseFloat(datosTransaccion.value.montoRecibir),
+      receivedCurrency: datosTransaccion.value.pais?.moneda || 'BOB',
+      status: 'En Progreso',
+      paymentMethod: datosPago.value.tipoFormateado,
+      receiveMethod: datosRecepcion.value.tipoFormateado,
+      trackingCode: numeroComprobante.value
+    }
+
+    // Agregar la remesa al store
+    store.agregarRemesa(nuevaRemesa)
+
+    // Reproducir sonido de confirmación
+    audioBell.play()
+
+    // Mostrar confirmación
+    mostrarConfirmacion.value = false
+    remesaEnviada.value = true
+    mostrarOpcionesPDF.value = true
+
+    // Emitir evento de confirmación
+    emit('confirmado', nuevaRemesa)
+
+    // Redirigir a MisRemesas después de 2 segundos
+    setTimeout(() => {
+      router.push('/cliente/mis-remesas')
+    }, 2000)
+  } catch (error) {
+    console.error('Error al confirmar remesa:', error)
+    mostrarToast.value = true
+    mensajeToast.value = 'Error al procesar la remesa. Por favor, intente nuevamente.'
+  }
+}
+
+const iniciarConfirmacion = () => {
+  mostrarConfirmacion.value = true
 }
 
 const irANuevaRemesa = () => {
@@ -271,17 +303,10 @@ const irANuevaRemesa = () => {
             <i class="fas fa-print mr-2"></i>
             Imprimir
           </button>
-          <button 
-            @click="irANuevaRemesa"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
-          >
-            <i class="fas fa-arrow-right mr-2"></i>
-            Continuar
-          </button>
         </div>
         <button 
           v-if="!remesaEnviada"
-          @click="mostrarConfirmacion = true"
+          @click="iniciarConfirmacion"
           :disabled="!aceptoTerminos"
           class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -306,7 +331,7 @@ const irANuevaRemesa = () => {
             Cancelar
           </button>
           <button 
-            @click="confirmarRemesa"
+            @click="handleConfirmar"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Confirmar

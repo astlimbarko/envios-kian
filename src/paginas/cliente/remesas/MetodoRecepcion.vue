@@ -383,40 +383,35 @@ watch(nuevaCuenta, (nuevoValor) => {
       <p class="text-lg text-gray-600 dark:text-gray-300">Selecciona cómo deseas que el beneficiario reciba el dinero</p>
     </div>
 
+    <!-- Botones de selección de método -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-      <!-- Opción QR -->
       <button 
         @click="seleccionarMetodo('qr')"
         class="p-3 rounded-xl border-2 transition-all duration-300"
         :class="[
-          metodoSeleccionado === 'qr' 
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+          metodoSeleccionado === 'qr'
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
         ]"
       >
         <div class="flex items-center space-x-2">
-          <i class="fas fa-qrcode text-xl" :class="metodoSeleccionado === 'qr' ? 'text-blue-500' : 'text-gray-400'"></i>
-          <span class="text-base font-medium" :class="metodoSeleccionado === 'qr' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
-            Código QR
-          </span>
+          <i class="fas fa-qrcode text-xl" :class="metodoSeleccionado === 'qr' ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'"></i>
+          <span class="text-base font-medium">Código QR</span>
         </div>
       </button>
 
-      <!-- Opción Cuenta Bancaria -->
       <button 
         @click="seleccionarMetodo('cuenta')"
         class="p-3 rounded-xl border-2 transition-all duration-300"
         :class="[
-          metodoSeleccionado === 'cuenta' 
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+          metodoSeleccionado === 'cuenta'
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
         ]"
       >
         <div class="flex items-center space-x-2">
-          <i class="fas fa-university text-xl" :class="metodoSeleccionado === 'cuenta' ? 'text-blue-500' : 'text-gray-400'"></i>
-          <span class="text-base font-medium" :class="metodoSeleccionado === 'cuenta' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
-            Cuenta bancaria
-          </span>
+          <i class="fas fa-university text-xl" :class="metodoSeleccionado === 'cuenta' ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'"></i>
+          <span class="text-base font-medium">Cuenta bancaria</span>
         </div>
       </button>
     </div>

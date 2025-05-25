@@ -32,7 +32,8 @@ export const useRemesaStore = defineStore('remesa', {
       transaccion: false,
       recepcion: false,
       pago: false
-    }
+    },
+    remesas: []
   }),
 
   getters: {
@@ -56,7 +57,9 @@ export const useRemesaStore = defineStore('remesa', {
     datosPago: (state) => ({
       ...state.estado.pago,
       tipoFormateado: state.estado.pago.tipo === 'swish' ? 'Swish' : 'Transferencia Bancaria'
-    })
+    }),
+    remesasEnProceso: (state) => state.remesas.filter(r => r.status === 'En Progreso'),
+    remesasAnteriores: (state) => state.remesas.filter(r => r.status !== 'En Progreso')
   },
 
   actions: {
@@ -156,6 +159,39 @@ export const useRemesaStore = defineStore('remesa', {
         pasoActual: this.pasoActual,
         pasosVisibles: this.pasosVisibles
       })
+    },
+
+    agregarRemesa(remesa) {
+      this.remesas.unshift(remesa)
+    },
+
+    resetearEstado() {
+      this.pasoActual = 1
+      this.resumenVisible = false
+      this.estado = {
+        transaccion: {
+          montoEnviar: 0,
+          montoRecibir: 0,
+          tipoCambio: 0,
+          pais: {
+            nombre: 'Bolivia',
+            moneda: 'BOB'
+          }
+        },
+        recepcion: {
+          tipo: null,
+          nombreBeneficiario: null,
+          cuenta: null
+        },
+        pago: {
+          tipo: null
+        }
+      }
+      this.validacion = {
+        transaccion: false,
+        recepcion: false,
+        pago: false
+      }
     }
   }
 }) 

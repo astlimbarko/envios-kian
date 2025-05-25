@@ -1,5 +1,25 @@
 <script setup>
-// Componente principal que usa el enrutador
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useRemesaStore } from './store/remesa'
+
+const router = useRouter()
+const remesaStore = useRemesaStore()
+
+onMounted(() => {
+  // Inicializar el modo oscuro como claro por defecto
+  if (!localStorage.getItem('darkMode')) {
+    localStorage.setItem('darkMode', 'false')
+    document.documentElement.classList.remove('dark')
+  } else {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true'
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }
+})
 </script>
 
 <template>
@@ -50,27 +70,36 @@
 
 /* Modo oscuro */
 .dark {
-  --color-bg-primary: #2A3942;
-  --color-bg-secondary: #2A3942;
-  --color-bg-tertiary: #111b21;
-  --color-text-primary: #e5e7eb;
-  --color-text-secondary: #9ca3af;
-  --color-border: #374151;
+  --color-bg-primary: #1a1a1a;  /* Fondo principal más oscuro y elegante */
+  --color-bg-secondary: #555555;  /* Fondo del cuerpo de la pagina */
+  --color-bg-tertiary: #111B21;  /* Fondo del slidebar */
+  --color-text-primary: #ffffff;  /* Texto principal más brillante */
+  --color-text-secondary: #a0a0a0;  /* Texto secundario más suave */
+  --color-border: #404040;  /* Bordes más suaves */
   --color-shadow: rgba(0, 0, 0, 0.3);
-  --color-blue-primary: #4c9ed9;
-  --color-blue-secondary: #146EBE;
-  --color-blue-light: #c8e4ff;
+  --color-blue-primary: #60a5fa;  /* Azul más brillante */
+  --color-blue-secondary: #3b82f6;  /* Azul secundario más vibrante */
+  --color-blue-light: #93c5fd;  /* Azul claro más suave */
   
   /* Colores para navegación en modo oscuro */
-  --color-win10-taskbar-dark: #111b21;
-  --color-navbar-bg: var(--color-win10-taskbar-dark);
+  --color-win10-taskbar-dark: #111B21;  /* Taskbar más oscura */
+  --color-navbar-bg: var(--color-win10-taskbar-dark);   /*fondo de la barra de navegacion slidebar solo el texto*/
   --color-navbar-text: #ffffff;
-  --color-sidebar-bg: #111b21;
-  --color-table-bg: #202C33;
-  --color-table-header: #111b21;
-  --color-table-hover: #1A242C;
-  --color-table-alt-row: #202C33;
+  --color-sidebar-bg: #1A1A1A;  /* Sidebar más suave */
+  --color-table-bg: #2d2d2d;  /* Tablas más suaves */
+  --color-table-header: #1a1a1a;  /* Encabezados más oscuros */
+  --color-table-hover: #363636;  /* Hover más suave */
+  --color-table-alt-row: #2d2d2d;  /* Filas alternas más suaves */
 }
+
+.pasos-colors {
+  --color-fondo-pasos-dark-gray800: #2c3e50; /* Fondo paso oscuro tipo gray-800 */
+  --color-fondo-pasos-dark-gray900: #34495e; /* Fondo paso más oscuro tipo gray-900 */
+  --color-fondo-pasos-light-gray50: #f9fafb; /* Fondo paso claro tipo gray-50 */
+  --color-fondo-pasos-light-gray100: #f3f4f6; /* Fondo paso claro tipo gray-100 */
+}
+
+
 
 /* Aplicar colores base a los elementos */
 body {
