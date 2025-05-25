@@ -380,7 +380,9 @@ const centrarPaso = (stepNumber) => {
       // Agregar efecto de resaltado
       paso.classList.add('paso-activo')
       setTimeout(() => {
-        paso.classList.remove('paso-activo')
+        if (paso && paso.classList) {
+          paso.classList.remove('paso-activo')
+        }
       }, 2000)
     }
   }, 100)
@@ -455,7 +457,9 @@ const handleSiguientePaso = (paso) => {
 
         pasoElement.classList.add('paso-activo')
         setTimeout(() => {
-          paso.classList.remove('paso-activo')
+          if (pasoElement && pasoElement.classList) {
+            pasoElement.classList.remove('paso-activo')
+          }
         }, 2000)
       } else {
         console.log('MisRemesas: No se encontró el elemento del paso')
