@@ -152,17 +152,17 @@ watch([montoEnviar, montoRecibir], () => {
 })
 
 const handleKeyPress = (event) => {
-  if (event.key === 'Enter' && !botonUsado.value && montoEnviar.value) {
+  if (montoEnviar.value && montoRecibir.value) {
     continuar()
   }
 }
 </script>
 
 <template>
-  <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-6 mb-4 border-4 border-gray-400 dark:border-gray-500">
-
-
-
+  <div 
+    class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-6 mb-4 border-4 border-gray-400 dark:border-gray-500"
+    @keydown.enter.prevent="handleKeyPress"
+  >
     <div class="text-center mb-3">
       <h2 class="text-2xl font-bold text-[var(--color-text-primary)] mb-1">Nueva remesa</h2>
       <p class="text-[var(--color-text-secondary)]">Ingresa los detalles de tu envío</p>

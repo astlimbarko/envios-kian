@@ -153,13 +153,12 @@ const handleConfirmar = async () => {
     remesaEnviada.value = true
     mostrarOpcionesPDF.value = true
 
+    // Mostrar toast de confirmación
+    mostrarToast.value = true
+    mensajeToast.value = '¡Remesa confirmada exitosamente!'
+
     // Emitir evento de confirmación
     emit('confirmado', nuevaRemesa)
-
-    // Redirigir a MisRemesas después de 2 segundos
-    setTimeout(() => {
-      router.push('/cliente/mis-remesas')
-    }, 2000)
   } catch (error) {
     console.error('Error al confirmar remesa:', error)
     mostrarToast.value = true
@@ -171,8 +170,8 @@ const iniciarConfirmacion = () => {
   mostrarConfirmacion.value = true
 }
 
-const irANuevaRemesa = () => {
-  router.push('/cliente/nueva-remesa')
+const irAMisRemesas = () => {
+  router.push('/cliente/mis-remesas')
 }
 </script>
 
@@ -303,6 +302,13 @@ const irANuevaRemesa = () => {
             <i class="fas fa-print mr-2"></i>
             Imprimir
           </button>
+          <button 
+            @click="irAMisRemesas"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+          >
+            <i class="fas fa-check mr-2"></i>
+            Continuar
+          </button>
         </div>
         <button 
           v-if="!remesaEnviada"
@@ -312,9 +318,6 @@ const irANuevaRemesa = () => {
         >
           Confirmar Remesa
         </button>
-        <div v-else-if="!mostrarOpcionesPDF" class="px-6 py-3 bg-green-600 text-white rounded-lg">
-          Remesa Enviada
-        </div>
       </div>
     </div>
 
