@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import P_cliente from '../paginas/cliente/P_cliente.vue'
-import MisRemesas from '../paginas/cliente/MisRemesas.vue' // Intercambiado
+import MisRemesas from '../paginas/cliente/MisRemesas.vue'
 import Beneficiarios from '../paginas/cliente/Beneficiarios.vue'
 import Soporte from '../paginas/cliente/Soporte.vue'
 import Contacto from '../paginas/cliente/Contacto.vue'
-import NuevaRemesa from '../paginas/cliente/NuevaRemesa.vue' // Intercambiado
+import NuevaRemesa from '../paginas/cliente/NuevaRemesa.vue'
 
 // Definición de rutas
 const routes = [
@@ -20,17 +20,17 @@ const routes = [
       {
         path: '',
         name: 'ClienteDefault',
-        component: NuevaRemesa // Ahora es NuevaRemesa.vue
+        component: NuevaRemesa
       },
       {
         path: 'mis-remesas',
         name: 'MisRemesas',
-        component: MisRemesas // Ahora es NuevaRemesa.vue
+        component: MisRemesas
       },
       {
         path: 'nueva-remesa',
         name: 'NuevaRemesa',
-        component: NuevaRemesa // Ahora es MisRemesas.vue
+        component: NuevaRemesa
       },
       {
         path: 'beneficiarios',
@@ -46,6 +46,21 @@ const routes = [
         path: 'contacto',
         name: 'Contacto',
         component: Contacto
+      },
+      {
+        path: 'mi-cuenta',
+        name: 'MiCuenta',
+        component: () => import('../paginas/cliente/MiCuenta.vue')
+      },
+      {
+        path: 'faq',
+        name: 'FAQ',
+        component: () => import('../paginas/cliente/FAQ.vue')
+      },
+      {
+        path: 'blog',
+        name: 'Blog',
+        component: () => import('../paginas/cliente/Blog.vue')
       }
     ]
   },
@@ -66,19 +81,16 @@ const routes = [
     redirect: '/cliente/contacto'
   },
   {
+    path: '/mi-cuenta',
+    redirect: '/cliente/mi-cuenta'
+  },
+  {
     path: '/faq',
-    name: 'FAQ',
-    component: () => import('../paginas/cliente/FAQ.vue')
+    redirect: '/cliente/faq'
   },
   {
     path: '/blog',
-    name: 'Blog',
-    component: () => import('../paginas/cliente/Blog.vue')
-  },
-  {
-    path: '/mi-cuenta',
-    name: 'MiCuenta',
-    component: () => import('../paginas/cliente/MiCuenta.vue')
+    redirect: '/cliente/blog'
   },
   {
     path: '/login',

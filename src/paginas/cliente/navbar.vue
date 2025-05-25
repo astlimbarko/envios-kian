@@ -54,7 +54,7 @@ const toggleSidebar = () => {
         
 
         
-        <router-link to="/blog" class="hidden sm:flex items-center text-gray-800 dark:text-white hover:text-blue-700 dark:hover:text-blue-300 transition-colors relative group">
+        <router-link to="/blog" class="hidden sm:flex items-center text-gray-800 dark:text-gray-200 hover:text-blue-700 dark:hover:text-blue-300 transition-colors relative group">
           <i class="fas fa-newspaper text-xl sm:text-2xl icon-neon"></i>
           <span class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md">Noticias</span>
         </router-link>

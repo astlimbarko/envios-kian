@@ -125,23 +125,19 @@ html {
 
 /* Estilos específicos para el modo oscuro en componentes generales */
 .dark .bg-white {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-secondary) !important;
 }
 
 .dark .bg-gray-50 {
-  background-color: var(--color-bg-tertiary);
+  background-color: var(--color-bg-tertiary) !important;
 }
 
 .dark .bg-blue-50 {
-  background-color: rgba(29, 78, 216, 0.8);
-}
-
-.dark .text-blue-600 {
-  color: #ffffff;  /* color de texto blanco para botones */
+  background-color: rgba(29, 78, 216, 0.8) !important;
 }
 
 .dark .border-gray-200 {
-  border-color: var(--color-border);
+  border-color: var(--color-border) !important;
 }
 
 /* Sombras en modo oscuro */

@@ -44,18 +44,17 @@ const cerrarSesion = () => {
 
   <div 
     :class="['sidebar h-full w-64 fixed left-0 top-16 shadow-lg transition-all duration-300 transform z-50', sidebarClasses]">
-    <!-- Botón para cerrar en móvil -->
-    <button 
-      v-if="layoutStore.isMobile && layoutStore.isSidebarOpen"
-      @click="layoutStore.closeSidebar()" 
-      class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-    >
-      <i class="fas fa-times"></i>
-    </button>
-    
     <!-- Header del Sidebar -->
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Panel de Cliente</h2>
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 relative">
+      <!-- Botón para cerrar en móvil -->
+      <button 
+        v-if="layoutStore.isMobile && layoutStore.isSidebarOpen"
+        @click="layoutStore.closeSidebar()" 
+        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 pr-8">Panel de Cliente</h2>
       <p class="text-sm text-gray-600 dark:text-gray-400">Gestión de remesas</p>
     </div>
 
