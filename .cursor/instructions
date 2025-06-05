@@ -338,3 +338,9 @@ src/paginas/operador
 
 modulo gerencial:
 src/paginas/gerente
+
+
+
+===== ROUTER =====
+El router del proyecto esta en src/router/index.js
+Es aca donde se definen todas las rutas del proyecto entero.

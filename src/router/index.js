@@ -5,12 +5,14 @@ import Beneficiarios from '../paginas/cliente/Beneficiarios.vue'
 import Soporte from '../paginas/cliente/Soporte.vue'
 import Contacto from '../paginas/cliente/Contacto.vue'
 import NuevaRemesa from '../paginas/cliente/NuevaRemesa.vue'
+import Puerta from '../paginas/login/puerta.vue'
 
 // Definición de rutas
 const routes = [
   {
     path: '/',
-    redirect: '/cliente'
+    name: 'Puerta',
+    component: Puerta
   },
   {
     path: '/cliente',

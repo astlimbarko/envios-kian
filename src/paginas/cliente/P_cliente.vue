@@ -1,3 +1,10 @@
+/**
+ * Componente: P_cliente.vue
+ * 
+ * Este es el componente principal del módulo cliente.
+ * Sirve como layout para todas las páginas del módulo cliente.
+ */
+
 <script setup>
 import Navbar from './navbar.vue'
 import Sidebar from './Sidebar.vue'
