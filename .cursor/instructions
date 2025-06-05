@@ -1,0 +1,340 @@
+=== 1.1 INFORMACIÓN GENERAL DEL PROYECTO ===
+
+Proyecto: Plataforma de Envíos de Dinero  
+Empresa: Envíos Kian  
+Objetivo: Gestionar de forma eficiente el envío de remesas desde Suecia a Bolivia, con futura expansión a países como España.
+
+=== 1.2 STACK TECNOLÓGICO ===
+
+- Frontend: Vue.js  
+- Estilos: Tailwind CSS (prioridad) y CSS3 para casos necesarios
+- Iconos: Font Awesome 6.7.2  
+- Backend: Express 4.21.2  
+- Base de datos: PostgreSQL  
+- Control de versiones: GitHub  
+- IDE utilizado: Cursor  
+- Despliegue: Render.com  
+- Idioma principal: Español  
+
+Nota: Aunque actualmente solo se permiten envíos hacia Bolivia, el sistema está preparado para futuras rutas bidireccionales.
+
+=== 1.3 ROLES EN LA PLATAFORMA ===
+
+● Cliente:  
+- Puede preparar remesas, gestionar beneficiarios, revisar su historial de envíos y recibir notificaciones.  
+- Una vez realiza una remesa, debe subir el comprobante de pago (transferencia bancaria con código QR).  
+- Dichos comprobantes se almacenan en un servidor seguro.  
+
+● Operador:  
+- Recibe y verifica remesas provenientes de Suecia.  
+- Valida archivos de pago y procesa la solicitud.  
+- Recibe una notificación con sonido en tiempo real cuando llega una nueva remesa.  
+- Se recomienda una gestión de turnos para mantener atención continua.  
+
+● Gerencial:  
+- Accede a un panel de control centralizado.  
+- Visualiza el movimiento general del sistema.  
+- Analiza estadísticas de uso y actividad.  
+- Supervisa operadores y clientes.  
+- Toma decisiones estratégicas para mejorar el servicio.
+
+=== 1.4 NOTIFICACIONES ===
+
+- El cliente recibe una notificación tipo *toast* al confirmar su remesa.  
+- También recibe una notificación en su panel una vez que la remesa ha sido procesada.  
+- El operador es notificado mediante sonido al recibir una nueva remesa.
+
+=== 1.5 ASPECTOS LEGALES Y SEGURIDAD ===
+
+- Cumple con las normas de protección de datos.  
+- La información personal del usuario no se comparte con terceros.  
+- El usuario es plenamente responsable del dinero que envía y de su destino.  
+- Todos los archivos subidos al sistema se resguardan con protocolos de seguridad adecuados.
+
+=== 1.6 PROYECCIÓN A FUTURO ===
+
+- Está prevista la incorporación de más idiomas como sueco e inglés para mejorar la experiencia del usuario y facilitar la expansión internacional.
+
+=== 2. FASES DEL PROYECTO: DESARROLLO E IMPLEMENTACIÓN ===
+
+El proyecto se divide en dos grandes etapas:
+- Fase de Desarrollo
+- Fase de Implementación
+
+=== 2.1 FASE DE DESARROLLO ===
+
+● Estado actual:
+- Ya se ha creado el módulo del Cliente.
+- Aún no está conectado al backend ni a la base de datos.
+- Esta conexión será implementada próximamente.
+
+● Reutilización de estructura visual:
+- Los módulos de Operador y Gerente reutilizarán los siguientes elementos visuales del módulo Cliente:
+  - Paleta de colores
+  - Barra de navegación (navbar)
+  - Barra lateral (sidebar)
+- Cada módulo tendrá un menú personalizado dependiendo del tipo de usuario.
+- Este comportamiento se logrará inicialmente mediante variables internas y más adelante con consulta a base de datos.
+- Este enfoque también será aplicado al módulo del Cliente para unificar la lógica.
+
+● Planificación de desarrollo:
+- Primero se desarrollarán todas las interfaces en frontend.
+- Posteriormente se conectarán al backend.
+- El módulo de login será desarrollado al finalizar los tres módulos principales:
+  - Cliente
+  - Operador
+  - Gerencial
+
+=== 2.2 ACCESO TEMPORAL PARA PRUEBAS ===
+
+Durante la etapa de desarrollo, se utilizará una página temporal de acceso rápido. Esta incluirá botones para ingresar como distintos tipos de usuario:
+
+- Entrar como Cliente  
+- Entrar como Operador  
+- Entrar como Gerente  
+
+Cada botón asignará internamente el rol correspondiente, permitiendo mostrar la interfaz adecuada **sin necesidad de ingresar datos**.
+
+Esta solución es temporal y sirve para probar el comportamiento visual y funcional de los roles antes de implementar el login real.  
+Una vez implementado el sistema de login definitivo, **esta página será eliminada**.
+
+=== 2.3 USUARIOS LOCALES PARA PRUEBAS ===
+
+Cuando se construya el login (sin base de datos por ahora), se crearán **usuarios locales de prueba** con las siguientes características:
+
+- Un usuario por cada rol (cliente, operador, gerente)
+- Nombres cortos
+- Contraseñas simples
+- Solo para uso en desarrollo
+
+Estos usuarios permitirán simular sesiones de forma sencilla para testeo.  
+**La página de botones rápidos deberá mantenerse activa hasta completar el backend** (Express.js será la tecnología base de las APIs).
+
+=== 2.4 NOTAS IMPORTANTES PARA EL DESARROLLO ===
+
+- El estilo debe utilizar preferentemente **Tailwind CSS**.
+  - Solo se permitirá usar CSS puro en casos necesarios.
+- Considerar siempre la **responsividad** para:
+  - Dispositivos móviles
+  - Tablets
+
+- Cada componente `.vue` debe incluir en la parte superior un **comentario en español** explicando de qué trata dicha página.
+
+- El código debe estar **comentado en español**.
+- Las **variables también deben estar en español**.
+- Actualizar constantemente el archivo `README.md`:
+  - Incluir únicamente información necesaria.
+  - Evitar revelar detalles sensibles o privados.
+
+=== 2.5 DOCUMENTACIÓN DEL PROYECTO ===
+
+- El proyecto adoptará una **metodología ágil**.
+  - Se requiere mantener la documentación constantemente actualizada.
+- Crear un archivo llamado: `documentacion.txt`
+  - Este archivo contendrá detalles técnicos y organizativos.
+  - Debe complementarse con el `README.md`, que solo incluirá lo esencial.
+
+**Sugerencia de estructura (sumario) para `documentacion.txt`**:
+
+1. Introducción  
+2. Objetivos del Proyecto  
+3. Stack Tecnológico  
+4. Descripción de Módulos  
+5. Flujo de Usuario  
+6. Notificaciones y Accesos  
+7. Seguridad y Privacidad  
+8. Detalles de Deploy  
+9. Buenas Prácticas de Código  
+10. Checklist de Testing  
+11. Anexos / Referencias
+
+Esta estructura debe ser actualizada con el crecimiento del proyecto.
+
+=== 2.6 .GITIGNORE ===
+
+Incluir en el archivo `.gitignore` las siguientes rutas y archivos privados:
+dist/
+.env
+Otros archivos sensibles que no deben subirse deben ser agregados posteriormente.
+**Nota**: Solo debe subirse el código del proyecto necesario para su funcionamiento. Evitar subir archivos de configuración sensibles o compilados.
+
+=== 3 MODULOS ===
+=== 3.1 MODULO CLIENTE ===
+Plataforma para usuarios que programen envíos o recibir remesas.
+•	Enviar Remesa: Formulario para ingresar datos del destinatario, monto, tipo de cambio y generar comprobante con QR.
+•	Mis Remesas: Zona donde se visualiza las remesas que estan en proceso o han sido enviadas. Las remesas ya enviadas se visualizarán por 24 horas luego pasarán a historial de remesas.
+•	Historial de Remesas: Visualización de Remesas ya completadas con más de 24 horas de haberse ejecutado.
+•	Beneficiarios: Visualización de personas a quien se le envía remesa de manera recurrente.
+•	Soporte en Línea: Chat con operador activo con tiempo de espera según la demanda, debe ser con icono minimalista en el lado inferior al lado derecho, al hacer clic se abre el chat.
+•	Recepción Express: Envío sin registro de usuario manual, usando código único para vincular remitente y destinatario.
+•	Contacto: Lugar donde se describen los medios de contacto directo, teléfono, whatsapp y correo electrónico.
+•	Perfil de Usuario: Datos personales, configuración de cuenta y seguridad.
+•	Preguntas Frecuentes: Información útil sobre el servicio.
+•	Blog de Noticias: Publicaciones de la empresa, actualizaciones y novedades.
+•	NOTA: En la etapa de desarrollo todavía no se conecta con el backend pero debe prepararse todo para ese paso.
+
+=== 3.2 MODULO OPERADOR DE PLATAFORMA ===
+Herramienta para gestionar remesas, usuarios y soporte.
+• Remesas: Lugar donde se visualizan las remesas solicitadas desde el módulo cliente, que es el panel cliente. Permite ver / modificar / eliminar.
+• Soporte en Línea: Atención a usuarios vía chat en tiempo real con historial y respuestas rápidas. Es el icono flotante que esta en el lado inferior derecho en el panel del cliente para chatear con soporte.
+• Beneficiarios: Consulta y control de destinatarios frecuentes (ver, editar, eliminar).
+• Usuarios: Gestión de cuentas registradas (editar datos, verificar identidad, bloquear, otros).
+• Historial de Actividad: Registro de acciones del operador, usuarios y sistema.
+•	NOTA: En la etapa de desarrollo todavía no se conecta con el backend pero debe prepararse todo para ese paso.
+
+=== 3.3 MODULO GERENCIAL ===
+• Dashboard Gerencial
+Panel con indicadores clave (remesas totales, en proceso, rechazadas, soporte activo, usuarios nuevos).
+Incluye filtros por fechas, zonas, estados y operadores.
+Realizar esta parte con librerías o herramientas extras especiales.
+• Gestión de Personal
+Alta y baja de operadores y editores.
+Asignación y edición de roles.
+Visualización básica de actividad y rendimiento por usuario.
+• Gestión de Clientes
+Consulta de cuentas registradas.
+Acceso limitado para edición (según rol).
+Verificación de identidad y estado de la cuenta.
+• Gestión de Remesas
+Monitoreo global del estado de las remesas.
+Auditoría y control con permisos para revertir o corregir envíos.
+Visualización detallada con trazabilidad.
+• Supervisión de Soporte en Línea
+Acceso a todos los chats atendidos por los operadores.
+Reportes por tiempo de respuesta, satisfacción (si se mide), y volumen por operador.
+• Gestión de Contenidos
+Creación y edición de:
+•	Blog de Noticias: Publicaciones informativas y novedades de la empresa.
+•	Preguntas Frecuentes (FAQ): Guía para resolver dudas comunes del cliente.
+• Auditoría e Historial Global
+Registro de acciones por usuarios, operadores y administradores.
+Búsqueda y filtros por fechas, tipo de acción, y módulo afectado.
+
+🔐 Roles y Permisos
+El Módulo Gerencial tendrá tres roles definidos:
+1.	Administrador General
+o	Acceso total al sistema.
+o	Crear, editar y eliminar contenido.
+o	Gestionar personal y operadores.
+o	Ver y generar todos los reportes.
+o	Aprobar modificaciones críticas.
+2.	Supervisor de Operaciones
+o	Ver y auditar remesas.
+o	Supervisar chats de soporte.
+o	Ver reportes generales.
+o	Sin permisos para editar contenido ni gestionar personal.
+3.	Editor de Contenidos
+o	Crear y actualizar entradas del blog y preguntas frecuentes.
+o	No tiene acceso a remesas, usuarios ni soporte.
+
+
+=== 3.4 MODULO LOGIN ===
+Es aquí donde se crea el login estético elegante y toda la lógica necesaria.
+1. Autenticación
+•	Formulario de login con email/usuario + contraseña.
+•	Validaciones seguras (formato, longitud mínima).
+•	Contraseña hasheada con bcrypt o Argon2.
+2. Tokens JWT
+•	Generar JWT con expiración de 15 minutos.
+•	Implementar Refresh Token (almacenado en cookie HTTPOnly o base de datos).
+•	Rotación y revocación segura de tokens.
+3. Registro de usuario
+•	Formulario de registro con validaciones.
+•	Prevención de registros duplicados.
+4. Recuperación de contraseña
+•	Enviar email con token único y temporal.
+•	Página para reestablecer contraseña.
+•	Limitar intentos por IP.
+5. Inicio de sesión social
+•	Soporte para Google y Facebook mediante OAuth2.
+•	Registrar automáticamente si el email no existe.
+•	Manejar conflictos si el email ya está en uso.
+6. Manejo de sesión
+•	Almacenar sesión con JWT.
+•	Implementar logout seguro (revocar refresh token).
+7. Seguridad
+•	Limitar intentos de login (rate limiting).
+•	Proteger contra CSRF, XSS, SQLi.
+•	Aplicar CORS correctamente.
+8. Extras
+•	Verificación de email tras registro.
+•	Roles y permisos básicos.
+•	Registro de accesos y actividad sospechosa.
+•	“Mantener sesión iniciada” con refresh tokens prolongados.
+
+
+=== 3.5 Módulo Backend / Configuración del Servidor ===
+Infraestructura lógica del sistema y servicios que conectan todos los módulos.
+• API RESTful (Express.js)
+Desarrollo del backend utilizando Express.js.
+•	Endpoints estructurados por recursos (usuarios, remesas, soporte, contenidos, etc.).
+•	Autenticación segura mediante JWT.
+•	Middleware para validación de datos, manejo de errores, protección contra inyecciones y XSS.
+•	Soporte CORS configurado por origen autorizado.
+• Base de Datos (PostgreSQL)
+•	Sistema de gestión de base de datos PostgreSQL.
+•	Conexión mediante ORM (como Sequelize o Prisma) o pool de consultas.
+•	Tablas normalizadas por entidad (usuarios, remesas, beneficiarios, etc.).
+•	Índices, vistas optimizadas y procedimientos almacenados donde sea necesario.
+•	Backups automáticos programados y política de recuperación ante fallos.
+• Despliegue y Hosting (Render.com)
+•	El backend será desplegado en Render.com, plataforma moderna y escalable para apps Node.js.
+•	Uso obligatorio de variables de entorno seguras mediante el panel de configuración de Render.
+•	Despliegue automático habilitado a través de CI/CD con GitHub (webhooks).
+•	Monitoreo de errores y registros en tiempo real mediante los logs de Render.
+•	Todas las configuraciones deben adaptarse a las políticas y restricciones de Render, incluyendo:
+o	Tiempo de inactividad de servicios free tier
+o	Configuración de persistencia en servicios de base de datos
+o	Reglas de acceso, puertos, dominios permitidos
+o	Escalado automático si se habilita
+• Seguridad
+•	Encriptación de contraseñas con bcrypt.
+•	Uso de tokens JWT con expiración controlada y soporte de refresh tokens.
+•	Protección contra ataques comunes: XSS, CSRF, inyecciones SQL y DoS.
+•	Validación exhaustiva de entradas del usuario.
+•	Uso de cabeceras HTTP seguras.
+• Escalabilidad y Rendimiento
+•	Backend diseñado de forma modular para facilitar mantenimiento y expansión.
+•	Preparado para escalar horizontalmente según demanda.
+•	Posibilidad de implementar balanceo de carga en versiones futuras.
+🔐 Roles y Permisos (a nivel backend)
+Control y validación de accesos basado en el rol transmitido mediante el token JWT:
+1.	Cliente
+o	Acceso a datos personales, remesas propias, soporte y perfil.
+o	Sin acceso a endpoints administrativos o de otros usuarios.
+2.	Operador de Plataforma
+o	Gestión de remesas, soporte y usuarios.
+o	Acceso limitado a datos sensibles y sin privilegios de configuración global.
+3.	Gerencial
+o	Administrador: Acceso total al sistema, gestión de personal, remesas y contenidos.
+o	Supervisor: Acceso de solo lectura a remesas, soporte y usuarios.
+o	Editor: Acceso únicamente a endpoints relacionados con la edición del blog y preguntas frecuentes.
+
+
+
+===== DETALLES  IMPORTANTES PARA NO OLVIDAR =====
+🔧 Fase de Desarrollo
+Actualmente, nos encontramos en la etapa de desarrollo. Ya se ha creado el módulo del cliente, aunque por ahora sin conexión a backend ni base de datos, lo cual será integrado próximamente.
+Se reutilizará la misma estructura visual de interfaz —colores, navbar y sidebar— para los módulos de operador y gerente. Cada módulo mostrará un menú personalizado según el tipo de usuario. Esto se logrará mediante variables internas que, en el futuro, serán asignadas a partir de una consulta a la base de datos. Este enfoque deberá aplicarse también al módulo del cliente para unificar la lógica general.
+Por ahora, se desarrollarán todas las interfaces front-end primero, y se conectarán al backend al final del proceso. El módulo de login se construirá una vez estén listos los tres módulos principales (cliente, operador y gerencial).
+🔑 Acceso Temporal para Pruebas
+Para facilitar el desarrollo sin login real, se creará una página temporal de acceso, con botones simples como:
+•	Entrar como Cliente
+•	Entrar como Operador
+•	Entrar como Gerente
+Cada botón asignará internamente el tipo de usuario y permitirá visualizar directamente la interfaz correspondiente, sin necesidad de ingresar datos. Esta solución será clave para probar y ajustar la visualización de los distintos roles durante esta etapa.
+Una vez se cree el login definitivo, esta página será eliminada.
+👤 Usuarios Locales para Pruebas
+Cuando se implemente el login (aún sin base de datos), se crearán usuarios locales de prueba para cada rol. Estos usuarios tendrán nombres cortos y contraseñas simples, únicamente con fines de desarrollo. Esto permitirá iniciar sesión y probar funcionalidades antes de conectar el sistema a una base de datos real.
+Aun así, será importante mantener activa la página de botones de acceso directo hasta que todo el backend esté finalizado e integrado con Express.js, que será la tecnología base para las APIs del proyecto.
+
+
+===== ESTRUCTURA DE ARCHIVOS =====
+modulo cliente: 
+src/paginas/cliente
+
+modulo operador de remesas:
+src/paginas/operador
+
+modulo gerencial:
+src/paginas/gerente
