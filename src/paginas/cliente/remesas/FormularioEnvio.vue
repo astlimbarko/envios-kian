@@ -56,6 +56,9 @@ const paises = ref([
 
 const paisSeleccionado = ref(paises.value[0])
 
+// Bandera de Suecia
+const banderaSuecia = '/flags/flag_sve.svg'
+
 // Cálculo del tipo de cambio a usar
 const tipoCambioComputed = computed(() => {
   if (props.cambioEstandar === props.cambioEspecial) return props.cambioEstandar
@@ -171,21 +174,12 @@ const handleKeyPress = (event) => {
     <!-- Selector de país -->
     <div class="mb-3">
       <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-        País de destino
+        Dirección de la remesa
       </label>
       <div class="relative">
         <select 
           v-model="paisSeleccionado"
-          class="w-full pl-20 pr-4 py-2 rounded-xl border-2 border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-blue-primary)] bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:border-[var(--color-blue-primary)] transition-colors"
-          :style="{
-            backgroundImage: `url(${paisSeleccionado.bandera})`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: '0% center',
-            backgroundSize: '6% auto',
-            '@media (max-width: 768px)': {
-              backgroundSize: '12% auto'
-            }
-          }"
+          class="w-full pl-32 pr-4 py-2 rounded-xl border-2 border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-blue-primary)] bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:border-[var(--color-blue-primary)] transition-colors"
         >
           <option 
             v-for="pais in paises" 
@@ -195,6 +189,11 @@ const handleKeyPress = (event) => {
             {{ pais.nombre }}
           </option>
         </select>
+        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2 pointer-events-none">
+          <img :src="banderaSuecia" alt="Bandera de Suecia" class="w-6 h-4 rounded shadow-sm">
+          <span class="text-gray-400">→</span>
+          <img :src="paisSeleccionado.bandera" alt="Bandera de Bolivia" class="w-6 h-4 rounded shadow-sm">
+        </div>
       </div>
     </div>
 

@@ -91,16 +91,7 @@ const cerrarSesion = () => {
             <span>Beneficiarios</span>
           </router-link>
         </li>
-        <li class="relative">
-          <router-link to="/cliente/soporte" 
-            class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
-            :class="{ 'active-menu-item': $route.path === '/cliente/soporte' }"
-            @click="layoutStore.isMobile && layoutStore.closeSidebar()"
-          >
-            <i class="fas fa-headset text-lg mr-3" :class="{ 'text-blue-600 dark:text-blue-400': $route.path === '/cliente/soporte' }"></i>
-            <span>Soporte en Línea</span>
-          </router-link>
-        </li>
+        
       </ul>
 
       <!-- Separador -->

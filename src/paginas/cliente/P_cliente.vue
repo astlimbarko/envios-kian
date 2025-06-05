@@ -1,6 +1,7 @@
 <script setup>
 import Navbar from './navbar.vue'
 import Sidebar from './Sidebar.vue'
+import ChatWidget from './components/ChatWidget.vue'
 import { useLayoutStore } from '../../stores/layoutStore'
 import { onMounted, onUnmounted } from 'vue'
 
@@ -44,6 +45,9 @@ onUnmounted(() => {
         <router-view />
       </div>
     </main>
+
+    <!-- Chat Widget -->
+    <ChatWidget />
   </div>
 </template>
 
