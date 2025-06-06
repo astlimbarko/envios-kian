@@ -12,13 +12,14 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useRolStore } from '../../stores/rolStore'
 
 const router = useRouter()
-const rol = ref('')
+const rolStore = useRolStore()
 
 // Función para manejar el cambio de rol
 const cambiarRol = (nuevoRol) => {
-  rol.value = nuevoRol
+  rolStore.cambiarRol(nuevoRol)
   
   // Redirigir según el rol
   switch(nuevoRol) {

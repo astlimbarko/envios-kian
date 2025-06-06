@@ -1,140 +1,169 @@
-<script setup>
-import { ref } from 'vue'
+/**
+ * Componente: Soporte.vue
+ * 
+ * Chat flotante de soporte al cliente.
+ * Se despliega junto al ícono de chat y permite comunicación
+ * con el equipo de soporte sin interrumpir la navegación.
+ * 
+ * Características:
+ * - Chat flotante minimalista
+ * - Se despliega junto al ícono
+ * - No interrumpe la navegación
+ * - Diseño responsivo
+ * - Sonidos de notificación
+ */
 
-// Estado para el chat
-const mensajes = ref([
+<script setup>
+import { ref, onMounted } from 'vue'
+
+// Estado del chat
+const messages = ref([
   {
     id: 1,
-    emisor: 'sistema',
-    texto: 'Bienvenido al soporte en línea de Envíos KIAN. ¿En qué podemos ayudarte hoy?',
-    fecha: new Date(Date.now() - 2 * 60000)
-  },
-  {
-    id: 2,
-    emisor: 'agente',
-    nombre: 'Carlos',
-    texto: 'Hola, soy Carlos, tu asistente. ¿Cómo puedo ayudarte con tus envíos hoy?',
-    fecha: new Date(Date.now() - 1 * 60000)
+    text: '¡Hola! ¿En qué podemos ayudarte hoy?',
+    sender: 'support',
+    timestamp: new Date()
   }
 ])
+const newMessage = ref('')
+const isMinimized = ref(true)
+const hasUnreadMessages = ref(false)
 
-const nuevoMensaje = ref('')
+// Sonido de notificación
+const notificationSound = new Audio('/sounds/notification.mp3')
 
-// FAQ predefinidas
-const faqs = [
-  {
-    pregunta: '¿Cuánto tiempo tarda en llegar una remesa a Bolivia?',
-    respuesta: 'Las remesas a Bolivia generalmente se procesan en 10-20 minutos durante el horario de atención.'
-  },
-  {
-    pregunta: '¿Cómo puedo enviar dinero a una cuenta bancaria?',
-    respuesta: 'Para enviar a una cuenta bancaria, selecciona esta opción al crear una nueva remesa y proporciona los datos bancarios del beneficiario.'
-  },
-  {
-    pregunta: '¿Dónde puede mi beneficiario retirar el dinero enviado por QR?',
-    respuesta: 'Los beneficiarios pueden retirar el dinero en cualquier sucursal de BCP, Banco Unión o Banco FIE presentando su QR y documento de identidad.'
-  }
-]
-
-// Enviar un mensaje
-const enviarMensaje = () => {
-  if (!nuevoMensaje.value.trim()) return
-
-  mensajes.value.push({
-    id: mensajes.value.length + 1,
-    emisor: 'cliente',
-    texto: nuevoMensaje.value,
-    fecha: new Date()
-  })
-
-  nuevoMensaje.value = ''
-
-  setTimeout(() => {
-    mensajes.value.push({
-      id: mensajes.value.length + 1,
-      emisor: 'agente',
-      nombre: 'Carlos',
-      texto: 'Gracias por tu mensaje. Un agente revisará tu consulta y te responderá a la brevedad.',
-      fecha: new Date()
+// Función para enviar mensaje
+const sendMessage = () => {
+  if (newMessage.value.trim()) {
+    messages.value.push({
+      id: messages.value.length + 1,
+      text: newMessage.value,
+      sender: 'user',
+      timestamp: new Date()
     })
-  }, 1000)
+    newMessage.value = ''
+    
+    // Simular respuesta automática
+    setTimeout(() => {
+      messages.value.push({
+        id: messages.value.length + 1,
+        text: 'Gracias por tu mensaje. Un agente te responderá pronto.',
+        sender: 'support',
+        timestamp: new Date()
+      })
+      hasUnreadMessages.value = true
+      // Reproducir sonido de notificación
+      notificationSound.play().catch(error => {
+        console.log('Error al reproducir sonido:', error)
+      })
+    }, 1000)
+  }
 }
 
-// Usar una FAQ predefinida
-const usarFAQ = (faq) => {
-  nuevoMensaje.value = faq.pregunta
-}
+// Scroll al último mensaje cuando se añade uno nuevo
+onMounted(() => {
+  const chatContainer = document.querySelector('.chat-messages')
+  if (chatContainer) {
+    chatContainer.scrollTop = chatContainer.scrollHeight
+  }
+})
 </script>
 
 <template>
-  <div class="h-[calc(100vh-150px)] flex flex-col">
+  <!-- Ícono del chat (siempre visible) -->
+  <div class="fixed bottom-4 right-4 z-50">
+    <button 
+      @click="isMinimized = !isMinimized"
+      class="relative bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300"
+    >
+      <i class="fas fa-comments text-2xl"></i>
+      <!-- Indicador de mensajes no leídos -->
+      <div 
+        v-if="hasUnreadMessages"
+        class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-gray-800"
+      ></div>
+    </button>
+  </div>
+
+  <!-- Chat expandido -->
+  <div 
+    v-if="!isMinimized"
+    class="fixed bottom-20 right-4 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl flex flex-col z-50 transition-all duration-300 h-96"
+  >
+    <!-- Barra de control -->
+    <div class="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-headset text-blue-600 dark:text-blue-400"></i>
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Soporte en Línea</span>
+      </div>
+      <button 
+        @click="isMinimized = true"
+        class="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+      >
+        <i class="fas fa-minus"></i>
+      </button>
+    </div>
+
     <!-- Mensajes -->
-    <div class="flex-1 p-4 overflow-y-auto space-y-4">
-      <div
-        v-for="mensaje in mensajes"
-        :key="mensaje.id"
+    <div class="flex-1 overflow-y-auto p-4 space-y-4 chat-messages">
+      <div 
+        v-for="message in messages" 
+        :key="message.id"
         :class="[
-          'max-w-[80%] p-3 rounded-lg',
-          mensaje.emisor === 'cliente'
-            ? 'bg-blue-100 ml-auto'
-            : mensaje.emisor === 'agente'
-              ? 'bg-gray-100'
-              : 'bg-gray-50 border border-gray-200'
+          'max-w-[80%] p-3 rounded-lg text-sm',
+          message.sender === 'user' 
+            ? 'ml-auto bg-blue-600 text-white' 
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
         ]"
       >
-        <!-- Cabecera del mensaje -->
-        <div v-if="mensaje.emisor === 'agente'" class="flex items-center mb-1">
-          <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
-            {{ mensaje.nombre[0] }}
-          </div>
-          <span class="ml-2 font-medium text-blue-700">{{ mensaje.nombre }}</span>
-          <span class="ml-auto text-xs text-gray-500">
-            {{ mensaje.fecha.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}
-          </span>
-        </div>
-
-        <div v-else-if="mensaje.emisor === 'sistema'" class="flex items-center mb-1 text-gray-500 text-xs">
-          <i class="fas fa-info-circle mr-1"></i>
-          <span>Sistema</span>
-          <span class="ml-auto">
-            {{ mensaje.fecha.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}
-          </span>
-        </div>
-
-        <div v-else class="flex justify-end mb-1 text-xs text-gray-500">
-          <span>
-            {{ mensaje.fecha.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}
-          </span>
-        </div>
-
-        <!-- Contenido del mensaje -->
-        <div :class="{ 'text-gray-800': mensaje.emisor !== 'sistema' }">
-          {{ mensaje.texto }}
-        </div>
+        {{ message.text }}
       </div>
     </div>
 
-    
-
-    <!-- Input para nuevo mensaje -->
-    <div class="p-4 border-t border-gray-200">
-      <form @submit.prevent="enviarMensaje" class="flex">
+    <!-- Input de mensaje -->
+    <div class="p-3 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex gap-2">
         <input
-          v-model="nuevoMensaje"
+          v-model="newMessage"
+          @keyup.enter="sendMessage"
           type="text"
           placeholder="Escribe tu mensaje..."
-          class="flex-1 px-4 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-[#146EBE] focus:border-transparent"
-        >
-        <button
-          type="submit"
-          class="bg-[#146EBE] text-white px-4 py-2 rounded-r hover:bg-blue-700 transition-colors"
+          class="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button 
+          @click="sendMessage"
+          class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors"
         >
           <i class="fas fa-paper-plane"></i>
         </button>
-      </form>
-      <p class="text-xs text-gray-500 mt-2">
-        Horario de atención: Lunes a Sábado 12:00 - 20:00 (Hora de Suecia)
-      </p>
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Solo estilos que no se pueden hacer con Tailwind */
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.dark .chat-messages::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+/* Animaciones */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+</style>

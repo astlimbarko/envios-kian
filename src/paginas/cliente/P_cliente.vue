@@ -8,7 +8,7 @@
 <script setup>
 import Navbar from './navbar.vue'
 import Sidebar from './Sidebar.vue'
-import ChatWidget from './components/ChatWidget.vue'
+import Soporte from './Soporte.vue'
 import { useLayoutStore } from '../../stores/layoutStore'
 import { onMounted, onUnmounted } from 'vue'
 
@@ -27,34 +27,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen overflow-x-hidden">
-    <!-- Barra de navegación -->
+  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
     <Navbar />
-    
-    <!-- Sidebar -->
-    <Sidebar />
-    
-    <!-- Overlay para cerrar sidebar en móvil -->
-    <div 
-      v-if="layoutStore.isMobile && layoutStore.isSidebarOpen" 
-      class="sidebar-overlay active" 
-      @click="layoutStore.closeSidebar">
+    <div class="flex relative">
+      <Sidebar />
+      <main class="flex-1 p-4 lg:ml-64 transition-all duration-300">
+        <router-view></router-view>
+      </main>
     </div>
-    
-    <!-- Contenido principal -->
-    <main 
-      :class="[
-        'pt-2 px-4 pb-8 transition-all duration-300 overflow-x-hidden app-content', 
-        { 'with-sidebar': !layoutStore.isMobile }
-      ]">
-      <div class="w-full">
-        <!-- Router view para los componentes hijos -->
-        <router-view />
-      </div>
-    </main>
-
-    <!-- Chat Widget -->
-    <ChatWidget />
+    <Soporte />
   </div>
 </template>
 
@@ -62,5 +43,12 @@ onUnmounted(() => {
 /* Los estilos se heredan de las variables CSS globales */
 :deep(body) {
   overflow-x: hidden;
+}
+
+/* Ajustes para móvil */
+@media (max-width: 1024px) {
+  main {
+    margin-left: 0 !important;
+  }
 }
 </style>

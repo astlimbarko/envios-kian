@@ -1,13 +1,19 @@
+/**
+ * Componente: navbar.vue
+ * 
+ * Navbar base común para todos los roles.
+ * Incluye logo, nombre de usuario y menú de usuario.
+ */
+
 <script setup>
-// Componente de barra de navegación para ENVIOS KIAN (Remesadora)
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
-import ThemeToggle from '../../components/ThemeToggle.vue'
-import { useLayoutStore } from '../../stores/layoutStore'
+import ThemeToggle from '../components/ThemeToggle.vue'
+import { useRolStore } from '../stores/rolStore'
 
 const router = useRouter()
 const showDropdown = ref(false)
-const layoutStore = useLayoutStore()
+const rolStore = useRolStore()
 
 const cerrarSesion = () => {
   // Lógica para cerrar sesión
@@ -18,12 +24,8 @@ const cerrarSesion = () => {
 }
 
 const goToAccount = () => {
-  router.push('/cliente/mi-cuenta')
+  router.push(`/${rolStore.rol}/mi-cuenta`)
   showDropdown.value = false
-}
-
-const toggleSidebar = () => {
-  layoutStore.toggleSidebar()
 }
 </script>
 
@@ -32,12 +34,10 @@ const toggleSidebar = () => {
     <div class="container mx-auto px-4 flex items-center justify-between">
       <!-- Logo y Nombre -->
       <div class="flex items-center">
-        <!-- Eliminado botón para mostrar/ocultar sidebar en pantallas grandes -->
-        
         <div class="text-gray-800 dark:text-white mr-2">
           <i class="fas fa-globe-americas text-3xl"></i>
         </div>
-        <router-link to="/cliente" class="text-xl font-bold logo-text hidden sm:block">
+        <router-link :to="`/${rolStore.rol}`" class="text-xl font-bold logo-text hidden sm:block">
           ENVIOS KIAN
         </router-link>
       </div>
@@ -50,13 +50,6 @@ const toggleSidebar = () => {
         <router-link to="/faq" class="flex items-center text-gray-800 dark:text-white hover:text-blue-700 dark:hover:text-blue-300 transition-colors relative group">
           <i class="fas fa-circle-question text-xl sm:text-2xl icon-neon"></i>
           <span class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md">FAQ</span>
-        </router-link>
-        
-
-        
-        <router-link to="/blog" class="hidden sm:flex items-center text-gray-800 dark:text-gray-200 hover:text-blue-700 dark:hover:text-blue-300 transition-colors relative group">
-          <i class="fas fa-newspaper text-xl sm:text-2xl icon-neon"></i>
-          <span class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md">Noticias</span>
         </router-link>
 
         <!-- Usuario y Menú Desplegable -->
@@ -116,12 +109,12 @@ const toggleSidebar = () => {
 }
 
 .icon-neon:hover {
-  transform: scale(1.1); /* Ligero efecto de zoom */
+  transform: scale(1.1);
 }
 
 /* Estilo para modo claro */
 :root .icon-neon:hover {
-  color: #146EBE; /* Azul más oscuro para modo claro */
+  color: #146EBE;
   text-shadow: 
     0 0 10px rgba(76, 158, 217, 0.4),
     0 0 20px rgba(20, 110, 190, 0.2);
@@ -129,7 +122,7 @@ const toggleSidebar = () => {
 
 /* Estilo para modo oscuro */
 .dark .icon-neon:hover {
-  color: #c8e4ff; /* Color celeste muy claro para modo oscuro */
+  color: #c8e4ff;
   text-shadow: 
     0 0 10px rgba(200, 228, 255, 0.9),
     0 0 20px rgba(128, 189, 255, 0.7),
@@ -147,4 +140,4 @@ const toggleSidebar = () => {
     margin-left: 0.5rem;
   }
 }
-</style>
+</style> 

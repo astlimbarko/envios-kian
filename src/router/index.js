@@ -1,135 +1,88 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import Puerta from '../paginas/login/puerta.vue'
 import P_cliente from '../paginas/cliente/P_cliente.vue'
 import MisRemesas from '../paginas/cliente/MisRemesas.vue'
 import Beneficiarios from '../paginas/cliente/Beneficiarios.vue'
-import Soporte from '../paginas/cliente/Soporte.vue'
-import Contacto from '../paginas/cliente/Contacto.vue'
 import NuevaRemesa from '../paginas/cliente/NuevaRemesa.vue'
-import Puerta from '../paginas/login/puerta.vue'
-
-// Definición de rutas
-const routes = [
-  {
-    path: '/',
-    name: 'Puerta',
-    component: Puerta
-  },
-  {
-    path: '/cliente',
-    name: 'Cliente',
-    component: P_cliente,
-    children: [
-      {
-        path: '',
-        name: 'ClienteDefault',
-        component: NuevaRemesa
-      },
-      {
-        path: 'mis-remesas',
-        name: 'MisRemesas',
-        component: MisRemesas
-      },
-      {
-        path: 'nueva-remesa',
-        name: 'NuevaRemesa',
-        component: NuevaRemesa
-      },
-      {
-        path: 'beneficiarios',
-        name: 'Beneficiarios',
-        component: Beneficiarios
-      },
-      {
-        path: 'soporte',
-        name: 'Soporte',
-        component: Soporte
-      },
-      {
-        path: 'contacto',
-        name: 'Contacto',
-        component: Contacto
-      },
-      {
-        path: 'mi-cuenta',
-        name: 'MiCuenta',
-        component: () => import('../paginas/cliente/MiCuenta.vue')
-      },
-      {
-        path: 'faq',
-        name: 'FAQ',
-        component: () => import('../paginas/cliente/FAQ.vue')
-      },
-      {
-        path: 'blog',
-        name: 'Blog',
-        component: () => import('../paginas/cliente/Blog.vue')
-      }
-    ]
-  },
-  {
-    path: '/mis-remesas',
-    redirect: '/cliente/mis-remesas'
-  },
-  {
-    path: '/beneficiarios',
-    redirect: '/cliente/beneficiarios'
-  },
-  {
-    path: '/soporte',
-    redirect: '/cliente/soporte'
-  },
-  {
-    path: '/contacto',
-    redirect: '/cliente/contacto'
-  },
-  {
-    path: '/mi-cuenta',
-    redirect: '/cliente/mi-cuenta'
-  },
-  {
-    path: '/faq',
-    redirect: '/cliente/faq'
-  },
-  {
-    path: '/blog',
-    redirect: '/cliente/blog'
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('../paginas/cliente/Login.vue')
-  },
-  {
-    path: '/admin',
-    component: () => import('../paginas/admin/Admin.vue'),
-    children: [
-      {
-        path: '',
-        name: 'Admin',
-        redirect: '/admin/remesas'
-      },
-      {
-        path: 'remesas',
-        name: 'AdminRemesas',
-        component: () => import('../paginas/admin/AdminRemesas.vue')
-      },
-      {
-        path: 'usuarios',
-        name: 'AdminUsuarios',
-        component: () => import('../paginas/admin/AdminUsuarios.vue')
-      },
-      {
-        path: 'perfil',
-        name: 'AdminPerfil',
-        component: () => import('../paginas/admin/AdminPerfil.vue')
-      }
-    ]
-  }
-]
+import Soporte from '../paginas/cliente/Soporte.vue'
+import MiCuenta from '../paginas/cliente/MiCuenta.vue'
+import FAQ from '../paginas/cliente/FAQ.vue'
+import Contacto from '../paginas/cliente/Contacto.vue'
+import Blog from '../paginas/cliente/Blog.vue'
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes: [
+    {
+      path: '/',
+      name: 'Puerta',
+      component: Puerta
+    },
+    {
+      path: '/cliente',
+      component: P_cliente,
+      children: [
+        {
+          path: '',
+          name: 'Cliente',
+          redirect: '/cliente/nueva-remesa'
+        },
+        {
+          path: 'remesas',
+          name: 'MisRemesas',
+          component: MisRemesas
+        },
+        {
+          path: 'mis-remesas',
+          redirect: '/cliente/remesas'
+        },
+        {
+          path: 'beneficiarios',
+          name: 'Beneficiarios',
+          component: Beneficiarios
+        },
+        {
+          path: 'nueva-remesa',
+          name: 'NuevaRemesa',
+          component: NuevaRemesa
+        },
+        {
+          path: 'soporte',
+          name: 'Soporte',
+          component: Soporte
+        },
+        {
+          path: 'mi-cuenta',
+          name: 'MiCuenta',
+          component: MiCuenta
+        },
+        {
+          path: 'faq',
+          name: 'FAQ',
+          component: FAQ
+        },
+        {
+          path: 'contacto',
+          name: 'Contacto',
+          component: Contacto
+        },
+        {
+          path: 'blog',
+          name: 'Blog',
+          component: Blog
+        }
+      ]
+    },
+    // Redirecciones globales
+    {
+      path: '/faq',
+      redirect: '/cliente/faq'
+    },
+    {
+      path: '/blog',
+      redirect: '/cliente/blog'
+    }
+  ]
 })
 
 export default router
