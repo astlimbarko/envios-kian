@@ -104,12 +104,7 @@
                     Código: <span class="text-white font-medium ml-1">{{ remesa.trackingCode }}</span>
                   </p>
                   <div class="flex space-x-2">
-                    <button v-if="remesa.status === 'En Progreso'"
-                            @click="confirmarCancelacion(remesa)"
-                            class="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/20 text-red-200 hover:bg-red-500/30 transition-colors flex items-center">
-                      <i class="fas fa-times mr-1"></i>
-                      Cancelar
-                    </button>
+  
                     <button @click="verDetalles(remesa)"
                             class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500/20 text-blue-200 hover:bg-blue-500/30 transition-colors flex items-center">
                       <i class="fas fa-eye mr-1"></i>
@@ -210,12 +205,6 @@
               
               <!-- Acciones adicionales -->
               <div class="flex justify-end space-x-3 mt-6">
-                <button v-if="selectedRemesa.status === 'En Progreso'"
-                        @click="confirmarCancelacion(selectedRemesa)"
-                        class="px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors flex items-center">
-                  <i class="fas fa-times mr-2"></i>
-                  Cancelar Remesa
-                </button>
                 <button @click="showDetailsModal = false"
                         class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
                   Cerrar

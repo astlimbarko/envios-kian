@@ -19,20 +19,22 @@ const rolStore = useRolStore()
 
 // Función para manejar el cambio de rol
 const cambiarRol = (nuevoRol) => {
+  console.log(`Cambiando rol a: ${nuevoRol}`)
   rolStore.cambiarRol(nuevoRol)
   
   // Redirigir según el rol
   switch(nuevoRol) {
     case 'cliente':
+      console.log('Navegando al módulo cliente')
       router.push('/cliente')
       break
     case 'operador':
-      // Por ahora solo mostramos un mensaje
-      alert('Módulo Operador en desarrollo')
+      console.log('Navegando al módulo operador')
+      router.push('/operador')
       break
     case 'gerente':
-      // Por ahora solo mostramos un mensaje
-      alert('Módulo Gerente en desarrollo')
+      console.log('Navegando al módulo gerente')
+      router.push('/gerente')
       break
   }
 }

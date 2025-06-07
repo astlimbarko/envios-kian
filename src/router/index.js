@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Puerta from '../paginas/login/puerta.vue'
 import P_cliente from '../paginas/cliente/P_cliente.vue'
+import P_operador from '../paginas/operador/P_operador.vue'
+import P_gerente from '../paginas/gerente/P_gerente.vue'
 import MisRemesas from '../paginas/cliente/MisRemesas.vue'
 import Beneficiarios from '../paginas/cliente/Beneficiarios.vue'
 import NuevaRemesa from '../paginas/cliente/NuevaRemesa.vue'
@@ -72,6 +74,18 @@ const router = createRouter({
           component: Blog
         }
       ]
+    },
+    {
+      path: '/operador',
+      name: 'operador',
+      component: P_operador,
+      meta: { requiresAuth: true, rol: 'operador' }
+    },
+    {
+      path: '/gerente',
+      name: 'gerente',
+      component: P_gerente,
+      meta: { requiresAuth: true, rol: 'gerente' }
     },
     // Redirecciones globales
     {
