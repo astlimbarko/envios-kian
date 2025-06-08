@@ -16,26 +16,31 @@ import { useRolStore } from '../../stores/rolStore'
 
 const router = useRouter()
 const rolStore = useRolStore()
+const isLoading = ref(false)
 
 // Función para manejar el cambio de rol
-const cambiarRol = (nuevoRol) => {
-  console.log(`Cambiando rol a: ${nuevoRol}`)
-  rolStore.cambiarRol(nuevoRol)
+const cambiarRol = async (nuevoRol) => {
+  if (isLoading.value) return // Evitar múltiples clics
   
-  // Redirigir según el rol
-  switch(nuevoRol) {
-    case 'cliente':
-      console.log('Navegando al módulo cliente')
-      router.push('/cliente')
-      break
-    case 'operador':
-      console.log('Navegando al módulo operador')
-      router.push('/operador')
-      break
-    case 'gerente':
-      console.log('Navegando al módulo gerente')
-      router.push('/gerente')
-      break
+  try {
+    isLoading.value = true
+    console.log(`Cambiando rol a: ${nuevoRol}`)
+    
+    // Primero actualizamos el rol
+    await rolStore.cambiarRol(nuevoRol)
+    
+    // Esperamos un momento para asegurar que el store se actualice
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // Luego navegamos
+    const ruta = `/${nuevoRol}`
+    console.log('Navegando a:', ruta)
+    await router.push(ruta)
+    
+  } catch (error) {
+    console.error('Error al cambiar rol:', error)
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -61,7 +66,8 @@ const cambiarRol = (nuevoRol) => {
         <!-- Cliente -->
         <button 
           @click="cambiarRol('cliente')"
-          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          :disabled="isLoading"
+          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <div class="text-center">
             <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors">
@@ -79,7 +85,8 @@ const cambiarRol = (nuevoRol) => {
         <!-- Operador -->
         <button 
           @click="cambiarRol('operador')"
-          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          :disabled="isLoading"
+          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <div class="text-center">
             <div class="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-800 transition-colors">
@@ -97,7 +104,8 @@ const cambiarRol = (nuevoRol) => {
         <!-- Gerente -->
         <button 
           @click="cambiarRol('gerente')"
-          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          :disabled="isLoading"
+          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <div class="text-center">
             <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-purple-800 transition-colors">
@@ -130,12 +138,12 @@ button {
   transition: all 0.3s ease;
 }
 
-button:hover {
+button:not(:disabled):hover {
   transform: translateY(-4px);
 }
 
 /* Efecto de brillo al hover */
-button::after {
+button:not(:disabled)::after {
   content: '';
   position: absolute;
   top: 0;
@@ -147,7 +155,7 @@ button::after {
   transition: 0.5s;
 }
 
-button:hover::after {
+button:not(:disabled):hover::after {
   transform: translateX(100%);
 }
 </style>
