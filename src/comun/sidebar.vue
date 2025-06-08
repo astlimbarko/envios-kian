@@ -6,12 +6,13 @@
  */
 
 <script setup>
+import { useRouter } from 'vue-router'
 import { ref, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useLayoutStore } from '../stores/layoutStore'
 import { useRolStore } from '../stores/rolStore'
 
 const router = useRouter()
-const route = useRoute()
+const layoutStore = useLayoutStore()
 const rolStore = useRolStore()
 
 // Estado para el menú móvil
@@ -34,7 +35,8 @@ const isActive = (path) => {
 
 <template>
   <!-- Sidebar para escritorio -->
-  <aside class="hidden md:flex flex-col w-64 bg-white dark:bg-[#111b21] border-r border-gray-200 dark:border-gray-700 h-screen fixed left-0 top-16 transition-all duration-300">
+  <aside class="hidden md:flex flex-col w-64 bg-white dark:bg-[#111b21] border-r border-gray-200 dark:border-gray-700 h-screen fixed left-0 top-16 transition-all duration-300"
+         :class="{ '-translate-x-full': !layoutStore.isSidebarOpen }">
     <div class="flex-1 overflow-y-auto py-4">
       <nav class="space-y-1 px-2">
         <template v-for="(option, index) in menuOptions" :key="index">
@@ -72,10 +74,10 @@ const isActive = (path) => {
 
   <!-- Botón de menú móvil -->
   <button
-    @click="isMobileMenuOpen = !isMobileMenuOpen"
+    @click="layoutStore.toggleSidebar"
     class="md:hidden fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
   >
-    <i class="fas" :class="isMobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+    <i class="fas" :class="layoutStore.isSidebarOpen ? 'fa-times' : 'fa-bars'"></i>
   </button>
 
   <!-- Menú móvil -->
@@ -125,7 +127,7 @@ const isActive = (path) => {
   </div>
 
   <!-- Espaciador para el contenido principal -->
-  <div class="hidden md:block w-64"></div>
+  <div class="hidden md:block w-64" :class="{ 'hidden': !layoutStore.isSidebarOpen }"></div>
 </template>
 
 <style scoped>
@@ -156,4 +158,5 @@ const isActive = (path) => {
 .dark .overflow-y-auto::-webkit-scrollbar-thumb {
   background-color: rgba(75, 85, 99, 0.5);
 }
-</style> 
+</style>
+ 

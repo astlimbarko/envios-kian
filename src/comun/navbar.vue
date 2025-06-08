@@ -9,10 +9,12 @@
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 import ThemeToggle from '../components/ThemeToggle.vue'
+import { useLayoutStore } from '../stores/layoutStore'
 import { useRolStore } from '../stores/rolStore'
 
 const router = useRouter()
 const showDropdown = ref(false)
+const layoutStore = useLayoutStore()
 const rolStore = useRolStore()
 
 const cerrarSesion = () => {
@@ -27,6 +29,10 @@ const goToAccount = () => {
   router.push(`/${rolStore.rol}/mi-cuenta`)
   showDropdown.value = false
 }
+
+const toggleSidebar = () => {
+  layoutStore.toggleSidebar()
+}
 </script>
 
 <template>
@@ -34,6 +40,10 @@ const goToAccount = () => {
     <div class="container mx-auto px-4 flex items-center justify-between">
       <!-- Logo y Nombre -->
       <div class="flex items-center">
+        <!-- Botón para alternar sidebar -->
+        <button @click="toggleSidebar" class="mr-4 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
         <div class="text-gray-800 dark:text-white mr-2">
           <i class="fas fa-globe-americas text-3xl"></i>
         </div>
@@ -140,4 +150,5 @@ const goToAccount = () => {
     margin-left: 0.5rem;
   }
 }
-</style> 
+</style>
+ 

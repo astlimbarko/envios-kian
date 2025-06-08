@@ -11,6 +11,7 @@ import MiCuenta from '../paginas/cliente/MiCuenta.vue'
 import FAQ from '../paginas/cliente/FAQ.vue'
 import Contacto from '../paginas/cliente/Contacto.vue'
 import Blog from '../paginas/cliente/Blog.vue'
+import OperadorRemesas from '../paginas/operador/Operador_de_remesas.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -79,7 +80,14 @@ const router = createRouter({
       path: '/operador',
       name: 'operador',
       component: P_operador,
-      meta: { requiresAuth: true, rol: 'operador' }
+      meta: { requiresAuth: true, rol: 'operador' },
+      children: [
+        {
+          path: '',
+          name: 'operador-remesas',
+          component: OperadorRemesas
+        }
+      ]
     },
     {
       path: '/gerente',

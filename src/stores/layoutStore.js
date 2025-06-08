@@ -3,24 +3,24 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 export const useLayoutStore = defineStore('layout', () => {
   // Estado
-  const isMobile = ref(false)
   const isSidebarOpen = ref(true)
+  const isMobile = ref(false)
   const windowWidth = ref(window.innerWidth)
 
   // Acciones
-  function toggleSidebar() {
+  const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value
   }
 
-  function closeSidebar() {
+  const closeSidebar = () => {
     isSidebarOpen.value = false
   }
 
-  function openSidebar() {
+  const openSidebar = () => {
     isSidebarOpen.value = true
   }
 
-  function checkMobile() {
+  const checkMobile = () => {
     windowWidth.value = window.innerWidth
     isMobile.value = windowWidth.value < 1024
     
@@ -29,7 +29,7 @@ export const useLayoutStore = defineStore('layout', () => {
       isSidebarOpen.value = false
     }
     
-    // Si volvemos a desktop, SIEMPRE abrimos el sidebar (cambiado)
+    // Si volvemos a desktop, SIEMPRE abrimos el sidebar
     if (!isMobile.value) {
       isSidebarOpen.value = true
     }
@@ -46,8 +46,8 @@ export const useLayoutStore = defineStore('layout', () => {
   }
 
   return {
-    isMobile,
     isSidebarOpen,
+    isMobile,
     windowWidth,
     toggleSidebar,
     closeSidebar,
