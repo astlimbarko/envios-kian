@@ -17,6 +17,10 @@ import Blog from '../paginas/cliente/Blog.vue'
 
 // Componentes del módulo operador
 import Operador_de_remesas from '../paginas/operador/Operador_de_remesas.vue'
+import Operador_beneficiarios from '../paginas/operador/Operador_beneficiarios.vue'
+import Operador_usuarios from '../paginas/operador/Operador_usuarios.vue'
+import Operador_soporte from '../paginas/operador/Operador_soporte.vue'
+import Operador_historial from '../paginas/operador/Operador_historial.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -101,14 +105,24 @@ const router = createRouter({
           component: Operador_de_remesas
         },
         {
-          path: 'clientes',
-          name: 'operador-clientes',
-          component: () => import('../paginas/operador/Operador_clientes.vue')
+          path: 'beneficiarios',
+          name: 'operador-beneficiarios',
+          component: Operador_beneficiarios
+        },
+        {
+          path: 'usuarios',
+          name: 'operador-usuarios',
+          component: Operador_usuarios
         },
         {
           path: 'soporte',
           name: 'operador-soporte',
-          component: () => import('../paginas/operador/Operador_soporte.vue')
+          component: Operador_soporte
+        },
+        {
+          path: 'historial',
+          name: 'operador-historial',
+          component: Operador_historial
         }
       ]
     },
