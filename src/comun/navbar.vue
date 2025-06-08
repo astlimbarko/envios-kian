@@ -40,8 +40,11 @@ const toggleSidebar = () => {
     <div class="container mx-auto px-4 flex items-center justify-between">
       <!-- Logo y Nombre -->
       <div class="flex items-center">
-        <!-- Botón para alternar sidebar -->
-        <button @click="toggleSidebar" class="mr-4 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+        <!-- Botón para alternar sidebar (solo visible en móvil) -->
+        <button 
+          @click="toggleSidebar" 
+          class="lg:hidden mr-4 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+        >
           <i class="fas fa-bars text-xl"></i>
         </button>
         <div class="text-gray-800 dark:text-white mr-2">
