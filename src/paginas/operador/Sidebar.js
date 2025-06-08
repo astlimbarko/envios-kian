@@ -1,9 +1,18 @@
 /**
- * Configuración del menú lateral para el módulo operador
+ * Archivo: sidebar.js
+ * 
+ * Configuración del menú lateral para el módulo de operador.
+ * Define la estructura, opciones y textos del sidebar del operador.
+ * Este archivo centraliza toda la configuración del menú para mantener
+ * la consistencia y facilitar su mantenimiento.
  */
 
 export const menuOperador = {
+  // Título principal del panel
   title: 'Panel de Operador',
+  subtitle: 'Gestión de remesas',
+  
+  // Secciones del menú
   sections: [
     {
       title: 'Gestión Principal',

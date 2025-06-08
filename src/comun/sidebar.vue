@@ -56,6 +56,16 @@ const menuTitle = computed(() => {
   }
 })
 
+const menuSubtitle = computed(() => {
+  switch (rolStore.rol) {
+    case 'operador':
+      return menuOperador.subtitle
+    // Agregar otros casos para cliente y gerente cuando estén listos
+    default:
+      return ''
+  }
+})
+
 const menuSections = computed(() => {
   switch (rolStore.rol) {
     case 'operador':
@@ -63,6 +73,36 @@ const menuSections = computed(() => {
     // Agregar otros casos para cliente y gerente cuando estén listos
     default:
       return []
+  }
+})
+
+const footerTitle = computed(() => {
+  switch (rolStore.rol) {
+    case 'operador':
+      return menuOperador.footer.title
+    // Agregar otros casos para cliente y gerente cuando estén listos
+    default:
+      return ''
+  }
+})
+
+const footerSubtitle = computed(() => {
+  switch (rolStore.rol) {
+    case 'operador':
+      return menuOperador.footer.subtitle
+    // Agregar otros casos para cliente y gerente cuando estén listos
+    default:
+      return ''
+  }
+})
+
+const footerIcon = computed(() => {
+  switch (rolStore.rol) {
+    case 'operador':
+      return menuOperador.footer.icon
+    // Agregar otros casos para cliente y gerente cuando estén listos
+    default:
+      return ''
   }
 })
 
@@ -76,75 +116,48 @@ const navigateTo = (path) => {
 
 <template>
   <div>
-    <!-- Menú móvil -->
-    <div v-if="isMobile" class="fixed inset-0 z-40 lg:hidden" v-show="isOpen">
-      <div class="fixed inset-0 bg-gray-600 bg-opacity-75" @click="closeSidebar"></div>
-      <div class="fixed inset-y-0 left-0 flex flex-col w-64 bg-white dark:bg-gray-800">
-        <div class="flex items-center justify-between h-16 px-4 border-b dark:border-gray-700">
-          <h2 class="text-lg font-semibold text-gray-800 dark:text-white">{{ menuTitle }}</h2>
-          <button @click="closeSidebar" class="text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-          <template v-for="(section, index) in menuSections" :key="index">
-            <div class="px-3 py-2">
-              <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider dark:text-gray-400">
-                {{ section.title }}
-              </h3>
-            </div>
-            <router-link
-              v-for="option in section.options"
-              :key="option.path"
-              :to="option.path"
-              class="flex items-center px-3 py-2 text-sm font-medium rounded-md"
-              :class="[
-                $route.path === option.path
-                  ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white'
-              ]"
-            >
-              <i :class="[option.icon, 'mr-3 h-5 w-5']"></i>
-              {{ option.text }}
-            </router-link>
-          </template>
-        </nav>
-      </div>
-    </div>
+    <!-- Botón para mostrar/ocultar en dispositivos móviles -->
+    <button 
+      v-if="layoutStore.isMobile && !layoutStore.isSidebarOpen"
+      @click="layoutStore.toggleSidebar()" 
+      class="fixed left-0 top-20 z-40 bg-blue-600 dark:bg-[#111b21] text-white p-2 rounded-r-md shadow-md"
+    >
+      <i class="fas fa-bars"></i>
+    </button>
 
-    <!-- Sidebar desktop -->
-    <div class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:bg-white lg:dark:bg-gray-800 lg:dark:border-gray-700">
-      <div class="flex-1 flex flex-col min-h-0">
-        <!-- Título del panel -->
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white">{{ menuTitle }}</h2>
-        </div>
-        <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-          <template v-for="(section, index) in menuSections" :key="index">
-            <div class="px-3 py-2">
-              <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider dark:text-gray-400">
-                {{ section.title }}
-              </h3>
-            </div>
-            <router-link
-              v-for="option in section.options"
-              :key="option.path"
-              :to="option.path"
-              class="flex items-center px-3 py-2 text-sm font-medium rounded-md"
-              :class="[
-                $route.path === option.path
-                  ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white'
-              ]"
-            >
-              <i :class="[option.icon, 'mr-3 h-5 w-5']"></i>
-              {{ option.text }}
-            </router-link>
-          </template>
-        </nav>
+    <div 
+      :class="['sidebar h-full w-64 fixed left-0 top-16 shadow-lg transition-all duration-300 transform z-50', sidebarClasses]">
+      <!-- Header del Sidebar -->
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 relative">
+        <!-- Botón para cerrar en móvil -->
+        <button 
+          v-if="layoutStore.isMobile && layoutStore.isSidebarOpen"
+          @click="layoutStore.closeSidebar()" 
+          class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 pr-8">{{ menuTitle }}</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ menuSubtitle }}</p>
       </div>
+
+      <!-- Menú de navegación -->
+      <nav class="px-4 py-6">
+        <ul class="space-y-3">
+          <template v-for="(section, index) in menuSections" :key="index">
+            <li v-for="option in section.options" :key="option.path" class="relative">
+              <router-link 
+                :to="option.path"
+                class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                :class="{ 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400': $route.path === option.path }"
+              >
+                <i :class="[option.icon, 'w-6 text-lg']"></i>
+                <span>{{ option.text }}</span>
+              </router-link>
+            </li>
+          </template>
+        </ul>
+      </nav>
     </div>
   </div>
 </template>
