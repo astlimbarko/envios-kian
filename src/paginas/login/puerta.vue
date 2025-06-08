@@ -24,21 +24,34 @@ const cambiarRol = async (nuevoRol) => {
   
   try {
     isLoading.value = true
-    console.log(`Cambiando rol a: ${nuevoRol}`)
+    console.log(`[Puerta] Iniciando cambio de rol a: ${nuevoRol}`)
     
-    // Primero actualizamos el rol
-    await rolStore.cambiarRol(nuevoRol)
+    // Actualizar el rol en el store
+    rolStore.setRol(nuevoRol)
+    console.log(`[Puerta] Rol actualizado en store: ${nuevoRol}`)
     
-    // Esperamos un momento para asegurar que el store se actualice
-    await new Promise(resolve => setTimeout(resolve, 100))
+    // Determinar la ruta según el rol
+    let ruta = ''
+    switch(nuevoRol) {
+      case 'cliente':
+        ruta = '/cliente'
+        break
+      case 'operador':
+        ruta = '/operador'
+        break
+      case 'gerente':
+        ruta = '/gerente'
+        break
+      default:
+        console.error(`[Puerta] Rol no válido: ${nuevoRol}`)
+        return
+    }
     
-    // Luego navegamos
-    const ruta = `/${nuevoRol}`
-    console.log('Navegando a:', ruta)
+    console.log(`[Puerta] Navegando a ruta: ${ruta}`)
     await router.push(ruta)
     
   } catch (error) {
-    console.error('Error al cambiar rol:', error)
+    console.error('[Puerta] Error al cambiar rol:', error)
   } finally {
     isLoading.value = false
   }

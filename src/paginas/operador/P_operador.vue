@@ -1,50 +1,38 @@
 /**
  * Componente: P_operador.vue
  * 
- * Este es el componente principal del módulo operador.
- * Sirve como layout para todas las páginas del módulo operador.
- * Utiliza los componentes comunes de navbar y sidebar.
+ * Este es el layout principal para el módulo de operador.
+ * Contiene la estructura base con navbar, sidebar y área de contenido.
  */
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRolStore } from '../../stores/rolStore'
-import { useLayoutStore } from '../../stores/layoutStore'
 import Navbar from '../../comun/navbar.vue'
 import Sidebar from '../../comun/sidebar.vue'
 
 const router = useRouter()
 const rolStore = useRolStore()
-const layoutStore = useLayoutStore()
 
-// Verificar rol al montar el componente
 onMounted(() => {
-  if (rolStore.rol !== 'operador') {
-    router.push('/puerta')
-  }
-  // Inicializar el layout
-  layoutStore.setupResizeListener()
-})
-
-// Limpiar listeners al desmontar
-onUnmounted(() => {
-  layoutStore.cleanupResizeListener()
+  console.log('[P_operador] Componente montado')
+  console.log('[P_operador] Rol actual:', rolStore.rol)
 })
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Navbar -->
     <Navbar />
 
-    <div class="flex">
+    <!-- Contenedor principal con sidebar y contenido -->
+    <div class="flex h-[calc(100vh-4rem)]">
       <!-- Sidebar -->
       <Sidebar />
 
-      <!-- Contenido principal -->
-      <main class="flex-1 p-8 transition-all duration-300"
-            :class="{ 'lg:ml-64': layoutStore.isSidebarOpen }">
+      <!-- Área de contenido principal -->
+      <main class="flex-1 overflow-y-auto p-6 ml-64 transition-all duration-300">
         <router-view></router-view>
       </main>
     </div>
@@ -52,9 +40,16 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* Ajustes para el layout */
+main {
+  min-height: calc(100vh - 4rem);
+  margin-left: 16rem; /* 64 = 16rem, ancho del sidebar */
+}
+
+/* Ajuste para móvil */
 @media (max-width: 1024px) {
   main {
-    margin-left: 0 !important;
+    margin-left: 0;
   }
 }
 </style>

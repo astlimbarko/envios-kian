@@ -21,18 +21,56 @@ import Operador_beneficiarios from '../paginas/operador/Operador_beneficiarios.v
 import Operador_usuarios from '../paginas/operador/Operador_usuarios.vue'
 import Operador_soporte from '../paginas/operador/Operador_soporte.vue'
 import Operador_historial from '../paginas/operador/Operador_historial.vue'
+import Operador_Configuracion from '../paginas/operador/Operador_Configuracion.vue'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/',
-      redirect: '/puerta'
-    },
-    {
-      path: '/puerta',
       name: 'puerta',
       component: Puerta
+    },
+    {
+      path: '/operador',
+      component: P_operador,
+      meta: { requiresAuth: true, role: 'operador' },
+      children: [
+        {
+          path: '',
+          redirect: '/operador/remesas'
+        },
+        {
+          path: 'remesas',
+          name: 'operador-remesas',
+          component: Operador_de_remesas
+        },
+        {
+          path: 'beneficiarios',
+          name: 'operador-beneficiarios',
+          component: Operador_beneficiarios
+        },
+        {
+          path: 'usuarios',
+          name: 'operador-usuarios',
+          component: Operador_usuarios
+        },
+        {
+          path: 'soporte',
+          name: 'operador-soporte',
+          component: Operador_soporte
+        },
+        {
+          path: 'historial',
+          name: 'operador-historial',
+          component: Operador_historial
+        },
+        {
+          path: 'configuracion',
+          name: 'operador-configuracion',
+          component: Operador_Configuracion
+        }
+      ]
     },
     {
       path: '/cliente',
@@ -91,42 +129,6 @@ const router = createRouter({
       ]
     },
     {
-      path: '/operador',
-      component: P_operador,
-      meta: { requiresAuth: true, role: 'operador' },
-      children: [
-        {
-          path: '',
-          redirect: '/operador/remesas'
-        },
-        {
-          path: 'remesas',
-          name: 'operador-remesas',
-          component: Operador_de_remesas
-        },
-        {
-          path: 'beneficiarios',
-          name: 'operador-beneficiarios',
-          component: Operador_beneficiarios
-        },
-        {
-          path: 'usuarios',
-          name: 'operador-usuarios',
-          component: Operador_usuarios
-        },
-        {
-          path: 'soporte',
-          name: 'operador-soporte',
-          component: Operador_soporte
-        },
-        {
-          path: 'historial',
-          name: 'operador-historial',
-          component: Operador_historial
-        }
-      ]
-    },
-    {
       path: '/gerente',
       component: P_gerente,
       meta: { requiresAuth: true, role: 'gerente' },
@@ -150,11 +152,12 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const rolStore = useRolStore()
   
+  // Si la ruta requiere autenticación
   if (to.meta.requiresAuth) {
-    if (!rolStore.rol) {
-      next('/puerta')
-    } else if (to.meta.role && to.meta.role !== rolStore.rol) {
-      next(`/${rolStore.rol}`)
+    // Verificar si el rol coincide
+    if (to.meta.role && to.meta.role !== rolStore.rol) {
+      // Si no coincide, redirigir a la puerta
+      next('/')
     } else {
       next()
     }

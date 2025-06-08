@@ -7,26 +7,32 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ThemeToggle from '../components/ThemeToggle.vue'
 import { useLayoutStore } from '../stores/layoutStore'
 import { useRolStore } from '../stores/rolStore'
+import { navbarOperador } from '../paginas/operador/Operador_Navbar'
 
 const router = useRouter()
 const showDropdown = ref(false)
 const layoutStore = useLayoutStore()
 const rolStore = useRolStore()
 
+const navbarConfig = computed(() => {
+  switch (rolStore.rol) {
+    case 'operador':
+      return navbarOperador
+    // Agregar otros casos para cliente y gerente cuando estén listos
+    default:
+      return navbarOperador // Temporalmente usamos el del operador
+  }
+})
+
 const cerrarSesion = () => {
   // Lógica para cerrar sesión
   console.log('Cerrando sesión...')
   // Redireccionar a la página de inicio
   router.push('/')
-  showDropdown.value = false
-}
-
-const goToAccount = () => {
-  router.push(`/${rolStore.rol}/mi-cuenta`)
   showDropdown.value = false
 }
 
@@ -37,39 +43,35 @@ const toggleSidebar = () => {
 
 <template>
   <nav class="bg-[var(--color-navbar-bg)] dark:bg-[#111b21] text-gray-800 dark:text-white shadow-md py-3 w-full fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-    <div class="container mx-auto px-4 flex items-center justify-between">
+    <div class="px-6 flex items-center justify-between">
       <!-- Logo y Nombre -->
       <div class="flex items-center">
         <!-- Botón para alternar sidebar (solo visible en móvil) -->
         <button 
           @click="toggleSidebar" 
-          class="lg:hidden mr-4 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          class="lg:hidden text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mr-2"
         >
           <i class="fas fa-bars text-xl"></i>
         </button>
-        <div class="text-gray-800 dark:text-white mr-2">
-          <i class="fas fa-globe-americas text-3xl"></i>
+        <!-- Logo y texto -->
+        <div class="flex items-center">
+          <i :class="[navbarConfig.logo.icono, 'text-3xl text-gray-800 dark:text-white']"></i>
+          <router-link :to="`/${rolStore.rol}`" class="ml-2 text-xl font-bold logo-text hidden sm:block">
+            {{ navbarConfig.logo.texto }}
+          </router-link>
         </div>
-        <router-link :to="`/${rolStore.rol}`" class="text-xl font-bold logo-text hidden sm:block">
-          ENVIOS KIAN
-        </router-link>
       </div>
 
       <!-- Opciones de Navegación -->
-      <div class="flex items-center space-x-3 sm:space-x-6">
+      <div class="flex items-center gap-4">
         <!-- Botón de tema -->
         <ThemeToggle />
         
-        <router-link to="/faq" class="flex items-center text-gray-800 dark:text-white hover:text-blue-700 dark:hover:text-blue-300 transition-colors relative group">
-          <i class="fas fa-circle-question text-xl sm:text-2xl icon-neon"></i>
-          <span class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md">FAQ</span>
-        </router-link>
-
         <!-- Usuario y Menú Desplegable -->
-        <div class="relative ml-3 sm:ml-6 group">
+        <div class="relative group">
           <div class="flex items-center cursor-pointer">
             <div class="hidden sm:block mr-2">
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Erik Johansson</span>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ navbarConfig.usuario.nombre }}</span>
             </div>
             <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-[#3073ad] to-[#4c9ed9] text-white">
               <i class="fas fa-user text-sm"></i>
@@ -81,19 +83,19 @@ const toggleSidebar = () => {
             class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
           >
             <div class="block px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700 sm:hidden">
-              <div class="font-medium text-gray-800 dark:text-gray-200">Erik Johansson</div>
+              <div class="font-medium text-gray-800 dark:text-gray-200">{{ navbarConfig.usuario.nombre }}</div>
             </div>
-            <a 
-              @click="goToAccount" 
+            <router-link 
+              :to="navbarConfig.menuUsuario.configuracion.ruta"
               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer"
             >
-              <i class="fas fa-user mr-2"></i>Mi Cuenta
-            </a>
+              <i :class="[navbarConfig.menuUsuario.configuracion.icono, 'mr-2']"></i>{{ navbarConfig.menuUsuario.configuracion.texto }}
+            </router-link>
             <a 
               @click="cerrarSesion" 
               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer"
             >
-              <i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión
+              <i :class="[navbarConfig.menuUsuario.cerrarSesion.icono, 'mr-2']"></i>{{ navbarConfig.menuUsuario.cerrarSesion.texto }}
             </a>
           </div>
         </div>
@@ -147,10 +149,6 @@ const toggleSidebar = () => {
   .container {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-  }
-  
-  .space-x-3 > * + * {
-    margin-left: 0.5rem;
   }
 }
 </style>
