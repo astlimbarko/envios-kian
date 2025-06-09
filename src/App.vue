@@ -1,10 +1,8 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRemesaStore } from './store/remesa'
 
 const router = useRouter()
-const remesaStore = useRemesaStore()
 
 onMounted(() => {
   // Inicializar el modo oscuro como claro por defecto
@@ -24,7 +22,7 @@ onMounted(() => {
 
 <template>
   <div class="min-h-screen bg-white dark:bg-[#2A3942] text-gray-800 dark:text-gray-200 transition-colors duration-300">
-    <router-view />
+    <router-view></router-view>
   </div>
 </template>
 
@@ -70,26 +68,26 @@ onMounted(() => {
 
 /* Modo oscuro */
 .dark {
-  --color-bg-primary: #1a1a1a;  /* Fondo principal más oscuro y elegante */
-  --color-bg-secondary: #555555;  /* Fondo del cuerpo de la pagina */
-  --color-bg-tertiary: #111B21;  /* Fondo del slidebar */
-  --color-text-primary: #ffffff;  /* Texto principal más brillante */
-  --color-text-secondary: #a0a0a0;  /* Texto secundario más suave */
-  --color-border: #404040;  /* Bordes más suaves */
+  --color-bg-primary: #1a1a1a;
+  --color-bg-secondary: #555555;
+  --color-bg-tertiary: #111B21;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a0a0a0;
+  --color-border: #404040;
   --color-shadow: rgba(0, 0, 0, 0.3);
-  --color-blue-primary: #60a5fa;  /* Azul más brillante */
-  --color-blue-secondary: #3b82f6;  /* Azul secundario más vibrante */
-  --color-blue-light: #93c5fd;  /* Azul claro más suave */
+  --color-blue-primary: #60a5fa;
+  --color-blue-secondary: #3b82f6;
+  --color-blue-light: #93c5fd;
   
   /* Colores para navegación en modo oscuro */
-  --color-win10-taskbar-dark: #111B21;  /* Taskbar más oscura */
-  --color-navbar-bg: var(--color-win10-taskbar-dark);   /*fondo de la barra de navegacion slidebar solo el texto*/
+  --color-win10-taskbar-dark: #111B21;
+  --color-navbar-bg: var(--color-win10-taskbar-dark);
   --color-navbar-text: #ffffff;
-  --color-sidebar-bg: #1A1A1A;  /* Sidebar más suave */
-  --color-table-bg: #2d2d2d;  /* Tablas más suaves */
-  --color-table-header: #1a1a1a;  /* Encabezados más oscuros */
-  --color-table-hover: #363636;  /* Hover más suave */
-  --color-table-alt-row: #2d2d2d;  /* Filas alternas más suaves */
+  --color-sidebar-bg: #1A1A1A;
+  --color-table-bg: #2d2d2d;
+  --color-table-header: #1a1a1a;
+  --color-table-hover: #363636;
+  --color-table-alt-row: #2d2d2d;
 }
 
 .pasos-colors {
@@ -98,8 +96,6 @@ onMounted(() => {
   --color-fondo-pasos-light-gray50: #f9fafb; /* Fondo paso claro tipo gray-50 */
   --color-fondo-pasos-light-gray100: #f3f4f6; /* Fondo paso claro tipo gray-100 */
 }
-
-
 
 /* Aplicar colores base a los elementos */
 body {

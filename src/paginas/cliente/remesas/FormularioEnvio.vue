@@ -7,7 +7,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { useRemesaStore } from '../../../store/remesa'
+import { useRemesaStore } from '../../../stores/remesa'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
 
 const store = useRemesaStore()

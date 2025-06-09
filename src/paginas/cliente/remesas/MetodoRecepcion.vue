@@ -7,7 +7,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { useRemesaStore } from '../../../store/remesa'
+import { useRemesaStore } from '../../../stores/remesa'
 import BotonContinuar from '../../../components/BotonContinuar.vue'
 import entidadesFinancieras from '../../../assets/entidades_financieras_bolivia.json'
 import clientes from '../../../assets/clientes.json'

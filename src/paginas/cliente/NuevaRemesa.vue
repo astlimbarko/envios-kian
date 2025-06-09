@@ -215,7 +215,7 @@ import FormularioEnvio from './remesas/FormularioEnvio.vue'
 import MetodoPagoSuecia from './remesas/MetodoPagoSuecia.vue'
 import ResumenRemesa from './remesas/ResumenRemesa.vue'
 import MetodoRecepcion from './remesas/MetodoRecepcion.vue'
-import { useRemesaStore } from '../../store/remesa'
+import { useRemesaStore } from '../../stores/remesa'
 
 // Estados para las remesas
 const remesas = ref([
@@ -232,7 +232,7 @@ const remesas = ref([
     statusClass: 'yellow',
     paymentMethod: 'Pendiente',
     receiveMethod: 'Pendiente',
-    trackingCode: 'REF-1234-5678-90'
+    trackingCode: 'REF-5678-90'   //REF-1234-5678-90
   }
 ])
 

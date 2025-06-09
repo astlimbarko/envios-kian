@@ -255,7 +255,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRemesaStore } from '../../store/remesa'
+import { useRemesaStore } from '../../stores/remesa'
 
 const store = useRemesaStore()
 const mostrarRemesasAnteriores = ref(false)

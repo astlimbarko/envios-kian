@@ -7,63 +7,116 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import ThemeToggle from '../components/ThemeToggle.vue'
-import { useLayoutStore } from '../stores/layoutStore'
 import { useRolStore } from '../stores/rolStore'
 import { navbarOperador } from '../paginas/operador/Operador_Navbar'
+import { navbarCliente } from '../paginas/cliente/Cliente_navbar'
 
 const router = useRouter()
 const showDropdown = ref(false)
-const layoutStore = useLayoutStore()
 const rolStore = useRolStore()
+const isMobile = ref(false)
 
+// Función para detectar el tamaño de la pantalla
+const checkScreenSize = () => {
+  isMobile.value = window.innerWidth < 640
+}
+
+// Configurar listeners de resize
+onMounted(() => {
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreenSize)
+})
+
+// Configuración base común para todos los roles
+const configBase = {
+  logo: {
+    icono: 'fas fa-globe-americas',
+    texto: 'ENVIOS KIAN'
+  },
+  usuario: {
+    nombre: 'Usuario'
+  },
+  menuUsuario: {
+    cerrarSesion: {
+      texto: 'Cerrar Sesión',
+      icono: 'fas fa-sign-out-alt',
+      ruta: '/'
+    }
+  }
+}
+
+// Computed que combina la configuración base con la específica del rol
 const navbarConfig = computed(() => {
+  let configEspecifica = {}
+  
   switch (rolStore.rol) {
     case 'operador':
-      return navbarOperador
-    // Agregar otros casos para cliente y gerente cuando estén listos
+      configEspecifica = navbarOperador
+      break
+    case 'cliente':
+      configEspecifica = navbarCliente
+      break
     default:
-      return navbarOperador // Temporalmente usamos el del operador
+      configEspecifica = navbarCliente
+  }
+
+  // Combinar configuraciones
+  return {
+    ...configBase,
+    ...configEspecifica,
+    menuUsuario: {
+      ...configBase.menuUsuario,
+      ...configEspecifica.menuUsuario
+    }
   }
 })
 
 const cerrarSesion = () => {
-  // Lógica para cerrar sesión
   console.log('Cerrando sesión...')
-  // Redireccionar a la página de inicio
   router.push('/')
   showDropdown.value = false
-}
-
-const toggleSidebar = () => {
-  layoutStore.toggleSidebar()
 }
 </script>
 
 <template>
   <nav class="bg-[var(--color-navbar-bg)] dark:bg-[#111b21] text-gray-800 dark:text-white shadow-md py-3 w-full fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-    <div class="px-6 flex items-center justify-between">
+    <div class="px-4 sm:px-6 flex items-center justify-between">
       <!-- Logo y Nombre -->
       <div class="flex items-center">
-        <!-- Botón para alternar sidebar (solo visible en móvil) -->
-        <button 
-          @click="toggleSidebar" 
-          class="lg:hidden text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mr-2"
-        >
-          <i class="fas fa-bars text-xl"></i>
-        </button>
         <!-- Logo y texto -->
         <div class="flex items-center">
-          <i :class="[navbarConfig.logo.icono, 'text-3xl text-gray-800 dark:text-white']"></i>
-          <router-link :to="`/${rolStore.rol}`" class="ml-2 text-xl font-bold logo-text hidden sm:block">
+          <i :class="[navbarConfig.logo.icono, 'text-2xl sm:text-3xl text-gray-800 dark:text-white']"></i>
+          <router-link :to="`/${rolStore.rol}`" class="ml-2 text-lg sm:text-xl font-bold logo-text hidden sm:block">
             {{ navbarConfig.logo.texto }}
           </router-link>
         </div>
       </div>
 
       <!-- Opciones de Navegación -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 sm:gap-4">
+        <!-- Elementos adicionales específicos del rol -->
+        <template v-for="elemento in navbarConfig.elementosAdicionales" :key="elemento.texto">
+          <router-link 
+            v-if="elemento.tipo === 'link' && elemento.visible && (!elemento.ocultarEnMovil || !isMobile)"
+            :to="elemento.ruta" 
+            class="flex items-center text-gray-800 dark:text-white hover:text-blue-700 dark:hover:text-blue-300 transition-colors relative group"
+          >
+            <i :class="[elemento.icono, 'text-xl sm:text-2xl', elemento.clase]"></i>
+            <span 
+              v-if="elemento.tooltip"
+              class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md"
+            >
+              {{ elemento.tooltip }}
+            </span>
+          </router-link>
+        </template>
+
         <!-- Botón de tema -->
         <ThemeToggle />
         
@@ -86,6 +139,7 @@ const toggleSidebar = () => {
               <div class="font-medium text-gray-800 dark:text-gray-200">{{ navbarConfig.usuario.nombre }}</div>
             </div>
             <router-link 
+              v-if="navbarConfig.menuUsuario.configuracion"
               :to="navbarConfig.menuUsuario.configuracion.ruta"
               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer"
             >

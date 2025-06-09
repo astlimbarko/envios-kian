@@ -30,7 +30,7 @@ const isMinimized = ref(true)
 const hasUnreadMessages = ref(false)
 
 // Sonido de notificación
-const notificationSound = new Audio('/sounds/notification.mp3')
+const notificationSound = new Audio('/src/assets/sound/bell.mp3')
 
 // Función para enviar mensaje
 const sendMessage = () => {

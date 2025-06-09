@@ -6,7 +6,7 @@
  */
 
 <script setup>
-import Navbar from './navbar.vue'
+import Navbar from '../../comun/navbar.vue'
 import Sidebar from './Sidebar.vue'
 import Soporte from './Soporte.vue'
 import { useLayoutStore } from '../../stores/layoutStore'
