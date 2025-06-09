@@ -10,7 +10,7 @@
 export const navbarOperador = {
   // Información del usuario
   usuario: {
-    nombre: 'Erik Johansson',
+    nombre: 'Eliana Sánchez',
     rol: 'Operador'
   },
 
