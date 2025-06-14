@@ -10,12 +10,14 @@ import { useRouter } from 'vue-router'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import ThemeToggle from '../components/ThemeToggle.vue'
 import { useRolStore } from '../stores/rolStore'
+import { useLayoutStore } from '../stores/layoutStore'
 import { navbarOperador } from '../paginas/operador/Operador_Navbar'
 import { navbarCliente } from '../paginas/cliente/Cliente_navbar'
 
 const router = useRouter()
 const showDropdown = ref(false)
 const rolStore = useRolStore()
+const layoutStore = useLayoutStore()
 const isMobile = ref(false)
 
 // Función para detectar el tamaño de la pantalla
@@ -82,6 +84,12 @@ const cerrarSesion = () => {
   router.push('/')
   showDropdown.value = false
 }
+
+const handleElementoClick = (elemento) => {
+  if (elemento.accion === 'toggleSidebar') {
+    layoutStore.toggleSidebar()
+  }
+}
 </script>
 
 <template>
@@ -102,8 +110,21 @@ const cerrarSesion = () => {
       <div class="flex items-center gap-2 sm:gap-4">
         <!-- Elementos adicionales específicos del rol -->
         <template v-for="elemento in navbarConfig.elementosAdicionales" :key="elemento.texto">
+          <button 
+            v-if="elemento.tipo === 'toggle' && elemento.visible"
+            @click="handleElementoClick(elemento)"
+            class="flex items-center text-gray-800 dark:text-white hover:text-blue-700 dark:hover:text-blue-300 transition-colors relative group"
+          >
+            <i :class="[elemento.icono, 'text-xl sm:text-2xl', elemento.clase]"></i>
+            <span 
+              v-if="elemento.tooltip"
+              class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md"
+            >
+              {{ elemento.tooltip }}
+            </span>
+          </button>
           <router-link 
-            v-if="elemento.tipo === 'link' && elemento.visible && (!elemento.ocultarEnMovil || !isMobile)"
+            v-else-if="elemento.tipo === 'link' && elemento.visible && (!elemento.ocultarEnMovil || !isMobile)"
             :to="elemento.ruta" 
             class="flex items-center text-gray-800 dark:text-white hover:text-blue-700 dark:hover:text-blue-300 transition-colors relative group"
           >
@@ -191,11 +212,10 @@ const cerrarSesion = () => {
 
 /* Estilo para modo oscuro */
 .dark .icon-neon:hover {
-  color: #c8e4ff;
+  color: #60a5fa;
   text-shadow: 
-    0 0 10px rgba(200, 228, 255, 0.9),
-    0 0 20px rgba(128, 189, 255, 0.7),
-    0 0 30px rgba(20, 110, 190, 0.3);
+    0 0 10px rgba(96, 165, 250, 0.4),
+    0 0 20px rgba(96, 165, 250, 0.2);
 }
 
 /* Adaptación a móvil */

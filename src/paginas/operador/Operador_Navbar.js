@@ -20,6 +20,9 @@ export const navbarOperador = {
     texto: 'ENVIOS KIAN'
   },
 
+  // Elementos adicionales específicos del operador
+  elementosAdicionales: [],
+
   // Opciones del menú de usuario
   menuUsuario: {
     configuracion: {

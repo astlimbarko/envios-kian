@@ -3,6 +3,7 @@
  * 
  * Sidebar base común para todos los roles.
  * Utiliza el store de roles para mostrar las opciones correspondientes.
+ * Maneja la responsividad y el comportamiento en móvil/tablet.
  */
 
 <script setup>
@@ -10,7 +11,8 @@ import { useRouter } from 'vue-router'
 import { ref, computed } from 'vue'
 import { useLayoutStore } from '../stores/layoutStore'
 import { useRolStore } from '../stores/rolStore'
-import { menuOperador } from '../paginas/operador/sidebar'
+import { menuOperador } from '../paginas/operador/Sidebar'
+import { menuCliente } from '../paginas/cliente/Sidebar'
 
 const router = useRouter()
 const layoutStore = useLayoutStore()
@@ -50,7 +52,8 @@ const menuTitle = computed(() => {
   switch (rolStore.rol) {
     case 'operador':
       return menuOperador.title
-    // Agregar otros casos para cliente y gerente cuando estén listos
+    case 'cliente':
+      return menuCliente.title
     default:
       return ''
   }
@@ -60,7 +63,8 @@ const menuSubtitle = computed(() => {
   switch (rolStore.rol) {
     case 'operador':
       return menuOperador.subtitle
-    // Agregar otros casos para cliente y gerente cuando estén listos
+    case 'cliente':
+      return menuCliente.subtitle
     default:
       return ''
   }
@@ -70,7 +74,8 @@ const menuSections = computed(() => {
   switch (rolStore.rol) {
     case 'operador':
       return menuOperador.sections
-    // Agregar otros casos para cliente y gerente cuando estén listos
+    case 'cliente':
+      return menuCliente.sections
     default:
       return []
   }
@@ -158,6 +163,19 @@ const navigateTo = (path) => {
           </template>
         </ul>
       </nav>
+
+      <!-- Footer del Sidebar -->
+      <div class="absolute bottom-0 w-full px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="mr-3">
+            <i :class="[footerIcon, 'text-blue-600 dark:text-blue-400 text-xl']"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ footerTitle }}</h3>
+            <p class="text-xs text-gray-600 dark:text-gray-400">{{ footerSubtitle }}</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

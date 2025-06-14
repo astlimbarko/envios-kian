@@ -54,5 +54,12 @@ export const menuOperador = {
         }
       ]
     }
-  ]
+  ],
+
+  // Footer del sidebar
+  footer: {
+    title: '¿Necesitas Ayuda?',
+    subtitle: 'Contacta a soporte',
+    icon: 'fas fa-headset'
+  }
 }

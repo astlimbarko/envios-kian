@@ -7,7 +7,7 @@
 
 <script setup>
 import Navbar from '../../comun/navbar.vue'
-import Sidebar from './Sidebar.vue'
+import Sidebar from '../../comun/sidebar.vue'
 import Soporte from './Soporte.vue'
 import { useLayoutStore } from '../../stores/layoutStore'
 import { onMounted, onUnmounted } from 'vue'
@@ -32,7 +32,9 @@ onUnmounted(() => {
     <div class="flex relative">
       <Sidebar />
       <main class="flex-1 p-4 lg:ml-64 transition-all duration-300">
-        <router-view></router-view>
+        <div class="max-w-7xl mx-auto">
+          <router-view></router-view>
+        </div>
       </main>
     </div>
     <Soporte />
