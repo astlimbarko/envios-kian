@@ -173,9 +173,7 @@ const handleKeyPress = (event) => {
 
     <!-- Selector de país -->
     <div class="mb-3">
-      <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-        Dirección de la remesa
-      </label>
+
       <div class="relative">
         <select 
           v-model="paisSeleccionado"

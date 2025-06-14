@@ -440,6 +440,11 @@ const handleSiguientePaso = (paso) => {
     currentStep.value = paso
     console.log('MisRemesas: Paso local actualizado a', paso)
 
+    // Si es el paso 4, asegurarnos que el resumen sea visible
+    if (paso === 4) {
+      store.setResumenVisible(true)
+    }
+
     // Centrar el paso en la pantalla
     setTimeout(() => {
       console.log('MisRemesas: Iniciando scroll al paso', paso)

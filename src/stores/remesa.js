@@ -164,6 +164,11 @@ export const useRemesaStore = defineStore('remesa', () => {
     }
   }
 
+  function agregarRemesa(remesa) {
+    console.log('Store: Agregando nueva remesa:', remesa)
+    estado.value.remesas.unshift(remesa)
+  }
+
   return {
     estado,
     datosValidos,
@@ -178,6 +183,7 @@ export const useRemesaStore = defineStore('remesa', () => {
     actualizarPago,
     setResumenVisible,
     resetearEstado,
-    resetearPasosSiguientes
+    resetearPasosSiguientes,
+    agregarRemesa
   }
 }) 

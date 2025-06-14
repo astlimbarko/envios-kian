@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1920px] py-8">
-      <!-- Encabezado más compacto -->
-      <div class="mb-8 text-center">
+      <!-- Encabezado más compacto con scroll-margin-top -->
+      <div class="mb-8 text-center scroll-margin-top-0">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Mis Remesas</h1>
         <p class="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
           Gestiona tus envíos de dinero de manera rápida y segura
@@ -82,9 +82,9 @@
                 <div class="flex justify-between items-center">
                   <span class="text-blue-200/80 flex items-center text-sm">
                     <i class="fas fa-credit-card mr-2"></i>
-                    Método de pago
+                    Método de pago     <!-- Este texto se ve al centro debe ser a la izquierda -->
                   </span>
-                  <span class="text-white font-medium text-sm ml-4">{{ remesa.paymentMethod }}</span>
+                  <span class="text-white font-medium text-sm ml-4">{{ remesa.paymentMethod }}</span>   <!-- Este texto se ve al centro debe ser a la izquierda -->
                 </div>
 
                 <div class="flex justify-between items-center">
@@ -254,7 +254,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRemesaStore } from '../../stores/remesa'
 
 const store = useRemesaStore()
@@ -267,6 +267,19 @@ const showToast = ref(false)
 const toastMessage = ref('')
 const paginaActual = ref(1)
 const itemsPorPagina = 10
+
+// Función para asegurar que la página se muestre desde el inicio
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'instant' // Usamos 'instant' en lugar de 'smooth' para evitar animación
+  })
+}
+
+// Usar onMounted para asegurar que la página se muestre desde el inicio al cargar
+onMounted(() => {
+  scrollToTop()
+})
 
 // Usar los getters del store para las remesas
 const remesasEnProceso = computed(() => store.remesasEnProceso)
@@ -326,6 +339,12 @@ function cancelarRemesa() {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Asegurar que el contenedor principal siempre comience desde arriba */
+.min-h-screen {
+  scroll-behavior: auto;
+  overflow-anchor: none;
+}
+
 /* Ajustes responsivos adicionales */
 @media (min-width: 1280px) {
   .container {
@@ -339,5 +358,11 @@ function cancelarRemesa() {
     padding-left: 3rem;
     padding-right: 3rem;
   }
+}
+
+/* Asegurar que el encabezado siempre sea visible al inicio */
+.scroll-margin-top-0 {
+  scroll-margin-top: 0;
+  scroll-snap-align: start;
 }
 </style>

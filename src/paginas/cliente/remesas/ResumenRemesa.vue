@@ -159,6 +159,7 @@ const handleConfirmar = async () => {
 
     // Emitir evento de confirmación
     emit('confirmado', nuevaRemesa)
+
   } catch (error) {
     console.error('Error al confirmar remesa:', error)
     mostrarToast.value = true
@@ -176,7 +177,7 @@ const irAMisRemesas = () => {
 </script>
 
 <template>
-  <div v-show="store.resumenVisible" class="min-h-screen py-4" :class="{'bg-red-50 dark:bg-red-900/20': remesaEnviada, 'bg-gray-100 dark:bg-gray-900': !remesaEnviada}">
+  <div v-show="store.estado.pasoActual === 4" class="min-h-screen py-4" :class="{'bg-red-50 dark:bg-red-900/20': remesaEnviada, 'bg-gray-100 dark:bg-gray-900': !remesaEnviada}">
     <div id="comprobante-remesa" class="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-4 text-[14px] text-gray-800 dark:text-gray-200 space-y-2">
       <!-- Logo y Encabezado -->
       <div class="text-center border-b border-gray-200 dark:border-gray-700 pb-2">
@@ -352,10 +353,19 @@ const irAMisRemesas = () => {
     <!-- Toast Notification -->
     <div 
       v-if="mostrarToast"
-      class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300"
+      class="fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300"
+      :class="[
+        mensajeToast.includes('Error') 
+          ? 'bg-red-100 border border-red-400 text-red-700' 
+          : 'bg-green-100 border border-green-400 text-green-700'
+      ]"
     >
       <div class="flex items-center">
-        <i class="fas fa-check-circle mr-2"></i>
+        <i :class="[
+          mensajeToast.includes('Error') 
+            ? 'fas fa-exclamation-circle mr-2' 
+            : 'fas fa-check-circle mr-2'
+        ]"></i>
         <span>{{ mensajeToast }}</span>
       </div>
     </div>
