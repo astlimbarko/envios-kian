@@ -31,7 +31,7 @@ const actualizarEstado = (remesa, nuevoEstado) => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="w-full space-y-6">
     <!-- Encabezado -->
     <div class="flex justify-between items-center">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -73,3 +73,11 @@ const actualizarEstado = (remesa, nuevoEstado) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Asegurar que el contenido se ajuste al contenedor */
+.w-full {
+  width: 100%;
+  max-width: 100%;
+}
+</style>

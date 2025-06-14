@@ -32,8 +32,10 @@ onMounted(() => {
       <Sidebar />
 
       <!-- Área de contenido principal -->
-      <main class="flex-1 overflow-y-auto p-6 ml-64 transition-all duration-300">
-        <router-view></router-view>
+      <main class="flex-1 overflow-y-auto p-6 transition-all duration-300 lg:ml-64">
+        <div class="max-w-7xl mx-auto">
+          <router-view></router-view>
+        </div>
       </main>
     </div>
   </div>
@@ -43,7 +45,6 @@ onMounted(() => {
 /* Ajustes para el layout */
 main {
   min-height: calc(100vh - 4rem);
-  margin-left: 16rem; /* 64 = 16rem, ancho del sidebar */
 }
 
 /* Ajuste para móvil */

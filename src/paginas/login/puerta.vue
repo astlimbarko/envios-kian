@@ -17,13 +17,18 @@ import { useRolStore } from '../../stores/rolStore'
 const router = useRouter()
 const rolStore = useRolStore()
 const isLoading = ref(false)
+const lastClickTime = ref(0)
+const DEBOUNCE_TIME = 500 // 500ms de debounce
 
 // Función para manejar el cambio de rol
 const cambiarRol = async (nuevoRol) => {
-  if (isLoading.value) return // Evitar múltiples clics
+  const now = Date.now()
+  if (isLoading.value || (now - lastClickTime.value) < DEBOUNCE_TIME) return
+  
+  lastClickTime.value = now
+  isLoading.value = true
   
   try {
-    isLoading.value = true
     console.log(`[Puerta] Iniciando cambio de rol a: ${nuevoRol}`)
     
     // Actualizar el rol en el store
@@ -53,7 +58,9 @@ const cambiarRol = async (nuevoRol) => {
   } catch (error) {
     console.error('[Puerta] Error al cambiar rol:', error)
   } finally {
-    isLoading.value = false
+    setTimeout(() => {
+      isLoading.value = false
+    }, DEBOUNCE_TIME)
   }
 }
 </script>
@@ -80,7 +87,7 @@ const cambiarRol = async (nuevoRol) => {
         <button 
           @click="cambiarRol('cliente')"
           :disabled="isLoading"
-          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed relative"
         >
           <div class="text-center">
             <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors">
@@ -99,7 +106,7 @@ const cambiarRol = async (nuevoRol) => {
         <button 
           @click="cambiarRol('operador')"
           :disabled="isLoading"
-          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed relative"
         >
           <div class="text-center">
             <div class="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-800 transition-colors">
@@ -118,7 +125,7 @@ const cambiarRol = async (nuevoRol) => {
         <button 
           @click="cambiarRol('gerente')"
           :disabled="isLoading"
-          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed relative"
         >
           <div class="text-center">
             <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-purple-800 transition-colors">
@@ -149,6 +156,8 @@ const cambiarRol = async (nuevoRol) => {
 /* Animaciones suaves para los botones */
 button {
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 button:not(:disabled):hover {
@@ -170,5 +179,10 @@ button:not(:disabled)::after {
 
 button:not(:disabled):hover::after {
   transform: translateX(100%);
+}
+
+/* Prevenir clics múltiples */
+button:disabled {
+  pointer-events: none;
 }
 </style>
