@@ -195,7 +195,7 @@ const handleKeyPress = (event, action) => {
               
               <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                 <div>
-                  <h3 class="font-medium text-gray-900 dark:text-white">Boletín de noticias</h3>
+                  <h3 class="font-medium text-gray-900 dark:text-white">Recibir noticias por correo</h3>
                   <p class="text-gray-600 dark:text-gray-400 text-xs">Mantente al día con nuestras actualizaciones</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
