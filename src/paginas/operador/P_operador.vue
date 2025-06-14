@@ -6,18 +6,27 @@
  */
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRolStore } from '../../stores/rolStore'
+import { useLayoutStore } from '../../stores/layoutStore'
 import Navbar from '../../comun/navbar.vue'
 import Sidebar from '../../comun/sidebar.vue'
 
 const router = useRouter()
 const rolStore = useRolStore()
+const layoutStore = useLayoutStore()
 
+// Configurar listeners de resize al montar el componente
 onMounted(() => {
   console.log('[P_operador] Componente montado')
   console.log('[P_operador] Rol actual:', rolStore.rol)
+  layoutStore.setupResizeListener()
+})
+
+// Limpiar listeners al desmontar
+onUnmounted(() => {
+  layoutStore.cleanupResizeListener()
 })
 </script>
 
