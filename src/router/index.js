@@ -16,7 +16,7 @@ import Contacto from '../paginas/cliente/Contacto.vue'
 import Blog from '../paginas/cliente/Blog.vue'
 
 // Componentes del módulo operador
-import Operador_de_remesas from '../paginas/operador/Operador_de_remesas.vue'
+import Operador_remesas from '../paginas/operador/Operador_remesas.vue'
 import Operador_beneficiarios from '../paginas/operador/Operador_beneficiarios.vue'
 import Operador_usuarios from '../paginas/operador/Operador_usuarios.vue'
 import Operador_soporte from '../paginas/operador/Operador_soporte.vue'
@@ -43,7 +43,7 @@ const router = createRouter({
         {
           path: 'remesas',
           name: 'operador-remesas',
-          component: Operador_de_remesas
+          component: Operador_remesas
         },
         {
           path: 'beneficiarios',

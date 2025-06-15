@@ -9,7 +9,11 @@
  */
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useLayoutStore } from '../../stores/layoutStore'
+
+// Store para el tema
+const layoutStore = useLayoutStore()
 
 // Estado para los modales
 const showEditPhoneModal = ref(false)
@@ -20,8 +24,6 @@ const showEditPasswordModal = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
 const toastType = ref('success')
-
-
 
 // Datos del perfil
 const profile = ref({
@@ -59,15 +61,24 @@ const updatePassword = () => {
   showToastNotification('Contraseña actualizada correctamente')
 }
 
+// Función para cambiar el tema
+const toggleTheme = () => {
+  layoutStore.toggleTheme()
+  showToastNotification('Tema actualizado correctamente')
+}
 
+// Cargar tema guardado al montar el componente
+onMounted(() => {
+  layoutStore.loadTheme()
+})
 </script>
 
 <template>
-  <div class="w-full">
+  <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Configuración de la Cuenta</h1>
       
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="max-w-3xl">
         <!-- Información Personal -->
         <div class="space-y-6">
           <div class="flex items-center space-x-4">
@@ -82,49 +93,56 @@ const updatePassword = () => {
 
           <div class="space-y-4">
             <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-              <div class="flex justify-between items-center">
-                <div>
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex-1 min-w-0">
                   <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Correo electrónico</h3>
-                  <p class="text-gray-900 dark:text-gray-100">{{ profile.email }}</p>
+                  <p class="text-gray-900 dark:text-gray-100 truncate">{{ profile.email }}</p>
                 </div>
                 <button @click="showEditEmailModal = true"
-                        class="text-blue-500 hover:text-blue-600 dark:text-blue-400">
+                        class="text-blue-500 hover:text-blue-600 dark:text-blue-400 flex-shrink-0">
                   <i class="fas fa-edit"></i>
                 </button>
               </div>
             </div>
 
             <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-              <div class="flex justify-between items-center">
-                <div>
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex-1 min-w-0">
                   <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Teléfono</h3>
-                  <p class="text-gray-900 dark:text-gray-100">{{ profile.telefono }}</p>
+                  <p class="text-gray-900 dark:text-gray-100 truncate">{{ profile.telefono }}</p>
                 </div>
                 <button @click="showEditPhoneModal = true"
-                        class="text-blue-500 hover:text-blue-600 dark:text-blue-400">
+                        class="text-blue-500 hover:text-blue-600 dark:text-blue-400 flex-shrink-0">
                   <i class="fas fa-edit"></i>
                 </button>
               </div>
             </div>
 
             <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-              <div class="flex justify-between items-center">
-                <div>
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex-1 min-w-0">
                   <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Contraseña</h3>
                   <p class="text-gray-900 dark:text-white">••••••••</p>
                 </div>
                 <button @click="showEditPasswordModal = true"
-                        class="text-blue-500 hover:text-blue-600 dark:text-blue-400">
+                        class="text-blue-500 hover:text-blue-600 dark:text-blue-400 flex-shrink-0">
                   <i class="fas fa-edit"></i>
                 </button>
               </div>
             </div>
           </div>
         </div>
-
-        
-        
       </div>
+    </div>
+
+    <!-- Toast de notificación -->
+    <div v-if="showToast" 
+         class="fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg transition-all duration-300"
+         :class="{
+           'bg-green-500 text-white': toastType === 'success',
+           'bg-red-500 text-white': toastType === 'error'
+         }">
+      {{ toastMessage }}
     </div>
 
     <!-- Modal Editar Teléfono -->
@@ -261,13 +279,6 @@ const updatePassword = () => {
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div v-if="showToast"
-         class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-fade-in">
-      <i class="fas fa-check-circle"></i>
-      <span>{{ toastMessage }}</span>
     </div>
   </div>
 </template>
