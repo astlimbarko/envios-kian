@@ -163,7 +163,7 @@ const getTipoIcon = (tipo) => {
         <input 
           v-model="filtroOperador"
           type="text" 
-          placeholder="Buscar por operador..." 
+          placeholder="Buscar..." 
           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
         <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>

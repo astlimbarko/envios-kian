@@ -17,7 +17,7 @@ const remesas = ref([
     cliente: 'Juan Pérez',
     beneficiario: 'María García',
     monto: 1500,
-    moneda: 'SEK',
+    moneda: 'BOB',
     estado: 'pendiente',
     fechaCreacion: '2024-03-20 15:30',
     fechaProcesamiento: null,
@@ -51,7 +51,7 @@ const remesas = ref([
     cliente: 'Ana Martínez',
     beneficiario: 'Pedro López',
     monto: 2000,
-    moneda: 'SEK',
+    moneda: 'BOB',
     estado: 'pendiente',
     fechaCreacion: '2024-03-20 14:45',
     fechaProcesamiento: '2024-03-20 15:00',
@@ -84,7 +84,7 @@ const remesas = ref([
     cliente: 'Roberto Díaz',
     beneficiario: 'Sofía Ruiz',
     monto: 3000,
-    moneda: 'SEK',
+    moneda: 'BOB',
     estado: 'completada',
     fechaCreacion: '2024-03-20 13:30',
     fechaProcesamiento: '2024-03-20 14:00',
@@ -598,11 +598,11 @@ const cerrarPestana = (id) => {
           <table class="min-w-full divide-y divide-green-100 dark:divide-green-800">
             <thead class="bg-green-100 dark:bg-green-800">
               <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-green-700 dark:text-green-200 uppercase tracking-wider">Remesa</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-green-700 dark:text-green-200 uppercase tracking-wider">Beneficiario</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-green-700 dark:text-green-200 uppercase tracking-wider">Monto</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-green-700 dark:text-green-200 uppercase tracking-wider">Estado</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-green-700 dark:text-green-200 uppercase tracking-wider">Fecha</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-green-700 dark:text-green-200 uppercase tracking-wider">Remesa</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-green-700 dark:text-green-200 uppercase tracking-wider">Beneficiario</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-green-700 dark:text-green-200 uppercase tracking-wider">Monto</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-green-700 dark:text-green-200 uppercase tracking-wider">Estado</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-green-700 dark:text-green-200 uppercase tracking-wider">Fecha</th>
               </tr>
             </thead>
             <tbody class="bg-green-50 dark:bg-green-900 divide-y divide-green-100 dark:divide-green-800">
@@ -637,16 +637,17 @@ const cerrarPestana = (id) => {
           <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
             <thead class="bg-gray-100 dark:bg-gray-800">
               <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Remesa</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Beneficiario</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Monto</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Fecha Completada</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Remesa</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Beneficiario</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Monto</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Fecha Completada</th>
               </tr>
             </thead>
             <tbody class="bg-gray-50 dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
               <tr v-for="remesa in remesasCompletadas" 
                   :key="remesa.id"
-                  class="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                  @click="verDetalle(remesa)"
+                  class="hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors">
                 <td class="px-3 py-2 whitespace-nowrap">
                   <div class="text-sm font-medium text-gray-900 dark:text-gray-200">{{ remesa.numero }}</div>
                 </td>
